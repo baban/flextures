@@ -17,8 +17,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "flextures"
   gem.homepage = "http://github.com/baban/flextures"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{load and dump fixtures}
+  gem.description = %Q{load and dump fixtures}
   gem.email = "babanba.n@gmail.com"
   gem.authors = ["baban"]
   # dependencies defined in Gemfile
@@ -51,3 +51,5 @@ Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
+
+
