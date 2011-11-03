@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
     "README.rdoc",
     "Rakefile",
     "VERSION",
+    "flextures.gemspec",
     "init.rb",
     "lib/flextures.rb",
     "lib/flextures_base_config.rb",
