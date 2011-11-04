@@ -1,5 +1,19 @@
 # encoding: utf-8
 
+require 'ostruct'
+require 'csv'
+
+# 基本設定
+require 'flextures_base_config'
+require 'flextures'
+require 'flextures_extension_modules'
+require 'flextures_factory'
+require 'rspec_flextures_support.rb'
+# 上書き設定ファイルの読み出し
+#load    "#{Rails.root.to_path}/config/flextures.config.rb"
+# factory設定
+#load    "#{Rails.root.to_path}/config/flextures.factory.rb"
+
 module Flextures
   LOAD_DIR = Config.fixture_load_directory
   DUMP_DIR = Config.fixture_dump_directory
@@ -190,7 +204,7 @@ module Flextures
       # 自動補完が必要なはずのカラム
       lack_columns = columns.select { |c| !c.null and !c.default }.map &:name
       # ハッシュを受け取って、必要な値に加工してからハッシュで返す
-      ->(h){
+      return->(h){
         h.select! { |k,v| column_hash[k] } # テーブルに存在しないキーが定義されているときは削除
         # 値がnilでないなら型をDBで適切なものに変更
         h.each{ |k,v| nil==v || h[k] = TRANSLATER[column_hash[k].type].call(v) }

@@ -19,9 +19,12 @@ Rails標準のfixtureの不満点を解消するために作成しました
 
 == インストール方法
 
-RailsのPlug-inとして実装されていますので
-ダウンロードしたファイルを
-vendor/plugin 以下に設置してください
+RailsのPlug-inとして使われることを想定しています
+gem化されているので、bundlerで次のように記述して、普通にbundle install してください
+
+ gem "flextures"
+
+ちなみに開発環境はruby1.9.2、rails3環境を想定しています
 
 == 使い方
 
@@ -47,12 +50,12 @@ Usersモデルのfixture(users.csvか　users.yml)をロードする
 その他オプションは以下のとおりな感じです:
 
  TABLE : テーブル名を指定してロード。テーブル名はカンマ切りで複数指定が可能
- T : TABLEのエイリアス
  MODEL : モデル名を指定してロード。モデル名はカンマ区切りで複数指定が可能
- M : モデル名指定のエイリアス
  DIR : フィクスチャをロード＆ダンプするディレクトリを指定する
- D : ディレクトリ指定のエイリアス
  FILE : ロード、ダンプをするファイル名をRails標準以外のもので直接指定(Userモデルのusers.csv以外を指定)
+ T : TABLEのエイリアス
+ M : モデル名指定のエイリアス
+ D : ディレクトリ指定のエイリアス
  F : ファイル名指定のエイリアス
 
 yamlのファイルはロードしたいけどcsvはロードをしたくない
@@ -85,6 +88,7 @@ RSpec中でfixtures関数の代わりにfixtureのロード機能を使えます
 Railsのプロジェクトに config/flextures.factory.rb というファイルを作成して、そこにフィルタを記述することによって
 フィクスチャの読み込み時に、値を加工して読み込む事が可能になっています
 例えば、次の様に記述するとusersテーブルのlast_login_dateの値を、常に現在の時間として設定できます
+
 
  Flextures::Factory.define :users do |f| 
    f.last_login_date = DateTime.now
