@@ -28,6 +28,7 @@ Gem::Specification.new do |s|
     "VERSION",
     "flextures.gemspec",
     "init.rb",
+    "flextures.rb",
     "lib/flextures.rb",
     "lib/flextures_base_config.rb",
     "lib/flextures_extension_modules.rb",

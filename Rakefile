@@ -53,38 +53,3 @@ Rake::RDocTask.new do |rdoc|
   rdoc.options = ["--charset", "utf-8", "--line-numbers"] 
 end
 
-namespace :db do
-  namespace :flextures do
-    desc "Load fixture datas fixtures directory"
-    task :load => :environment do
-      Flextures::ARGS.parse.each { |fmt| Flextures::Loader::load(fmt) }
-    end
-
-    desc "Load fixture datas fixtures directory onlu csv file"
-    task :csvload => :environment do
-      Flextures::ARGS.parse.each { |fmt| Flextures::Loader::csv(fmt) }
-    end
-
-    desc "Load fixture datas fixtures directory onlu yaml file"
-    task :ymlload => :environment do
-      Flextures::ARGS::parse.each { |fmt| Flextures::Loader::yml(fmt) }
-    end
-
-    desc "Dump data to the fixtures directory"
-    task :dump => :environment do
-      Flextures::ARGS.parse.each { |fmt| Flextures::Dumper::csv(fmt) }
-    end
-
-    desc "Dump data to the fixtures directory csv format"
-    task :csvdump => :environment do
-      Flextures::ARGS.parse.each { |fmt| Flextures::Dumper::csv(fmt) }
-    end
-
-    desc "Dump data to the fixtures directory yaml format"
-    task :ymldump => :environment do
-      Flextures::ARGS.parse.each { |fmt| Flextures::Dumper::yml(fmt) }
-    end
-
-  end
-end
-
