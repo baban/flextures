@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-# Rspec¤ÎÆâÉô¤Çflextures´Ø¿ô¤ò»È¤¨¤ëÍÍ¤Ë¤¹¤ë
+# Rspecã®å†…éƒ¨ã§flexturesé–¢æ•°ã‚’ä½¿ãˆã‚‹æ§˜ã«ã™ã‚‹
 module RSpec
   module Core
     module Hooks

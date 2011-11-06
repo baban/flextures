@@ -1,15 +1,23 @@
 # encoding: utf-8
 
+require 'ostruct'
+require 'csv'
+
+require 'flextures/flextures_base_config'
+require 'flextures/flextures_extension_modules'
+require 'flextures/flextures'
+require 'flextures/flextures_factory'
+
 module Flextures
-  # ¥í¡¼¥É¤¹¤ë¥Ç¡¼¥¿¤òÉ¬Í×¤Ë±ş¤¸¤Æ²Ã¹©¤¹¤ë
+  # ãƒ­ãƒ¼ãƒ‰ã™ã‚‹ãƒ‡ãƒ¼ã‚¿ã‚’å¿…è¦ã«å¿œã˜ã¦åŠ å·¥ã™ã‚‹
   class Factory
     FACTORIES={}
-    # Factory ¤òÄêµÁ
+    # Factory ã‚’å®šç¾©
     def self.define table_name, &block
       FACTORIES[table_name.to_sym]=block
     end
 
-    # Factory¤ò¼èÆÀ
+    # Factoryã‚’å–å¾—
     def self.get table_name
       FACTORIES[table_name.to_sym]
     end

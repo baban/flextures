@@ -3,23 +3,20 @@
 require 'ostruct'
 require 'csv'
 
-# Šî–{İ’è
-require 'flextures_base_config'
-require 'flextures'
-require 'flextures_extension_modules'
-require 'flextures_factory'
-require 'rspec_flextures_support.rb'
-# ã‘‚«İ’èƒtƒ@ƒCƒ‹‚Ì“Ç‚İo‚µ
-#load    "#{Rails.root.to_path}/config/flextures.config.rb"
-# factoryİ’è
-#load    "#{Rails.root.to_path}/config/flextures.factory.rb"
+require 'flextures/flextures_base_config'
+require 'flextures/flextures_extension_modules'
+require 'flextures/flextures_factory'
+require 'flextures/rspec_flextures_support.rb' if defined?(RSpec)
+load    "#{Rails.root.to_path}/config/flextures.config.rb"  if defined?(Rails) and Rails.root
+load    "#{Rails.root.to_path}/config/flextures.factory.rb" if defined?(Rails) and Rails.root
 
 module Flextures
   LOAD_DIR = Config.fixture_load_directory
   DUMP_DIR = Config.fixture_dump_directory
-  # ˆø”‰ğÍ
+
+  # å¼•æ•°è§£æ
   module ARGS
-    # ‘‚«o‚µE“Ç‚İ‚İ ‚·‚×‚«ƒtƒ@ƒCƒ‹‚ÆƒIƒvƒVƒ‡ƒ“‚ğ‘‚«‚¾‚·
+    # æ›¸ãå‡ºã—ãƒ»èª­ã¿è¾¼ã¿ ã™ã¹ããƒ•ã‚¡ã‚¤ãƒ«ã¨ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’æ›¸ãã ã™
     def self.parse option={}
       table_names = ""
       table_names = ENV["TABLE"].split(",") if ENV["TABLE"]
@@ -29,20 +26,20 @@ module Flextures
       table_names = ActiveRecord::Base.connection.tables if ""==table_names
       table_names = table_names.map{ |name| { table: name } }
       table_names = table_names.map{ |option| option.merge dir: ENV["DIR"] } if ENV["DIR"]
-      table_names.first[:file]= ENV["FILE"] if ENV["FILE"] # ƒtƒ@ƒCƒ‹–¼‚ÍÅ‰‚Ì‚à‚Ì‚µ‚©w’è‚Å‚«‚È‚¢
+      table_names.first[:file]= ENV["FILE"] if ENV["FILE"] # ãƒ•ã‚¡ã‚¤ãƒ«åã¯æœ€åˆã®ã‚‚ã®ã—ã‹æŒ‡å®šã§ããªã„
       table_names.first[:file]= ENV["F"] if ENV["F"]
-      # read mode ‚¾‚Æcsv‚àyaml‘¶İ‚µ‚È‚¢ƒtƒ@ƒCƒ‹‚Í•Ô‚³‚È‚¢
+      # read mode ã ã¨csvã‚‚yamlå­˜åœ¨ã—ãªã„ãƒ•ã‚¡ã‚¤ãƒ«ã¯è¿”ã•ãªã„
       table_names.select! &exist if option[:mode] && option[:mode].to_sym == :read 
       table_names
     end
 
-    # ‘¶İ‚µ‚Ä‚¢‚éƒtƒ@ƒCƒ‹‚Åi‚è‚Ş@    
+    # å­˜åœ¨ã—ã¦ã„ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«ã§çµã‚Šè¾¼ã‚€ã€€    
     def self.exist
       return->(name){ File.exists?("#{LOAD_DIR}#{name}.csv") or File.exists?("#{LOAD_DIR}#{name}.yml") }
     end
   end
   
-  # ƒe[ƒuƒ‹ƒ‚ƒfƒ‹‚Ìì¬
+  # ãƒ†ãƒ¼ãƒ–ãƒ«ãƒ¢ãƒ‡ãƒ«ã®ä½œæˆ
   def self.create_model table_name
     klass = Class.new ActiveRecord::Base
     klass.table_name=table_name
@@ -52,7 +49,7 @@ module Flextures
   module Dumper
     PARENT = Flextures
 
-    # “KØ‚ÈŒ^‚É•ÏŠ·
+    # é©åˆ‡ãªå‹ã«å¤‰æ›
     def self.trans v
       case v
         when true;  1
@@ -61,7 +58,7 @@ module Flextures
       end
     end
 
-    # csv ‚Å fixtures ‚ğ dump 
+    # csv ã§ fixtures ã‚’ dump 
     def self.csv format
       table_name = format[:table]
       file_name = format[:file] || table_name
@@ -78,7 +75,7 @@ module Flextures
       end
     end
 
-    # yaml ‚Å fixtures ‚ğ dump 
+    # yaml ã§ fixtures ã‚’ dump 
     def self.yml format
       table_name = format[:table]
       file_name = format[:file] || table_name
@@ -89,10 +86,10 @@ module Flextures
 
       File.open(outfile,"w") do |f|
         klass.all.each_with_index do |row,idx| 
-          f<< "#{table_name}_#{idx}:\n" +
+          f<< "#{table_name}_#{idx}:Â¥n" +
             attributes.map { |column|
               v = trans row.send(column)
-              "  #{column}: #{v}\n"
+              "  #{column}: #{v}Â¥n"
             }.join
         end
       end
@@ -102,7 +99,7 @@ module Flextures
   module Loader 
     PARENT = Flextures
 
-    # Œ^‚É‰‚¶‚ÄŸè‚Édefault’l‚ğİ’è‚·‚é
+    # å‹ã«å¿œã˜ã¦å‹æ‰‹ã«defaultå€¤ã‚’è¨­å®šã™ã‚‹
     COMPLETER = {
       binary:->{ 0 },
       boolean:->{ false },
@@ -116,7 +113,7 @@ module Flextures
       time:->{ DateTime.now },
       timestamp:->{ DateTime.now },
     }
-    # Œ^‚Ì•ÏŠ·‚ğs‚¤
+    # å‹ã®å¤‰æ›ã‚’è¡Œã†
     TRANSLATER = {
       binary:->(d){ d.to_i },
       boolean:->(d){ (0==d || ""==d || !d) ? false : true },
@@ -131,7 +128,7 @@ module Flextures
       timestamp:->(d){ DateTime.parse(d.to_s) },
     }
 
-    # csv —Dæ‚Å‘¶İ‚µ‚Ä‚¢‚é fixtures ‚ğƒ[ƒh
+    # csv å„ªå…ˆã§å­˜åœ¨ã—ã¦ã„ã‚‹ fixtures ã‚’ãƒ­ãƒ¼ãƒ‰
     def self.load format
       file_name = format[:file] || format[:table]
       dir_name = format[:dir] || LOAD_DIR
@@ -141,18 +138,18 @@ module Flextures
       self::send(method, format) if method
     end
 
-    # fixtures‚ğ‚Ü‚Æ‚ß‚Äƒ[ƒhAå‚ÉƒeƒXƒgtest/unit, rspec ‚Åg—p‚·‚é    
+    # fixturesã‚’ã¾ã¨ã‚ã¦ãƒ­ãƒ¼ãƒ‰ã€ä¸»ã«ãƒ†ã‚¹ãƒˆtest/unit, rspec ã§ä½¿ç”¨ã™ã‚‹    
     def self.flextures *fixtures
-       # :all‚Å‚·‚×‚Ä‚Ìfixture‚ğ”½‰f
+       # :allã§ã™ã¹ã¦ã®fixtureã‚’åæ˜ 
       fixtures = ActiveRecord::Base.connection.tables if fixtures.size== 1 and :all == fixtures.first
       
-      fixtures_hash = fixtures.pop if fixtures.last and fixtures.last.is_a? Hash # ƒnƒbƒVƒ…æ‚èo‚µ
+      fixtures_hash = fixtures.pop if fixtures.last and fixtures.last.is_a? Hash # ãƒãƒƒã‚·ãƒ¥å–ã‚Šå‡ºã—
       fixtures.each{ |table_name| Flextures::Loader::load table: table_name }
       fixtures_hash.each{ |k,v| Flextures::Loader::load table: k, file: v } if fixtures_hash
       fixtures
     end
 
-    # CSV‚Ìƒf[ƒ^‚ğƒ[ƒh‚·‚é
+    # CSVã®ãƒ‡ãƒ¼ã‚¿ã‚’ãƒ­ãƒ¼ãƒ‰ã™ã‚‹
     def self.csv format
       table_name = format[:table].to_s
       file_name = format[:file] || table_name
@@ -165,7 +162,7 @@ module Flextures
       #filter2 = create_filter2 klass.columns, Factory[table_name]
       klass.delete_all
       CSV.open( inpfile ) do |csv|
-        keys = csv.shift # key‚Ìİ’è
+        keys = csv.shift # keyã®è¨­å®š
         warning "CSV", attributes, keys
         csv.each do |values|
           klass.create filter.call values.extend(Extensions::Array).to_hash(keys)
@@ -173,7 +170,7 @@ module Flextures
       end
     end
 
-    # YAMLŒ`®‚Åƒf[ƒ^‚ğƒ[ƒh‚·‚é
+    # YAMLå½¢å¼ã§ãƒ‡ãƒ¼ã‚¿ã‚’ãƒ­ãƒ¼ãƒ‰ã™ã‚‹
     def self.yml format
       table_name = format[:table].to_s
       file_name = format[:file] || table_name
@@ -190,29 +187,29 @@ module Flextures
       end
     end
     
-    # Œ‡‚¯‚½ƒJƒ‰ƒ€‚ğŒŸ’m‚µ‚ÄƒƒbƒZ[ƒW‚ğo‚µ‚Ä‚¨‚­
+    # æ¬ ã‘ãŸã‚«ãƒ©ãƒ ã‚’æ¤œçŸ¥ã—ã¦ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’å‡ºã—ã¦ãŠã
     def self.warning format, attributes, keys
-      (attributes-keys).each { |name| print "Warning: #{format} colum is missing! [#{name}]\n" }
-      (keys-attributes).each { |name| print "Warning: #{format} colum is left over! [#{name}]\n" }
+      (attributes-keys).each { |name| print "Warning: #{format} colum is missing! [#{name}]Â¥n" }
+      (keys-attributes).each { |name| print "Warning: #{format} colum is left over! [#{name}]Â¥n" }
     end
 
-    # ƒtƒBƒNƒXƒ`ƒƒ‚©‚çæ‚èo‚µ‚½’l‚ğA‰ÁH‚µ‚Ä—~‚µ‚¢ƒf[ƒ^‚É‚·‚éƒtƒBƒ‹ƒ^‚ğì¬‚µ‚Ä•Ô‚·
+    # ãƒ•ã‚£ã‚¯ã‚¹ãƒãƒ£ã‹ã‚‰å–ã‚Šå‡ºã—ãŸå€¤ã‚’ã€åŠ å·¥ã—ã¦æ¬²ã—ã„ãƒ‡ãƒ¼ã‚¿ã«ã™ã‚‹ãƒ•ã‚£ãƒ«ã‚¿ã‚’ä½œæˆã—ã¦è¿”ã™
     def self.create_filter columns, factory=nil
-      # ƒe[ƒuƒ‹‚©‚çƒJƒ‰ƒ€î•ñ‚ğæ‚èo‚µ
+      # ãƒ†ãƒ¼ãƒ–ãƒ«ã‹ã‚‰ã‚«ãƒ©ãƒ æƒ…å ±ã‚’å–ã‚Šå‡ºã—
       column_hash = {}
       columns.each { |col| column_hash[col.name] = col }
-      # ©“®•âŠ®‚ª•K—v‚È‚Í‚¸‚ÌƒJƒ‰ƒ€
+      # è‡ªå‹•è£œå®ŒãŒå¿…è¦ãªã¯ãšã®ã‚«ãƒ©ãƒ 
       lack_columns = columns.select { |c| !c.null and !c.default }.map &:name
-      # ƒnƒbƒVƒ…‚ğó‚¯æ‚Á‚ÄA•K—v‚È’l‚É‰ÁH‚µ‚Ä‚©‚çƒnƒbƒVƒ…‚Å•Ô‚·
+      # ãƒãƒƒã‚·ãƒ¥ã‚’å—ã‘å–ã£ã¦ã€å¿…è¦ãªå€¤ã«åŠ å·¥ã—ã¦ã‹ã‚‰ãƒãƒƒã‚·ãƒ¥ã§è¿”ã™
       return->(h){
-        h.select! { |k,v| column_hash[k] } # ƒe[ƒuƒ‹‚É‘¶İ‚µ‚È‚¢ƒL[‚ª’è‹`‚³‚ê‚Ä‚¢‚é‚Æ‚«‚Ííœ
-        # ’l‚ªnil‚Å‚È‚¢‚È‚çŒ^‚ğDB‚Å“KØ‚È‚à‚Ì‚É•ÏX
+        h.select! { |k,v| column_hash[k] } # ãƒ†ãƒ¼ãƒ–ãƒ«ã«å­˜åœ¨ã—ãªã„ã‚­ãƒ¼ãŒå®šç¾©ã•ã‚Œã¦ã„ã‚‹ã¨ãã¯å‰Šé™¤
+        # å€¤ãŒnilã§ãªã„ãªã‚‰å‹ã‚’DBã§é©åˆ‡ãªã‚‚ã®ã«å¤‰æ›´
         h.each{ |k,v| nil==v || h[k] = TRANSLATER[column_hash[k].type].call(v) }
-        # FactoryFilter‚ğ“®ì‚³‚¹‚é
+        # FactoryFilterã‚’å‹•ä½œã•ã›ã‚‹
         st = OpenStruct.new(h)
         factory.call(st) if factory
         h = st.to_hash
-        # ’l‚ªnil‚Ì—ñ‚ÉƒfƒtƒHƒ‹ƒg’l‚ğ•âŠÔ
+        # å€¤ãŒnilã®åˆ—ã«ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ã‚’è£œé–“
         lack_columns.each { |k| nil==h[k] && h[k] = COMPLETER[column_hash[k].type].call }
         h
       }

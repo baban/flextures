@@ -1,13 +1,16 @@
 # encoding: utf-8
 
+require 'ostruct'
+require 'csv'
+
 module Flextures
-  # Plug-in “à•”Šg’£
+  # Plug-in å†…éƒ¨æ‹¡å¼µ
   class OpenStruct < ::OpenStruct
-    # hash‚É•Ï‰»‚³‚¹‚é
+    # hashã«å¤‰åŒ–ã•ã›ã‚‹
     def to_hash
       h={}
       (self.methods - OpenStruct.new.methods)
-        .select{ |name| name.match(/\w+=/) }
+        .select{ |name| name.match(/Â¥w+=/) }
         .map{ |name| name.to_s.gsub(/=/,'').to_sym }
         .each{ |k| h[k]=self.send(k) }
         h

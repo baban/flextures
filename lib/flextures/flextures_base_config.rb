@@ -1,13 +1,13 @@
 # encoding: utf-8
 
-# 基本設定を記述する
+# 蝓ｺ譛ｬ險ｭ螳壹ｒ險倩ｿｰ縺吶ｋ
 module Flextures
   module Config
     @@configs={
       fixture_load_directory: "spec/fixtures/",
       fixture_dump_directory: "spec/fixtures/",
     }
-    # ハッシュをsetter、getterに変換
+    # 繝上ャ繧ｷ繝･繧痴etter縲“etter縺ｫ螟画鋤
     class<< self
       @@configs.each do |setting_key, setting_value|
         define_method setting_key do @@configs[setting_key] end
