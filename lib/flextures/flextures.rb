@@ -16,7 +16,7 @@ module Flextures
 
   # 引数解析
   module ARGS
-    # 書き出し・読み込み すべきファイルとオプションを書きだす
+    # 書き出し 、読み込み すべきファイルとオプションを書きだす
     def self.parse option={}
       table_names = ""
       table_names = ENV["TABLE"].split(",") if ENV["TABLE"]
@@ -86,10 +86,10 @@ module Flextures
 
       File.open(outfile,"w") do |f|
         klass.all.each_with_index do |row,idx| 
-          f<< "#{table_name}_#{idx}:¥n" +
+          f<< "#{table_name}_#{idx}\n" +
             attributes.map { |column|
               v = trans row.send(column)
-              "  #{column}: #{v}¥n"
+              "  #{column}: #{v}\n"
             }.join
         end
       end
@@ -189,8 +189,8 @@ module Flextures
     
     # 欠けたカラムを検知してメッセージを出しておく
     def self.warning format, attributes, keys
-      (attributes-keys).each { |name| print "Warning: #{format} colum is missing! [#{name}]¥n" }
-      (keys-attributes).each { |name| print "Warning: #{format} colum is left over! [#{name}]¥n" }
+      (attributes-keys).each { |name| print "Warning: #{format} colum is missing! [#{name}]\n" }
+      (keys-attributes).each { |name| print "Warning: #{format} colum is left over! [#{name}]\n" }
     end
 
     # フィクスチャから取り出した値を、加工して欲しいデータにするフィルタを作成して返す
