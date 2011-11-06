@@ -9,11 +9,11 @@ module Flextures
     # hashに変化させる
     def to_hash
       h={}
-      (self.methods - OpenStruct.new.methods)
-        .select{ |name| name.match(/¥w+=/) }
+      (self.methods - ::OpenStruct.new.methods)
+        .select{ |name| name.to_s.match(/\w+=/) }
         .map{ |name| name.to_s.gsub(/=/,'').to_sym }
         .each{ |k| h[k]=self.send(k) }
-        h
+      h
     end
   end
 

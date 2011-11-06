@@ -7,8 +7,6 @@ require 'flextures/flextures_base_config'
 require 'flextures/flextures_extension_modules'
 require 'flextures/flextures_factory'
 require 'flextures/rspec_flextures_support.rb' if defined?(RSpec)
-load    "#{Rails.root.to_path}/config/flextures.config.rb"  if defined?(Rails) and Rails.root
-load    "#{Rails.root.to_path}/config/flextures.factory.rb" if defined?(Rails) and Rails.root
 
 module Flextures
   LOAD_DIR = Config.fixture_load_directory
@@ -18,6 +16,9 @@ module Flextures
   module ARGS
     # 書き出し 、読み込み すべきファイルとオプションを書きだす
     def self.parse option={}
+      load "#{Rails.root.to_path}/config/flextures.config.rb"  if defined?(Rails) and Rails.root
+      load "#{Rails.root.to_path}/config/flextures.factory.rb" if defined?(Rails) and Rails.root
+      
       table_names = ""
       table_names = ENV["TABLE"].split(",") if ENV["TABLE"]
       table_names = ENV["T"].split(",") if ENV["T"]
@@ -86,7 +87,7 @@ module Flextures
 
       File.open(outfile,"w") do |f|
         klass.all.each_with_index do |row,idx| 
-          f<< "#{table_name}_#{idx}\n" +
+          f<< "#{table_name}_#{idx}:\n" +
             attributes.map { |column|
               v = trans row.send(column)
               "  #{column}: #{v}\n"
@@ -113,6 +114,7 @@ module Flextures
       time:->{ DateTime.now },
       timestamp:->{ DateTime.now },
     }
+    
     # 型の変換を行う
     TRANSLATER = {
       binary:->(d){ d.to_i },
