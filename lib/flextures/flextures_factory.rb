@@ -1,13 +1,5 @@
 # encoding: utf-8
 
-require 'ostruct'
-require 'csv'
-
-require 'flextures/flextures_base_config'
-require 'flextures/flextures_extension_modules'
-require 'flextures/flextures'
-require 'flextures/flextures_factory'
-
 module Flextures
   # ロードするデータを必要に応じて加工する
   class Factory

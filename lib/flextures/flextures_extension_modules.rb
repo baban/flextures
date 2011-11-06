@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 require 'ostruct'
-require 'csv'
 
 module Flextures
   # Plug-in 内部拡張

@@ -6,7 +6,6 @@ require 'csv'
 require 'flextures/flextures_base_config'
 require 'flextures/flextures_extension_modules'
 require 'flextures/flextures_factory'
-require 'flextures/rspec_flextures_support.rb' if defined?(RSpec)
 
 module Flextures
   LOAD_DIR = Config.fixture_load_directory
@@ -161,7 +160,6 @@ module Flextures
       klass = PARENT::create_model table_name
       attributes = klass.columns.map &:name
       filter = create_filter klass.columns, Factory[table_name]
-      #filter2 = create_filter2 klass.columns, Factory[table_name]
       klass.delete_all
       CSV.open( inpfile ) do |csv|
         keys = csv.shift # keyの設定
@@ -202,7 +200,7 @@ module Flextures
       columns.each { |col| column_hash[col.name] = col }
       # 自動補完が必要なはずのカラム
       lack_columns = columns.select { |c| !c.null and !c.default }.map &:name
-      # ハッシュを受け取って、必要な値に加工してからハッシュで返す
+      # ハッシュを受け取って、必要な値に加工してからハッシュで返すラムダを返す
       return->(h){
         h.select! { |k,v| column_hash[k] } # テーブルに存在しないキーが定義されているときは削除
         # 値がnilでないなら型をDBで適切なものに変更
