@@ -11,13 +11,27 @@ module Flextures
   LOAD_DIR = Config.fixture_load_directory
   DUMP_DIR = Config.fixture_dump_directory
 
+  # テーブルモデルの作成
+  def self.create_model table_name
+    klass = Class.new ActiveRecord::Base
+    klass.table_name=table_name
+    klass
+  end
+  
+  def self.init_load
+    if defined?(Rails) and Rails.root
+      [
+        "#{Rails.root.to_path}/config/flextures.config.rb",
+        "#{Rails.root.to_path}/config/flextures.factory.rb",
+      ].each { |fn| load(fn) if File.exist?(fn) }
+    end
+  end
+
   # 引数解析
   module ARGS
     # 書き出し 、読み込み すべきファイルとオプションを書きだす
     def self.parse option={}
-      load "#{Rails.root.to_path}/config/flextures.config.rb"  if defined?(Rails) and Rails.root
-      load "#{Rails.root.to_path}/config/flextures.factory.rb" if defined?(Rails) and Rails.root
-      
+      Flextures::init_load
       table_names = ""
       table_names = ENV["TABLE"].split(",") if ENV["TABLE"]
       table_names = ENV["T"].split(",") if ENV["T"]
@@ -37,13 +51,6 @@ module Flextures
     def self.exist
       return->(name){ File.exists?("#{LOAD_DIR}#{name}.csv") or File.exists?("#{LOAD_DIR}#{name}.yml") }
     end
-  end
-  
-  # テーブルモデルの作成
-  def self.create_model table_name
-    klass = Class.new ActiveRecord::Base
-    klass.table_name=table_name
-    klass
   end
   
   module Dumper
@@ -141,12 +148,13 @@ module Flextures
 
     # fixturesをまとめてロード、主にテストtest/unit, rspec で使用する    
     def self.flextures *fixtures
-       # :allですべてのfixtureを反映
+      PARENT::init_load
+      # :allですべてのfixtureを反映
       fixtures = ActiveRecord::Base.connection.tables if fixtures.size== 1 and :all == fixtures.first
       
       fixtures_hash = fixtures.pop if fixtures.last and fixtures.last.is_a? Hash # ハッシュ取り出し
-      fixtures.each{ |table_name| Flextures::Loader::load table: table_name }
-      fixtures_hash.each{ |k,v| Flextures::Loader::load table: k, file: v } if fixtures_hash
+      fixtures.each{ |table_name| Loader::load table: table_name }
+      fixtures_hash.each{ |k,v| Loader::load table: k, file: v } if fixtures_hash
       fixtures
     end
 

@@ -6,3 +6,5 @@ require 'flextures/flextures'
 require 'flextures/flextures_factory'
 require 'flextures/flextures_railtie' if defined? Rails
 require 'flextures/rspec_flextures_support'
+require 'flextures/testunit_flextures_support'
+
