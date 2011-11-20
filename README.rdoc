@@ -30,7 +30,7 @@ gem化されているので、bundlerで次のように記述して、普通にb
 
 === rakeコマンド
 
-次のコマンドでfixturesspec/fixtures/ 以下にあるfixtureのロード＆ダンプを行います
+次のコマンドで spec/fixtures/ 以下にあるfixtureのロード＆ダンプを行います
 (ディレクトリは設定ファイルで変更可能)
 
  rake db:flextures:load
@@ -97,5 +97,17 @@ Railsのプロジェクトに config/flextures.factory.rb というファイル�
 カラムのデータとかを、適当に補完する機能があるので
 Faker等のデータ生成系のライブラリと組み合わせて必要なデータだけ自動生成すると
 今までより若干捗るかもしれません
+
+=== 設定ファイル
+
+config/flextures.config.rb　で設定ファイルを作成すると、データをロード＆ダンプするディレクトリなどの設定を変更できます
+
+ # config/flextures.config.rb
+ module Flextures
+   # test/fixtures/ のフィクスチャを読み出したい場合は吐き出しディレクトリの値を上書きする
+   Config.fixture_load_directory = "test/fixtures/"
+   Config.fixture_dump_directory = "test/fixtures/"
+ end
+
 
 
