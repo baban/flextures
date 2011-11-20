@@ -24,7 +24,7 @@ gem化されているので、bundlerで次のように記述して、普通にb
 
  gem "flextures"
 
-ちなみに開発環境はruby1.9.2、rails3環境を想定しています
+ちなみに開発環境はruby1.9系、rails3環境を想定しています
 
 == 使い方
 
@@ -92,4 +92,10 @@ Railsのプロジェクトに config/flextures.factory.rb というファイル�
  Flextures::Factory.define :users do |f| 
    f.last_login_date = DateTime.now
  end
+
+テーブルにdefaultとか設定していなくても
+カラムのデータとかを、適当に補完する機能があるので
+Faker等のデータ生成系のライブラリと組み合わせて必要なデータだけ自動生成すると
+今までより若干捗るかもしれません
+
 
