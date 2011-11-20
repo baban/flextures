@@ -40,8 +40,8 @@ module Flextures
       table_names = ActiveRecord::Base.connection.tables if ""==table_names
       table_names = table_names.map{ |name| { table: name } }
       table_names = table_names.map{ |option| option.merge dir: ENV["DIR"] } if ENV["DIR"]
-      table_names.first[:file]= ENV["FIXTURES"] if ENV["FIXTURES"] # ファイル名は最初のものしか指定できない
-      table_names.first[:file]= ENV["F"] if ENV["F"]
+      table_names.first[:file] = ENV["FIXTURES"] if ENV["FIXTURES"] # ファイル名は最初のものしか指定できない
+      table_names.first[:file] = ENV["F"] if ENV["F"]
       # read mode だとcsvもyaml存在しないファイルは返さない
       table_names.select! &exist if option[:mode] && option[:mode].to_sym == :read 
       table_names
@@ -53,6 +53,7 @@ module Flextures
     end
   end
   
+  # データを吐き出す処理をまとめる  
   module Dumper
     PARENT = Flextures
 
@@ -103,6 +104,7 @@ module Flextures
     end
   end
 
+  # Dumperと違ってデータの吐き出し処理をまとめたクラス
   module Loader 
     PARENT = Flextures
 
@@ -222,7 +224,6 @@ module Flextures
         h
       }
     end
-
   end
 end
 
