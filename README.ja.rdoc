@@ -1,0 +1,113 @@
+= flextures
+
+== Abstruct
+
+このplug-inは、これまで開発中で溜まっていた
+Rails標準のfixtureの不満点を解消するために作成しました
+基本的な操作は単純で次のコマンドで
+それぞれfixtureのロードとダンプを行います
+
+ rake db:flextures:load
+ rake db:flextures:dump
+
+通常のfixtureとの主な違いは次の４点です
+
+1. yamlよりもcsvを優先する
+2. migrationでテーブル構成が変わっても、ロードを停止しないで、カラムの変更点を検知して値を補完する
+3. テーブル名と、fixtureのファイル名を一致させないでも自由なロード＆ダンプが出来る機能
+4. FactoyGirl風の読み込みフィルタで、Fixtureのデータを加工しながら読み込む事が出来る
+
+== インストール方法
+
+RailsのPlug-inとして使われることを想定しています
+gem化されているので、bundlerで次のように記述して、普通にbundle install してください
+
+ gem "flextures"
+
+ちなみに開発環境はruby1.9系、rails3環境を想定しています
+
+== 使い方
+
+=== rakeコマンド
+
+次のコマンドで spec/fixtures/ 以下にあるfixtureのロード＆ダンプを行います
+(ディレクトリは設定ファイルで変更可能)
+
+ rake db:flextures:load
+ rake db:flextures:dump
+
+rake コマンドには以下の様な書式でオプションを指定することができます
+指摘出来るオプションは、ロードとダンプで共通です
+
+テーブル名で吐き出し(Userモデルusers)
+
+ rake db:flextures:dump TABLE=users
+
+Usersモデルのfixture(users.csvか　users.yml)をロードする
+
+ rake db:flextures:load MODEL=User
+
+その他オプションは以下のとおりな感じです:
+
+ TABLE : テーブル名を指定してロード。テーブル名はカンマ切りで複数指定が可能
+ MODEL : モデル名を指定してロード。モデル名はカンマ区切りで複数指定が可能
+ DIR : フィクスチャをロード＆ダンプするディレクトリを指定する
+ FIXTURES : ロード、ダンプをするファイル名をRails標準以外のもので直接指定(Userモデルのusers.csv以外を指定)
+ T : TABLEのエイリアス
+ M : モデル名指定のエイリアス
+ D : ディレクトリ指定のエイリアス
+ F : ファイル名指定のエイリアス
+
+yamlのファイルはロードしたいけどcsvはロードをしたくない
+またはその逆の場合は、以下のコマンドでそれが可能です
+ 
+ rake db:flextures:csvload
+ rake db:flextures:ymlload
+ rake db:flextures:csvdump
+ rake db:flextures:ymldump
+
+通常の load や dump で使えるオプションはこちらでも使用可能です
+
+=== RSpec flexture support
+
+RSpec中でfixtures関数の代わりにfixtureのロード機能を使えます
+基本的な機能は、通常のfixturesと同じですので、fixtures と同じ感覚で使用して下さい
+
+ describe ItemShopController do
+   flextures :users, :items
+
+基本的な違いは、yamlよりcsvを優先する、カラムの変更点を検知して警告を出しながらもロードを行う等ですが
+もう一つ、ハッシュ引数で指定する事で、テーブル名、ファイル名を一致させなくても フィクスチャ を読み込ませることができます
+そのため、すべてのテストケースで依存関係を気にしながら共通のfixtureを使わなくても良い様に出来ます
+
+ describe ItemShopController do
+   flextures :items, :users => :users_for_itmshop # users_for_itemshop.csv をロードする
+
+=== Flextures factory filter
+
+Railsのプロジェクトに config/flextures.factory.rb というファイルを作成して、そこにフィルタを記述することによって
+フィクスチャの読み込み時に、値を加工して読み込む事が可能になっています
+例えば、次の様に記述するとusersテーブルのlast_login_dateの値を、常に現在の時間として設定できます
+
+ Flextures::Factory.define :users do |f| 
+   f.last_login_date = DateTime.now
+ end
+
+テーブルにdefaultとか設定していなくても
+カラムのデータとかを、適当に補完する機能があるので
+Faker等のデータ生成系のライブラリと組み合わせて必要なデータだけ自動生成すると
+今までより若干捗るかもしれません
+
+=== 設定ファイル
+
+config/flextures.config.rb　で設定ファイルを作成すると、データをロード＆ダンプするディレクトリなどの設定を変更できます
+
+ # config/flextures.config.rb
+ module Flextures
+   # test/fixtures/ のフィクスチャを読み出したい場合は吐き出しディレクトリの値を上書きする
+   Config.fixture_load_directory = "test/fixtures/"
+   Config.fixture_dump_directory = "test/fixtures/"
+ end
+
+
+
