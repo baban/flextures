@@ -17,7 +17,8 @@ module Flextures
     klass.table_name=table_name
     klass
   end
-  
+
+  # 設定ファイルが存在すればロード
   def self.init_load
     if defined?(Rails) and Rails.root
       [
@@ -40,8 +41,8 @@ module Flextures
       table_names = ActiveRecord::Base.connection.tables if ""==table_names
       table_names = table_names.map{ |name| { table: name } }
       table_names = table_names.map{ |option| option.merge dir: ENV["DIR"] } if ENV["DIR"]
-      table_names.first[:file] = ENV["FIXTURES"] if ENV["FIXTURES"] # ファイル名は最初のものしか指定できない
-      table_names.first[:file] = ENV["F"] if ENV["F"]
+      table_names = ENV["FIXTURES"].split(',').map{ |name| { table: name }  } if ENV["FIXTURES"] 
+      table_names = ENV["F"].split(',').map{ |name| { table: name } } if ENV["F"]
       # read mode だとcsvもyaml存在しないファイルは返さない
       table_names.select! &exist if option[:mode] && option[:mode].to_sym == :read 
       table_names
@@ -98,7 +99,7 @@ module Flextures
             attributes.map { |column|
               v = trans row.send(column)
               "  #{column}: #{v}\n"
-            }.join
+            }.*
         end
       end
     end
@@ -175,7 +176,11 @@ module Flextures
         keys = csv.shift # keyの設定
         warning "CSV", attributes, keys
         csv.each do |values|
-          klass.create filter.call values.extend(Extensions::Array).to_hash(keys)
+          h = values.extend(Extensions::Array).to_hash(keys)
+          o = klass.new filter.call h
+          # idだけ特別扱いで保存
+          o.id = h["id"] if o.respond_to?(:id)
+          o.save
         end
       end
     end
@@ -193,7 +198,9 @@ module Flextures
       klass.delete_all
       YAML.load(File.open(inpfile)).each do |k,h|
         warning "YAML", attributes, h.keys
-        klass.create filter.call h
+        o = klass.new filter.call h
+        o.id = h["id"] if o.respond_to?(:id)
+        o.save
       end
     end
     
@@ -210,11 +217,13 @@ module Flextures
       columns.each { |col| column_hash[col.name] = col }
       # 自動補完が必要なはずのカラム
       lack_columns = columns.select { |c| !c.null and !c.default }.map &:name
+      not_nullable_columns = columns.select { |c| !c.null }.map &:name
       # ハッシュを受け取って、必要な値に加工してからハッシュで返すラムダを返す
       return->(h){
         h.select! { |k,v| column_hash[k] } # テーブルに存在しないキーが定義されているときは削除
         # 値がnilでないなら型をDBで適切なものに変更
         h.each{ |k,v| nil==v || h[k] = TRANSLATER[column_hash[k].type].call(v) }
+        not_nullable_columns.each{ |k| h[k]==nil && h[k] = TRANSLATER[column_hash[k].type].call(k) }
         # FactoryFilterを動作させる
         st = OpenStruct.new(h)
         factory.call(st) if factory
