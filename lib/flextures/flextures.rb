@@ -41,20 +41,27 @@ module Flextures
       table_names = ActiveRecord::Base.connection.tables if ""==table_names
       table_names = table_names.map{ |name| { table: name } }
       table_names = table_names.map{ |option| option.merge dir: ENV["DIR"] } if ENV["DIR"]
-      table_names = ENV["FIXTURES"].split(',').map{ |name| { table: name }  } if ENV["FIXTURES"] 
-      table_names = ENV["F"].split(',').map{ |name| { table: name } } if ENV["F"]
+      # フィクスチャを定義
+      file_fixtures_set = ->(s){
+        names = s.split(',')
+        (names.size==1) ?
+          table_names.first.merge!( file: names.first ) :
+          table_names = names.map{ |name| { table: name, file: name } }
+      }
+      file_fixtures_set.call ENV["FIXTURES"] if ENV["FIXTURES"]
+      file_fixtures_set.call ENV["F"] if ENV["F"]
       # read mode だとcsvもyaml存在しないファイルは返さない
-      table_names.select! &exist if option[:mode] && option[:mode].to_sym == :read 
+      table_names.select! &exist if option[:mode] && option[:mode].to_sym == :read
       table_names
     end
 
-    # 存在しているファイルで絞り込む　    
+    # 存在しているファイルで絞り込む
     def self.exist
       return->(name){ File.exists?("#{LOAD_DIR}#{name}.csv") or File.exists?("#{LOAD_DIR}#{name}.yml") }
     end
   end
   
-  # データを吐き出す処理をまとめる  
+  # データを吐き出す処理をまとめる
   module Dumper
     PARENT = Flextures
 
@@ -67,7 +74,7 @@ module Flextures
       end
     end
 
-    # csv で fixtures を dump 
+    # csv で fixtures を dump
     def self.csv format
       table_name = format[:table]
       file_name = format[:file] || table_name
@@ -84,7 +91,7 @@ module Flextures
       end
     end
 
-    # yaml で fixtures を dump 
+    # yaml で fixtures を dump
     def self.yml format
       table_name = format[:table]
       file_name = format[:file] || table_name
@@ -94,7 +101,7 @@ module Flextures
       attributes = klass.columns.map { |colum| colum.name }
 
       File.open(outfile,"w") do |f|
-        klass.all.each_with_index do |row,idx| 
+        klass.all.each_with_index do |row,idx|
           f<< "#{table_name}_#{idx}:\n" +
             attributes.map { |column|
               v = trans row.send(column)
@@ -149,12 +156,12 @@ module Flextures
       self::send(method, format) if method
     end
 
-    # fixturesをまとめてロード、主にテストtest/unit, rspec で使用する    
+    # fixturesをまとめてロード、主にテストtest/unit, rspec で使用する
     def self.flextures *fixtures
       PARENT::init_load
       # :allですべてのfixtureを反映
       fixtures = ActiveRecord::Base.connection.tables if fixtures.size== 1 and :all == fixtures.first
-      
+
       fixtures_hash = fixtures.pop if fixtures.last and fixtures.last.is_a? Hash # ハッシュ取り出し
       fixtures.each{ |table_name| Loader::load table: table_name }
       fixtures_hash.each{ |k,v| Loader::load table: k, file: v } if fixtures_hash
