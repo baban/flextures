@@ -40,16 +40,16 @@ module Flextures
       table_names = ENV["M"].constantize.table_name.split(",") if ENV["M"]
       table_names = ActiveRecord::Base.connection.tables if ""==table_names
       table_names = table_names.map{ |name| { table: name } }
-      table_names = table_names.map{ |option| option.merge dir: ENV["DIR"] } if ENV["DIR"]
-      # フィクスチャを定義
-      file_fixtures_set = ->(s){
+      # ENV["FIXTURES"]の中身を解析
+      fixtures_args_parser =->(s){
         names = s.split(',')
-        (names.size==1) ?
-          table_names.first.merge!( file: names.first ) :
-          table_names = names.map{ |name| { table: name, file: name } }
+        ( names.size==1 and ENV.values_at("M", "MODEL", "T", "TABLE").first ) ?
+          [ table_names.first.merge( file: names.first ) ] :
+          names.map{ |name| { table: name, file: name } }
       }
-      file_fixtures_set.call ENV["FIXTURES"] if ENV["FIXTURES"]
-      file_fixtures_set.call ENV["F"] if ENV["F"]
+      table_names = fixtures_args_parser.call ENV["FIXTURES"] if ENV["FIXTURES"]
+      table_names = fixtures_args_parser.call ENV["F"] if ENV["F"]
+      table_names = table_names.map{ |option| option.merge dir: ENV["DIR"] } if ENV["DIR"]
       # read mode だとcsvもyaml存在しないファイルは返さない
       table_names.select! &exist if option[:mode] && option[:mode].to_sym == :read
       table_names
@@ -99,14 +99,13 @@ module Flextures
       outfile = "#{dir_name}#{file_name}.yml"
       klass = PARENT::create_model(table_name)
       attributes = klass.columns.map { |colum| colum.name }
-
       File.open(outfile,"w") do |f|
         klass.all.each_with_index do |row,idx|
           f<< "#{table_name}_#{idx}:\n" +
             attributes.map { |column|
               v = trans row.send(column)
               "  #{column}: #{v}\n"
-            }.*
+            }.join
         end
       end
     end
@@ -174,7 +173,6 @@ module Flextures
       file_name = format[:file] || table_name
       dir_name = format[:dir] || LOAD_DIR
       inpfile = "#{dir_name}#{file_name}.csv"
-
       klass = PARENT::create_model table_name
       attributes = klass.columns.map &:name
       filter = create_filter klass.columns, Factory[table_name]
@@ -198,7 +196,6 @@ module Flextures
       file_name = format[:file] || table_name
       dir_name = format[:dir] || LOAD_DIR
       inpfile = "#{dir_name}#{file_name}.yml"
-
       klass = PARENT::create_model table_name
       attributes = klass.columns.map &:name
       filter = create_filter klass.columns, Factory[table_name]
