@@ -182,9 +182,9 @@ module Flextures
         warning "CSV", attributes, keys
         csv.each do |values|
           h = values.extend(Extensions::Array).to_hash(keys)
-          o = klass.new filter.call h
-          # idだけ特別扱いで保存
-          o.id = h["id"] if o.respond_to?(:id)
+	  filter.call h
+          o = klass.new 
+          h.each{ |k,v| o[k]=v }
           o.save
         end
       end
@@ -202,8 +202,9 @@ module Flextures
       klass.delete_all
       YAML.load(File.open(inpfile)).each do |k,h|
         warning "YAML", attributes, h.keys
-        o = klass.new filter.call h
-        o.id = h["id"] if o.respond_to?(:id)
+	filter.call h
+        o = klass.new 
+	h.each{ |k,v| o[k]=v }
         o.save
       end
     end
