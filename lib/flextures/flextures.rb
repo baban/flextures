@@ -182,7 +182,7 @@ module Flextures
         warning "CSV", attributes, keys
         csv.each do |values|
           h = values.extend(Extensions::Array).to_hash(keys)
-	  filter.call h
+          h = filter.call h
           o = klass.new 
           h.each{ |k,v| o[k]=v }
           o.save
@@ -202,9 +202,9 @@ module Flextures
       klass.delete_all
       YAML.load(File.open(inpfile)).each do |k,h|
         warning "YAML", attributes, h.keys
-	filter.call h
+        h = filter.call h
         o = klass.new 
-	h.each{ |k,v| o[k]=v }
+        h.each{ |k,v| o[k]=v }
         o.save
       end
     end
@@ -221,7 +221,7 @@ module Flextures
       column_hash = {}
       columns.each { |col| column_hash[col.name] = col }
       # 自動補完が必要なはずのカラム
-      lack_columns = columns.select { |c| !c.null and !c.default }.map &:name
+      lack_columns = columns.select { |c| !c.null and !c.default }.map{ |o| o.name.to_sym }
       not_nullable_columns = columns.select { |c| !c.null }.map &:name
       # ハッシュを受け取って、必要な値に加工してからハッシュで返すラムダを返す
       return->(h){
