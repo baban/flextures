@@ -13,9 +13,17 @@ module Flextures
 
   # テーブルモデルの作成
   def self.create_model table_name
-    klass = Class.new ActiveRecord::Base
-    klass.table_name=table_name
-    klass
+    a = proc {
+      begin
+        table_name.singularize.camelize.constantize
+      rescue => e
+        nil
+      end
+    }
+    b = proc { 
+      Class.new(ActiveRecord::Base){ |o| o.table_name=table_name }
+    }
+    a.call || b.call
   end
 
   # 設定ファイルが存在すればロード
@@ -222,18 +230,16 @@ module Flextures
       not_nullable_columns = columns.select { |c| !c.null }.map &:name
       # ハッシュを受け取って、必要な値に加工してからハッシュで返すラムダを返す
       return->(h){
-        h.select! { |k,v| column_hash[k] } # テーブルに存在しないキーが定義されているときは削除
-        # 値がnilでないなら型をDBで適切なものに変更
-        h.each{ |k,v| nil==v || h[k] = TRANSLATER[column_hash[k].type].call(v) }
-        not_nullable_columns.each{ |k| h[k]==nil && h[k] = TRANSLATER[column_hash[k].type].call(k) }
-        # FactoryFilterを動作させる
-        st = OpenStruct.new(h)
-        factory.call(st) if factory
-        h = st.to_hash
-        # 値がnilの列にデフォルト値を補間
-        lack_columns.each { |k| nil==h[k] && h[k] = COMPLETER[column_hash[k].type].call }
+        # テーブルに存在しないキーが定義されているときは削除
+        h.select! { |k,v| column_hash[k] }
         o = klass.new 
-        h.each{ |k,v| o[k]=v }
+        # 値がnilでないなら型をDBで適切なものに変更
+        h.each{ |k,v| nil==v || o[k] = TRANSLATER[column_hash[k].type].call(v) }
+        not_nullable_columns.each{ |k| o[k]==nil && o[k] = TRANSLATER[column_hash[k].type].call(k) }
+        # FactoryFilterを動作させる
+        factory.call(o) if factory
+        # 値がnilの列にデフォルト値を補間
+        lack_columns.each { |k| nil==o[k] && o[k] = COMPLETER[column_hash[k].type].call }
         o
       }
     end
