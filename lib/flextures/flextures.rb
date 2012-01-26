@@ -44,8 +44,8 @@ module Flextures
       table_names = ""
       table_names = ENV["TABLE"].split(",") if ENV["TABLE"]
       table_names = ENV["T"].split(",") if ENV["T"]
-      table_names = ENV["MODEL"].constantize.table_name.split(",") if ENV["MODEL"]
-      table_names = ENV["M"].constantize.table_name.split(",") if ENV["M"]
+      table_names = ENV["MODEL"].split(',').map{ |name| name.constantize.table_name } if ENV["MODEL"]
+      table_names = ENV["M"].split(',').map{ |name| name.constantize.table_name } if ENV["M"]
       table_names = ActiveRecord::Base.connection.tables if ""==table_names
       table_names = table_names.map{ |name| { table: name } }
       # ENV["FIXTURES"]の中身を解析
@@ -84,10 +84,10 @@ module Flextures
 
     # csv で fixtures を dump
     def self.csv format
-      table_name = format[:table]
-      file_name = format[:file] || table_name
+      file_name = format[:file] || format[:table]
       dir_name = format[:dir] || DUMP_DIR
       outfile = "#{dir_name}#{file_name}.csv"
+      table_name = format[:table]
       klass = PARENT.create_model(table_name)
       attributes = klass.columns.map { |colum| colum.name }
 
@@ -101,10 +101,10 @@ module Flextures
 
     # yaml で fixtures を dump
     def self.yml format
-      table_name = format[:table]
-      file_name = format[:file] || table_name
+      file_name = format[:file] || format[:table]
       dir_name = format[:dir] || DUMP_DIR
       outfile = "#{dir_name}#{file_name}.yml"
+      table_name = format[:table]
       klass = PARENT::create_model(table_name)
       attributes = klass.columns.map { |colum| colum.name }
       File.open(outfile,"w") do |f|
