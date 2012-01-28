@@ -41,13 +41,16 @@ module Flextures
     # 書き出し 、読み込み すべきファイルとオプションを書きだす
     def self.parse option={}
       Flextures::init_load
-      table_names = ""
-      table_names = ENV["TABLE"].split(",") if ENV["TABLE"]
-      table_names = ENV["T"].split(",") if ENV["T"]
-      table_names = ENV["MODEL"].split(',').map{ |name| name.constantize.table_name } if ENV["MODEL"]
-      table_names = ENV["M"].split(',').map{ |name| name.constantize.table_name } if ENV["M"]
-      table_names = ActiveRecord::Base.connection.tables if ""==table_names
-      table_names = table_names.map{ |name| { table: name } }
+      table_names = []
+      if ENV["T"] or ENV["TABLE"]
+        table_names = (ENV["T"] or ENV["TABLE"]).split(",").map{ |name| { table: name } }
+      end
+      if ENV["M"] or ENV["MODEL"]
+        table_names = (ENV["M"] or ENV["MODEL"]).split(',').map{ |name| { table: name.constantize.table_name } }
+      end
+      if table_names.empty?
+        table_names = ActiveRecord::Base.connection.tables.map{ |name| { table: name } }
+      end
       # ENV["FIXTURES"]の中身を解析
       fixtures_args_parser =->(s){
         names = s.split(',')
@@ -94,7 +97,7 @@ module Flextures
       CSV.open(outfile,'w') do |csv|
         csv<< attributes
         klass.all.each do |row|
-          csv<< attributes.map { |column| trans(row.send(column))}
+          csv<< attributes.map { |column| trans(row.send(column)) }
         end
       end
     end
@@ -190,7 +193,8 @@ module Flextures
         warning "CSV", attributes, keys
         csv.each do |values|
           h = values.extend(Extensions::Array).to_hash(keys)
-          o = filter.call h
+          args = [h, file_name]
+          o = filter.call *(args[0,filter.arity])
           o.save
         end
       end
@@ -208,7 +212,8 @@ module Flextures
       klass.delete_all
       YAML.load(File.open(inpfile)).each do |k,h|
         warning "YAML", attributes, h.keys
-        o = filter.call h
+        args = [h, file_name]
+        o = filter.call *(args[0,filter.arity])
         o.save
       end
     end
