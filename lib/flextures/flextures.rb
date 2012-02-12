@@ -36,10 +36,11 @@ module Flextures
     end
   end
 
+  # テーブル情報の初期化
   def self.init_tables
     tables = ActiveRecord::Base.connection.tables
     tables.delete "schema_migrations"
-    tables.each{ |name| Class.new(ActiveRecord::Base){|o| o.table_name=name }.delete_all }
+    tables.each{ |name| Class.new(ActiveRecord::Base){ |o| o.table_name=name }.delete_all }
   end
 
   # 引数解析
@@ -48,7 +49,7 @@ module Flextures
     def self.parse option={}
       table_names = []
       if ENV["T"] or ENV["TABLE"]
-        table_names = (ENV["T"] or ENV["TABLE"]).split(",").map{ |name| { table: name } }
+        table_names = (ENV["T"] or ENV["TABLE"]).split(',').map{ |name| { table: name } }
       end
       if ENV["M"] or ENV["MODEL"]
         table_names = (ENV["M"] or ENV["MODEL"]).split(',').map{ |name| { table: name.constantize.table_name } }
@@ -98,7 +99,6 @@ module Flextures
       table_name = format[:table]
       klass = PARENT.create_model(table_name)
       attributes = klass.columns.map { |colum| colum.name }
-
       CSV.open(outfile,'w') do |csv|
         csv<< attributes
         klass.all.each do |row|
@@ -172,9 +172,14 @@ module Flextures
     end
 
     # fixturesをまとめてロード、主にテストtest/unit, rspec で使用する
+    #
+    # 全テーブルが対象
+    # fixtures :all
+    # テーブル名で一覧する
+    # fixtures :users, :items
+    # ハッシュで指定
+    # fixtures :users => :users2
     def self.flextures *fixtures
-      PARENT::init_load
-      PARENT::init_tables
       # :allですべてのfixtureを反映
       fixtures = ActiveRecord::Base.connection.tables if fixtures.size== 1 and :all == fixtures.first
 
