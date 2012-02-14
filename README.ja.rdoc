@@ -53,6 +53,7 @@ Usersモデルのfixture(users.csvか　users.yml)をロードする
  MODEL : モデル名を指定してロード。モデル名はカンマ区切りで複数指定が可能
  DIR : フィクスチャをロード＆ダンプするディレクトリを指定する
  FIXTURES : ロード、ダンプをするファイル名をRails標準以外のもので直接指定(Userモデルのusers.csv以外を指定)
+ FORMAT : yml,yaml 等の文字列を指定するとロード、ダンプをするフォーマットを変更できる(ymlload,ymldumpと同じ)
  T : TABLEのエイリアス
  M : モデル名指定のエイリアス
  D : ディレクトリ指定のエイリアス

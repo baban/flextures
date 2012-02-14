@@ -54,6 +54,7 @@ Other options...
  MODEL : set model name
  DIR : set directory name
  FIXTURES : set fixture file name
+ FORMAT : dumping format change csv to yaml (aka. ymlload, ymldump command)
  T : alias TABLE option
  M : alias MODEL option
  D : alias DIR option
