@@ -8,7 +8,12 @@ namespace :db do
     task :dump => :environment do
       table_names = Flextures::ARGS.parse
       Flextures::init_load
-      table_names.each { |fmt| Flextures::Dumper::csv(fmt) }
+      puts "dumping..."
+      if ["yml","yaml"].include? ENV["FORMAT"]
+        table_names.each { |fmt| Flextures::Dumper::yml(fmt) }
+      else
+        table_names.each { |fmt| Flextures::Dumper::csv(fmt) }
+      end
     end
 
     desc "Dump data to prefer csv format"
@@ -30,7 +35,12 @@ namespace :db do
       table_names = Flextures::ARGS.parse
       Flextures::init_load
       Flextures::init_tables
-      table_names.each { |fmt| Flextures::Loader::load(fmt) }
+      puts "loading..."
+      if ["yml","yaml"].include? ENV["FORMAT"]
+        table_names.each { |fmt| Flextures::Loader::yml(fmt) }
+      else
+        table_names.each { |fmt| Flextures::Loader::csv(fmt) }
+      end
     end
 
     desc "load fixture data only csv format files"

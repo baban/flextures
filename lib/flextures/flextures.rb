@@ -198,7 +198,6 @@ module Flextures
       klass = PARENT::create_model table_name
       attributes = klass.columns.map &:name
       filter = create_filter klass, Factory[table_name]
-      klass.delete_all
       CSV.open( inpfile ) do |csv|
         keys = csv.shift # keyの設定
         warning "CSV", attributes, keys
