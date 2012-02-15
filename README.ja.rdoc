@@ -98,7 +98,7 @@ Railsのプロジェクトに config/flextures.factory.rb というファイル�
 
 テーブルにdefaultとか設定していなくても
 カラムのデータとかを、適当に補完する機能があるので
-大量のデータを生成したい時は次のようにfaker[https://github.com/stympy/faker]等と組み合わせて
+大量のデータを生成したい時は次のように{faker}[https://github.com/stympy/faker]等と組み合わせて
 必要な分だけ生成をさせると、今までより若干捗るかもしれません
 
  require 'faker'
