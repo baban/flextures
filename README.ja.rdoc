@@ -1,5 +1,7 @@
 = flextures
 
+{ENGLISH DOCUMENT}[blob/master/README.rdoc]
+
 == Abstruct
 
 このplug-inは、これまで開発中で溜まっていた

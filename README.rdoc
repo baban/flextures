@@ -1,5 +1,7 @@
 = flextures
 
+日本語版ドキュメント[blob/master/README.ja.rdoc]
+
 == Abstruct
 
 This plug-in aim to resolve many problems, durling rails developping about fixtures.
@@ -92,6 +94,8 @@ For example, this code set current time to last_login_date column.
  Flextures::Factory.define :users do |f| 
    f.last_login_date = DateTime.now
  end
+
+
 
 === Configuration file
 
