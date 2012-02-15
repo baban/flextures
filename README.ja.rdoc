@@ -98,8 +98,18 @@ Railsのプロジェクトに config/flextures.factory.rb というファイル�
 
 テーブルにdefaultとか設定していなくても
 カラムのデータとかを、適当に補完する機能があるので
-Faker等のデータ生成系のライブラリと組み合わせて必要なデータだけ自動生成すると
-今までより若干捗るかもしれません
+大量のデータを生成したい時は次のようにfaker[https://github.com/stympy/faker]等と組み合わせて
+必要な分だけ生成をさせると、今までより若干捗るかもしれません
+
+ require 'faker'
+ Flextures::Factory.define :users do |f|
+   f.name= Faker::Name.name if !f.name  # ランダムで名前を生成(ただしUS仕様
+   f.sex= [0,1].shuffle.first if !f.sex # 性別を設定
+   # Factory Girlの様にhas_manyな感じのデータも生成できます。（初期設定でアイテムを２個持たせる）
+   f.items<< [ Item.new( master_item_id: 1, count: 5 ), Item.new( master_item_id: 2, count: 3 ) ]
+ end
+
+* {wiki:has_manyな感じのデータの精製法}[https://github.com/baban/flextures/wiki/Has-many%E3%81%AA%E6%84%9F%E3%81%98%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E7%B2%BE%E8%A3%BD%E6%96%B9%E6%B3%95]
 
 === 設定ファイル
 

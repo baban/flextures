@@ -95,7 +95,15 @@ For example, this code set current time to last_login_date column.
    f.last_login_date = DateTime.now
  end
 
+This sample, generate name and sex automatically, and other tables data generate
 
+ require 'faker'
+ Flextures::Factory.define :users do |f|
+   f.name= Faker::Name.name if !f.name  # gemerate name
+   f.sex= [0,1].shuffle.first if !f.sex # generate sex
+   # factory filter can generate data, use has_many association
+   f.items<< [ Item.new( master_item_id: 1, count: 5 ), Item.new( master_item_id: 2, count: 3 ) ]
+ end
 
 === Configuration file
 
