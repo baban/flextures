@@ -1,6 +1,6 @@
 = flextures
 
-日本語版ドキュメント[blob/master/README.ja.rdoc]
+{日本語版ドキュメント(Japanese Document)}[https://github.com/baban/flextures/blob/master/README.ja.rdoc]
 
 == Abstruct
 
