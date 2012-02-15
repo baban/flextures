@@ -1,6 +1,6 @@
 = flextures
 
-{ENGLISH DOCUMENT}[https://github.com/baban/flextures/blob/master/README.rdoc]
+* {ENGLISH DOCUMENT}[https://github.com/baban/flextures/blob/master/README.rdoc]
 
 == Abstruct
 
