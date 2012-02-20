@@ -15,7 +15,7 @@ module RSpec
       @@configs={ load_count: 0 }
       def self.included(m)
         # 一番外側のdescribeにだけ追加
-        m.before { Flextures::init_load } if @@configs[:load_count]==0
+        m.before { Flextures::init_load; Flextures::init_tables } if @@configs[:load_count]==0
         @@configs[:load_count] += 1
       end
     end
