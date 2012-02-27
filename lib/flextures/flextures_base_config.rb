@@ -6,6 +6,7 @@ module Flextures
     @@configs={
       fixture_load_directory: "spec/fixtures/",
       fixture_dump_directory: "spec/fixtures/",
+      init_all_tables: true,  # 実行後に全テーブルの初期化を行うか？falseにするとそのぶん高速化できる
     }
     # ハッシュをsetter、getterに変換
     class<< self
