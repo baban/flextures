@@ -15,7 +15,7 @@ end
 module ActiveRecord
   module TestFixtures
     alias :flextures_backup_setup_fixtures :setup_fixtures
-    def teardown_fixtures
+    def setup_fixtures
       flextures_backup_setup_fixtures
       Flextures::init_load
     end

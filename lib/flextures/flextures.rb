@@ -13,17 +13,24 @@ module Flextures
 
   # テーブルモデルの作成
   def self.create_model table_name
-    a = proc {
+    # Factoryにオプションで指定があった時
+    a = ->{
+      f = Factory::FACTORIES[table_name.to_sym]
+      f && f[:model]
+    }
+    # テーブル名からモデル名が推測できるとき
+    b = ->{
       begin
         table_name.singularize.camelize.constantize
       rescue => e
         nil
       end
     }
-    b = proc { 
+    # モデル名推測不可能なとき
+    c = ->{ 
       Class.new(ActiveRecord::Base){ |o| o.table_name=table_name }
     }
-    a.call || b.call
+    a.call || b.call || c.call
   end
 
   # 設定ファイルが存在すればロード
