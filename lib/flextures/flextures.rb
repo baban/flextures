@@ -47,7 +47,13 @@ module Flextures
   def self.init_tables
     tables = ActiveRecord::Base.connection.tables
     tables.delete "schema_migrations"
-    tables.each{ |name| Class.new(ActiveRecord::Base){ |o| o.table_name=name }.delete_all }
+    tables.each{ |name|
+      # テーブルではなくviewを拾って止まる場合があるのでrescueしてしまう
+      begin
+        Class.new(ActiveRecord::Base){ |o| o.table_name= name }.delete_all
+      rescue => e
+      end
+    }
   end
 
   # 引数解析
@@ -152,7 +158,7 @@ module Flextures
       time:->{ DateTime.now },
       timestamp:->{ DateTime.now },
     }
-    
+
     # 型の変換を行う
     TRANSLATER = {
       binary:->(d){ d.to_i },
@@ -233,7 +239,7 @@ module Flextures
         o.save
       end
     end
-    
+
     # 欠けたカラムを検知してメッセージを出しておく
     def self.warning format, attributes, keys
       (attributes-keys).each { |name| print "Warning: #{format} colum is missing! [#{name}]\n" }

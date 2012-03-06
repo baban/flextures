@@ -22,8 +22,8 @@ module ActiveRecord
 
     alias :flextures_backup_teardown_fixtures :teardown_fixtures
     def teardown_fixtures
-      flextures_backup_teardown_fixtures
       Flextures::init_tables if Flextures::Config.init_all_tables
+      flextures_backup_teardown_fixtures
     end
   end
 end
