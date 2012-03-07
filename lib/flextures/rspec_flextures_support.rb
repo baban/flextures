@@ -9,13 +9,29 @@ module RSpec
       end
     end
   end
+
+  module Rails
+    module FlextureSupport
+      def self.included(m)
+      end
+    end
+  end
+
+  RSpec.configure do |c|
+    c.include RSpec::Rails::FlextureSupport
+  end
 end
 
 # 既存のsetup_fixturesの機能を上書きする必要があったのでこちらを作成
 module ActiveRecord
   module TestFixtures
+    @@flextures_config = { count: 0 }
+
     alias :flextures_backup_setup_fixtures :setup_fixtures
     def setup_fixtures
+      Flextures::init_tables if @@flextures_config[:count] == 0
+      @@flextures_config[:count] += 1
+
       flextures_backup_setup_fixtures
       Flextures::init_load
     end
