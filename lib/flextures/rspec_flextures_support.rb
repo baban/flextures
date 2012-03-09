@@ -12,7 +12,11 @@ module RSpec
 
   module Rails
     module FlextureSupport
+      @@configs={ load_count: 0 }
       def self.included(m)
+        # 一番外側のdescribeにだけ追加
+        #m.after { Flextures::init_tables } if @@configs[:load_count]==0
+        @@configs[:load_count] += 1
       end
     end
   end
@@ -29,11 +33,11 @@ module ActiveRecord
 
     alias :flextures_backup_setup_fixtures :setup_fixtures
     def setup_fixtures
+      Flextures::init_load
       Flextures::init_tables if @@flextures_config[:count] == 0
       @@flextures_config[:count] += 1
 
       flextures_backup_setup_fixtures
-      Flextures::init_load
     end
 
     alias :flextures_backup_teardown_fixtures :teardown_fixtures

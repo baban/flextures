@@ -3,6 +3,7 @@
 # 基本設定を記述する
 module Flextures
   module Config
+    READ_ONLYS=[]
     @@configs={
       fixture_load_directory: "spec/fixtures/",
       fixture_dump_directory: "spec/fixtures/",
@@ -11,8 +12,8 @@ module Flextures
     # ハッシュをsetter、getterに変換
     class<< self
       @@configs.each do |setting_key, setting_value|
-        define_method setting_key do @@configs[setting_key] end
-        define_method "#{setting_key}=" do |arg| @@configs[setting_key]=arg end
+        define_method(setting_key){ @@configs[setting_key] } unless READ_ONLYS.include?(setting_key)
+        define_method("#{setting_key}="){ |arg| @@configs[setting_key]=arg }
       end
     end
   end
