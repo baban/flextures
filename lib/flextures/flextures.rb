@@ -133,7 +133,9 @@ module Flextures
           f<< "#{table_name}_#{idx}:\n" +
             attributes.map { |column|
               v = trans row.send(column)
-              "  #{column}: #{v}\n"
+              v.kind_of?(String) ?
+                "  #{column}: |-\n    #{v.gsub(/\n/,%Q{\n    })}\n":  # Stringだと改行が入るので特殊処理
+                "  #{column}: #{v}\n"
             }.join
         end
       end
