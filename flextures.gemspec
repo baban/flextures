@@ -4,14 +4,14 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{flextures}
-  s.version = "1.9.5"
+  s.name = "flextures"
+  s.version = "1.9.6"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["baban"]
-  s.date = %q{2012-03-10}
-  s.description = %q{load and dump fixtures}
-  s.email = %q{babanba.n@gmail.com}
+  s.date = "2012-03-26"
+  s.description = "load and dump fixtures"
+  s.email = "babanba.n@gmail.com"
   s.extra_rdoc_files = [
     "LICENSE.txt",
     "README.ja.rdoc",
@@ -39,11 +39,11 @@ Gem::Specification.new do |s|
     "lib/flextures/rspec_flextures_support.rb",
     "lib/flextures/testunit_flextures_support.rb"
   ]
-  s.homepage = %q{http://github.com/baban/flextures}
+  s.homepage = "http://github.com/baban/flextures"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.6.2}
-  s.summary = %q{load and dump fixtures}
+  s.rubygems_version = "1.8.10"
+  s.summary = "load and dump fixtures"
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
