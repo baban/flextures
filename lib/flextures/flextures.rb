@@ -90,7 +90,7 @@ module Flextures
       return->(name){ File.exists?("#{LOAD_DIR}#{name}.csv") or File.exists?("#{LOAD_DIR}#{name}.yml") }
     end
   end
-  
+
   # データを吐き出す処理をまとめる
   module Dumper
     PARENT = Flextures
@@ -103,7 +103,7 @@ module Flextures
       decimal:->(d){ d.to_i },
       float:->(d){ d.to_f },
       integer:->(d){ d.to_i },
-      string:->(d){ d.to_s },
+      string:->(d){ d.to_s.gsub(/\t/,'') },
       text:->(d){ d.to_s },
       time:->(d){ DateTime.parse(d.to_s) },
       timestamp:->(d){ DateTime.parse(d.to_s) },
@@ -157,7 +157,7 @@ module Flextures
             attributes.map { |col|
               v = trans row.send(col)
               v = "|-\n    " + v.gsub(/\n/,%Q{\n    }) if v.kind_of?(String) # Stringだと改行が入るので特殊処理
-              "  #{column}: #{v}\n"
+              "  #{col}: #{v}\n"
             }.join
         end
       end
