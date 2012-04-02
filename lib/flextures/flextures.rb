@@ -90,7 +90,5 @@ module Flextures
       return->(name){ File.exists?("#{LOAD_DIR}#{name}.csv") or File.exists?("#{LOAD_DIR}#{name}.yml") }
     end
   end
-  
-
 end
 
