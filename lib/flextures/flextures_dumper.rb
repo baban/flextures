@@ -6,26 +6,53 @@ module Flextures
     PARENT = Flextures
 
     TRANSLATER = {
-      binary:->(d){ d.to_i },
-      boolean:->(d){ (0==d || ""==d || !d) ? false : true },
-      date:->(d){ Date.parse(d.to_s) },
-      datetime:->(d){ DateTime.parse(d.to_s) },
-      decimal:->(d){ d.to_i },
-      float:->(d){ d.to_f },
-      integer:->(d){ d.to_i },
-      string:->(d){ d.to_s },
-      text:->(d){ d.to_s },
-      time:->(d){ DateTime.parse(d.to_s) },
-      timestamp:->(d){ DateTime.parse(d.to_s) },
+      binary:->(d, format = :csv){
+        d.to_i
+      },
+      boolean:->(d, format = :csv){
+        (0==d || ""==d || !d) ? false : true
+      },
+      date:->(d, format = :csv){
+        Date.parse(d.to_s)
+      },
+      datetime:->(d, format = :csv){
+        DateTime.parse(d.to_s)
+      },
+      decimal:->(d, format = :csv){
+        d.to_i
+      },
+      float:->(d, format = :csv){
+        d.to_f
+      },
+      integer:->(d, format = :csv){
+        d.to_i
+      },
+      string:->(s, format = :csv){
+        s = "|-\n    " + s.gsub(/\n/,%Q{\n    }) if format == :yml and s["\n"] # 改行付きはフォーマット変更
+        s = s.gsub(/\t/,"  ")                    if format == :yml and s["\t"] # tabは空白スペース２つ
+        s
+      },
+      text:->(s, format = :csv){
+        s = "|-\n    " + s.gsub(/\n/,%Q{\n    }) if format == :yml and s["\n"] # 改行付きはフォーマット変更
+        s = s.gsub(/\t/,"  ")                    if format == :yml and s["\t"] # tabは空白スペース２つ
+        s
+      },
+      time:->(d, format = :csv){
+        DateTime.parse(d.to_s)
+      },
+      timestamp:->(d, format = :csv){
+        DateTime.parse(d.to_s)
+      },
     }
 
     # 適切な型に変換
-    def self.trans v
-      case v
-        when true;  1
-        when false; 0
-        else; v
-      end
+    def self.trans v, format = :csv
+      type = nil
+      type = :string  if v.is_a?(String)
+      type = :boolean if (v == true or v == false)
+      trans = TRANSLATER[type]
+      return trans.call( v, format ) if trans
+      v
     end
 
     # csv で fixtures を dump
@@ -65,9 +92,8 @@ module Flextures
         klass.all.each_with_index do |row,idx|
           f<< "#{table_name}_#{idx}:\n" +
             attributes.map { |col|
-              v = trans row.send(col)
-              v = "|-\n    " + v.gsub(/\n/,%Q{\n    }) if v.kind_of?(String) # Stringだと改行が入るので特殊処理
-              "  #{column}: #{v}\n"
+              v = trans row.send(col), :yml
+              "  #{col}: #{v}\n"
             }.join
         end
       end
