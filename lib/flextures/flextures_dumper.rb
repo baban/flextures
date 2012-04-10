@@ -13,10 +13,10 @@ module Flextures
         (0==d || ""==d || !d) ? false : true
       },
       date:->(d, format = :csv){
-        Date.parse(d.to_s)
+        Time.parse(d.to_s).to_s
       },
       datetime:->(d, format = :csv){
-        DateTime.parse(d.to_s)
+        Time.parse(d.to_s).to_s
       },
       decimal:->(d, format = :csv){
         d.to_i
@@ -33,23 +33,20 @@ module Flextures
         s
       },
       text:->(s, format = :csv){
-        s = "|-\n    " + s.gsub(/\n/,%Q{\n    }) if format == :yml and s["\n"] # 改行付きはフォーマット変更
-        s = s.gsub(/\t/,"  ")                    if format == :yml and s["\t"] # tabは空白スペース２つ
+        s = "|-\n    " + s.gsub(/\n/,%Q{\n    }) if format == :yml and s["\n"]
+        s = s.gsub(/\t/,"  ")                    if format == :yml and s["\t"]
         s
       },
       time:->(d, format = :csv){
-        DateTime.parse(d.to_s)
+        Time.parse(d.to_s).to_s
       },
       timestamp:->(d, format = :csv){
-        DateTime.parse(d.to_s)
+        Time.parse(d.to_s).to_s
       },
     }
 
     # 適切な型に変換
-    def self.trans v, format = :csv
-      type = nil
-      type = :string  if v.is_a?(String)
-      type = :boolean if (v == true or v == false)
+    def self.trans(v, type, format)
       trans = TRANSLATER[type]
       return trans.call( v, format ) if trans
       v
@@ -62,11 +59,12 @@ module Flextures
       outfile = "#{dir_name}#{file_name}.csv"
       table_name = format[:table]
       klass = PARENT.create_model(table_name)
-      attributes = klass.columns.map { |colum| colum.name }
+      attributes = klass.columns.map { |column| column.name }
       CSV.open(outfile,'w') do |csv|
+        attr_type = klass.columns.map { |column| { name: column.name, type: column.type } }
         csv<< attributes
         klass.all.each do |row|
-          csv<< attributes.map { |column| trans(row.send(column)) }
+          csv<< attr_type.map { |h| trans(row[h[:name]], h[:type], :csv) }
         end
       end
     end
@@ -91,9 +89,10 @@ module Flextures
       File.open(outfile,"w") do |f|
         klass.all.each_with_index do |row,idx|
           f<< "#{table_name}_#{idx}:\n" +
-            attributes.map { |col|
-              v = trans row.send(col), :yml
-              "  #{col}: #{v}\n"
+            klass.columns.map { |column|
+              colname, coltype = column.name, column.type
+              v = trans(row[colname], coltype, :yml)
+              "  #{colname}: #{v}\n"
             }.join
         end
       end
