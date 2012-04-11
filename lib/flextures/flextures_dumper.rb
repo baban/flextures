@@ -28,13 +28,21 @@ module Flextures
         d.to_i
       },
       string:->(s, format = :csv){
-        s = "|-\n    " + s.gsub(/\n/,%Q{\n    }) if format == :yml and s["\n"] # 改行付きはフォーマット変更
-        s = s.gsub(/\t/,"  ")                    if format == :yml and s["\t"] # tabは空白スペース２つ
+        if format == :yml
+          return "null"                          if s.nil?
+          s = s.gsub(/\t/,"  ")                  if s["\t"]   # tabは空白スペース２つ
+          s = s.sub(/ +/, "")                    if s[0]==' ' # 先頭のスペースは削除
+          s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]   # 改行付きはフォーマット変更
+        end
         s
       },
       text:->(s, format = :csv){
-        s = "|-\n    " + s.gsub(/\n/,%Q{\n    }) if format == :yml and s["\n"]
-        s = s.gsub(/\t/,"  ")                    if format == :yml and s["\t"]
+        if format == :yml
+          return "null"                          if s.nil?
+          s = s.gsub(/\t/,"  ")                  if s["\t"]
+          s = s.sub(/ +/, "")                    if s[0]==' '
+          s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]
+        end
         s
       },
       time:->(d, format = :csv){
