@@ -6,49 +6,68 @@ module Flextures
     PARENT = Flextures
 
     TRANSLATER = {
-      binary:->(d, format = :csv){
-        d.to_i
+      binary:->(d, format ){
+        d.to_s
       },
-      boolean:->(d, format = :csv){
+      boolean:->(d, format ){
         (0==d || ""==d || !d) ? false : true
       },
-      date:->(d, format = :csv){
+      date:->(d, format ){
+        if format == :yml
+          return "null" if d.nil?
+        end
         Time.parse(d.to_s).to_s
       },
-      datetime:->(d, format = :csv){
+      datetime:->(d, format ){
         Time.parse(d.to_s).to_s
       },
-      decimal:->(d, format = :csv){
+      decimal:->(d, format ){
         d.to_i
       },
-      float:->(d, format = :csv){
+      float:->(d, format){
         d.to_f
       },
-      integer:->(d, format = :csv){
+      integer:->(d, format){
         d.to_i
       },
-      string:->(s, format = :csv){
+      string:->(s, format ){
         if format == :yml
           return "null"                          if s.nil?
-          s = s.gsub(/\t/,"  ")                  if s["\t"]   # tabは空白スペース２つ
-          s = s.sub(/ +/, "")                    if s[0]==' ' # 先頭のスペースは削除
-          s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]   # 改行付きはフォーマット変更
-        end
-        s
-      },
-      text:->(s, format = :csv){
-        if format == :yml
-          return "null"                          if s.nil?
+          s = s.to_s
           s = s.gsub(/\t/,"  ")                  if s["\t"]
           s = s.sub(/ +/, "")                    if s[0]==' '
           s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]
         end
+        if format == :yml
+          return nil if s.nil? # nil は空白文字 
+          s = s.to_s
+        end
         s
       },
-      time:->(d, format = :csv){
+      text:->(s, format){
+        if format == :yml
+          return "null"                          if s.nil?
+          s = s.to_s
+          s = s.gsub(/\t/,"  ")                  if s["\t"]
+          s = s.sub(/ +/, "")                    if s[0]==' '
+          s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]
+        end
+        if format == :csv
+          return nil if s.nil? # nil は空白文字
+          s = s.to_s
+        end
+        s
+      },
+      time:->(d, format ){
+        if format == :yml
+          return "null" if d.nil?
+        end
         Time.parse(d.to_s).to_s
       },
-      timestamp:->(d, format = :csv){
+      timestamp:->(d, format ){
+        if format == :yml
+          return "null" if d.nil?
+        end
         Time.parse(d.to_s).to_s
       },
     }

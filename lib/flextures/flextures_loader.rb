@@ -78,15 +78,14 @@ module Flextures
       inpfile = "#{dir_name}#{file_name}.csv"
       klass = PARENT::create_model table_name
       attributes = klass.columns.map &:name
-      filter = create_filter klass, Factory[table_name]
+      filter = create_filter klass, Factory[table_name],  file_name, :csv
       klass.delete_all
       CSV.open( inpfile ) do |csv|
         keys = csv.shift # keyの設定
         warning "CSV", attributes, keys
         csv.each do |values|
           h = values.extend(Extensions::Array).to_hash(keys)
-          args = [h, file_name]
-          o = filter.call *args[0,filter.arity]
+          o = filter.call h
           o.save
         end
       end
@@ -100,12 +99,11 @@ module Flextures
       inpfile = "#{dir_name}#{file_name}.yml"
       klass = PARENT::create_model table_name
       attributes = klass.columns.map &:name
-      filter = create_filter klass, Factory[table_name]
+      filter = create_filter klass, Factory[table_name], file_name, :yml
       klass.delete_all
       YAML.load(File.open(inpfile)).each do |k,h|
         warning "YAML", attributes, h.keys
-        args = [h, file_name]
-        o = filter.call *args[0,filter.arity]
+        o = filter.call h
         o.save
       end
     end
@@ -117,7 +115,7 @@ module Flextures
     end
 
     # フィクスチャから取り出した値を、加工して欲しいデータにするフィルタを作成して返す
-    def self.create_filter klass, factory=nil
+    def self.create_filter klass, factory, filename, ext
       columns = klass.columns
       # テーブルからカラム情報を取り出し
       column_hash = {}
@@ -134,7 +132,7 @@ module Flextures
         h.each{ |k,v| nil==v || o[k] = TRANSLATER[column_hash[k].type].call(v) }
         not_nullable_columns.each{ |k| o[k]==nil && o[k] = TRANSLATER[column_hash[k].type].call(k) }
         # FactoryFilterを動作させる
-        factory.call(o) if factory
+        factory.call(*[o, :load, filename, ext][0,factory.arity]) if factory
         # 値がnilの列にデフォルト値を補間
         lack_columns.each { |k| nil==o[k] && o[k] = COMPLETER[column_hash[k].type].call }
         o
