@@ -44,16 +44,35 @@ module Flextures
   end
 
   # テーブル情報の初期化
-  def self.init_tables
+  def self.init_tables(ignore_tables=[])
     tables = ActiveRecord::Base.connection.tables
     tables.delete "schema_migrations"
-    tables.each{ |name|
+    tables.delete ignore_tables
+    tables.each do |name|
       # テーブルではなくviewを拾って止まる場合があるのでrescueしてしまう
       begin
-        Class.new(ActiveRecord::Base){ |o| o.table_name= name }.delete_all
+        klass = Class.new(ActiveRecord::Base){ |o| o.table_name= name }
+        klass.delete_all
+      rescue => e
+        p :init_table_error
+        p klass.table_name
+      end
+    end
+  end
+
+  # デバッグ用のメソッド、渡されたブロックを実行する
+  # 主にテーブルの今の中身を覗きたい時に使う
+  def self.table_tap &dumper
+    tables = ActiveRecord::Base.connection.tables
+    tables.delete "schema_migrations"
+    tables.each do |name|
+      # テーブルではなくviewを拾って止まる場合があるのでrescueしてしまう
+      begin
+        klass = Class.new(ActiveRecord::Base){ |o| o.table_name= name; }
+        dumper.call klass
       rescue => e
       end
-    }
+    end
   end
 
   # 引数解析
