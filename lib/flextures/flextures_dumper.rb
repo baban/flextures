@@ -16,10 +16,13 @@ module Flextures
         if format == :yml
           return "null" if d.nil?
         end
-        Time.parse(d.to_s).to_s
+        d.to_s
       },
       datetime:->(d, format ){
-        Time.parse(d.to_s).to_s
+        if format == :yml
+          return "null" if d.nil?
+        end
+        d.to_s
       },
       decimal:->(d, format ){
         d.to_i
@@ -38,7 +41,7 @@ module Flextures
           s = s.sub(/ +/, "")                    if s[0]==' '
           s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]
         end
-        if format == :yml
+        if format == :csv
           return nil if s.nil? # nil は空白文字 
           s = s.to_s
         end
@@ -62,13 +65,13 @@ module Flextures
         if format == :yml
           return "null" if d.nil?
         end
-        Time.parse(d.to_s).to_s
+        d.to_s
       },
       timestamp:->(d, format ){
         if format == :yml
           return "null" if d.nil?
         end
-        Time.parse(d.to_s).to_s
+        d.to_s
       },
     }
 
