@@ -41,7 +41,7 @@ module Flextures
           s = s.sub(/ +/, "")                    if s[0]==' '
           s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]
         end
-        if format == :yml
+        if format == :csv
           return nil if s.nil? # nil は空白文字 
           s = s.to_s
         end
