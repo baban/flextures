@@ -14,6 +14,7 @@ module RSpec
     module FlextureSupport
       @@configs={ load_count: 0 }
       def self.included(m)
+        Flextures::init_tables
         # 一番外側のdescribeにだけ追加
         #m.after { Flextures::init_tables } if @@configs[:load_count]==0
         @@configs[:load_count] += 1
@@ -29,11 +30,20 @@ end
 # 既存のsetup_fixturesの機能を上書きする必要があったのでこちらを作成
 module ActiveRecord
   module TestFixtures
+    @@configs={ load_count: 0 }
+    alias :setup_fixtures_bkup :setup_fixtures
+    def setup_fixtures
+      @@configs[:load_count] += 1
+      Flextures::init_load
+      Flextures::init_tables unless run_in_transaction?
+      setup_fixtures_bkup
+    end
   end
 end
 
 module ActiveRecord
   class Fixtures
+=begin
     def self.create_fixtures(fixtures_directory, table_names, class_names = {})
       table_names = [table_names].flatten.map { |n| n.to_s }
       table_names.each { |n|
@@ -94,7 +104,7 @@ module ActiveRecord
       end
       cached_fixtures(connection, table_names)
     end
-
+=end
   end
 end
 

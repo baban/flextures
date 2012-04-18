@@ -78,7 +78,7 @@ module Flextures
       inpfile = "#{dir_name}#{file_name}.csv"
       klass = PARENT::create_model table_name
       attributes = klass.columns.map &:name
-      filter = create_filter klass, Factory[table_name],  file_name, :csv
+      filter = create_filter klass, Factory[table_name], file_name, :csv
       klass.delete_all
       CSV.open( inpfile ) do |csv|
         keys = csv.shift # keyの設定
