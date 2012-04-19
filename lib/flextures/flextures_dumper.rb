@@ -10,36 +10,59 @@ module Flextures
         d.to_s
       },
       boolean:->(d, format ){
+        if format == :yml
+          return "null" if d.nil?
+        end
         (0==d || ""==d || !d) ? false : true
       },
       date:->(d, format ){
         if format == :yml
           return "null" if d.nil?
+          return "null" if d==""
+          return "null" if d==false
         end
         d.to_s
       },
       datetime:->(d, format ){
         if format == :yml
           return "null" if d.nil?
+          return "null" if d==""
+          return "null" if d==false
         end
         d.to_s
       },
       decimal:->(d, format ){
+        if format == :yml
+          return "null" if d.nil?
+        end
+        return 0 if d==""
+        return 0 if d==false
         d.to_i
       },
       float:->(d, format){
+        if format == :yml
+          return "null" if d.nil?
+        end
+        return 0 if d==""
+        return 0 if d==false
         d.to_f
       },
       integer:->(d, format){
+        if format == :yml
+          return "null" if d.nil?
+        end
+        return 0 if d==""
+        return 0 if d==false
         d.to_i
       },
       string:->(s, format ){
         if format == :yml
-          return "null"                          if s.nil?
-          s = s.to_s
-          s = s.gsub(/\t/,"  ")                  if s["\t"]
-          s = s.sub(/ +/, "")                    if s[0]==' '
-          s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]
+          return "null"                            if s.nil?
+          if s.kind_of?(String)
+            s = s.gsub(/\t/,"  ")                  if s["\t"]
+            s = s.sub(/ +/, "")                    if s[0]==' '
+            s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]
+          end
         end
         if format == :csv
           return nil if s.nil? # nil は空白文字 
@@ -49,11 +72,12 @@ module Flextures
       },
       text:->(s, format){
         if format == :yml
-          return "null"                          if s.nil?
-          s = s.to_s
-          s = s.gsub(/\t/,"  ")                  if s["\t"]
-          s = s.sub(/ +/, "")                    if s[0]==' '
-          s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]
+          return "null"                            if s.nil?
+          if s.kind_of?(String)
+            s = s.gsub(/\t/,"  ")                  if s["\t"]
+            s = s.sub(/ +/, "")                    if s[0]==' '
+            s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]
+          end
         end
         if format == :csv
           return nil if s.nil? # nil は空白文字
@@ -64,12 +88,16 @@ module Flextures
       time:->(d, format ){
         if format == :yml
           return "null" if d.nil?
+          return "null" if d==""
+          return "null" if d==false
         end
         d.to_s
       },
       timestamp:->(d, format ){
         if format == :yml
           return "null" if d.nil?
+          return "null" if d==""
+          return "null" if d==false
         end
         d.to_s
       },

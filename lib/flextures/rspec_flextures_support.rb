@@ -14,7 +14,6 @@ module RSpec
     module FlextureSupport
       @@configs={ load_count: 0 }
       def self.included(m)
-        Flextures::init_tables
         # 一番外側のdescribeにだけ追加
         #m.after { Flextures::init_tables } if @@configs[:load_count]==0
         @@configs[:load_count] += 1
@@ -33,10 +32,15 @@ module ActiveRecord
     @@configs={ load_count: 0 }
     alias :setup_fixtures_bkup :setup_fixtures
     def setup_fixtures
-      @@configs[:load_count] += 1
       Flextures::init_load
-      Flextures::init_tables unless run_in_transaction?
+      Flextures::init_tables if @@configs[:load_count]==0
+      @@configs[:load_count] += 1
       setup_fixtures_bkup
+    end
+
+    alias :teardown_fixtures_bkup :teardown_fixtures
+    def teardown_fixtures
+      teardown_fixtures_bkup
     end
   end
 end

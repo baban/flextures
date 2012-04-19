@@ -30,17 +30,53 @@ module Flextures
 
     # 型の変換を行う
     TRANSLATER = {
-      binary:->(d){ d.to_i },
-      boolean:->(d){ (0==d || ""==d || !d) ? false : true },
-      date:->(d){ Date.parse(d.to_s) },
-      datetime:->(d){ DateTime.parse(d.to_s) },
-      decimal:->(d){ d.to_i },
-      float:->(d){ d.to_f },
-      integer:->(d){ d.to_i },
-      string:->(d){ d.to_s },
-      text:->(d){ d.to_s },
-      time:->(d){ DateTime.parse(d.to_s) },
-      timestamp:->(d){ DateTime.parse(d.to_s) },
+      binary:->(d){
+        d.to_i
+      },
+      boolean:->(d){
+        return d if d.nil?
+        (0==d || ""==d || !d) ? false : true
+      },
+      date:->(d){
+        return d   if d.nil?
+        return nil if d==""
+        Date.parse(d.to_s)
+      },
+      datetime:->(d){
+        return d   if d.nil?
+        return nil if d==""
+        DateTime.parse(d.to_s)
+      },
+      decimal:->(d){
+        return d   if d.nil?
+        d.to_i
+      },
+      float:->(d){
+        return d   if d.nil?
+        d.to_f
+      },
+      integer:->(d){
+        return d   if d.nil?
+        d.to_i
+      },
+      string:->(d){
+        return d   if d.nil?
+        d.to_s
+      },
+      text:->(d){
+        return d   if d.nil?
+        d.to_s
+      },
+      time:->(d){
+        return d   if d.nil?
+        return nil if d==""
+        DateTime.parse(d.to_s)
+      },
+      timestamp:->(d){
+        return d   if d.nil?
+        return nil if d==""
+        DateTime.parse(d.to_s)
+      },
     }
 
     # csv 優先で存在している fixtures をロード
