@@ -54,8 +54,6 @@ module Flextures
         klass = Class.new(ActiveRecord::Base){ |o| o.table_name= name }
         klass.delete_all
       rescue => e
-        p :init_table_error
-        p klass.table_name
       end
     end
   end
