@@ -7,6 +7,9 @@ module Flextures
 
     TRANSLATER = {
       binary:->( d, format ){
+        if format == :yml
+          return "null" if d.nil?
+        end
         d.to_s
       },
       boolean:->( d, format ){
