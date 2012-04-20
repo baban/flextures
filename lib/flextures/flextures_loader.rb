@@ -31,6 +31,7 @@ module Flextures
     # 型の変換を行う
     TRANSLATER = {
       binary:->(d){
+        return d if d.nil?
         d.to_i
       },
       boolean:->(d){

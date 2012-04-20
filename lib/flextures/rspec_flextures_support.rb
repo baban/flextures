@@ -4,16 +4,26 @@
 module RSpec
   module Core
     module Hooks
+      # 引数で渡されたファイルを読み込みする
       def flextures *_
         before { Flextures::Loader::flextures *_ }
+      end
+
+      # 引数で渡されたテーブルのデータをdeleteする
+      def flextures_delete
+        before { Flextures::init_tables }
+      end
+
+      def flextures_set_config
+        # TODO: ハッシュで渡された設定をセットする
       end
     end
   end
 
   module Rails
     module FlextureSupport
-      @@configs={ load_count: 0 }
       def self.included(m)
+        # 実行前にテーブルの初期化
         Flextures::init_tables
       end
     end
