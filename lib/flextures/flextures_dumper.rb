@@ -6,16 +6,16 @@ module Flextures
     PARENT = Flextures
 
     TRANSLATER = {
-      binary:->(d, format ){
+      binary:->( d, format ){
         d.to_s
       },
-      boolean:->(d, format ){
+      boolean:->( d, format ){
         if format == :yml
           return "null" if d.nil?
         end
         (0==d || ""==d || !d) ? false : true
       },
-      date:->(d, format ){
+      date:->( d, format ){
         if format == :yml
           return "null" if d.nil?
           return "null" if d==""
@@ -23,7 +23,7 @@ module Flextures
         end
         d.to_s
       },
-      datetime:->(d, format ){
+      datetime:->( d, format ){
         if format == :yml
           return "null" if d.nil?
           return "null" if d==""
@@ -31,7 +31,7 @@ module Flextures
         end
         d.to_s
       },
-      decimal:->(d, format ){
+      decimal:->( d, format ){
         if format == :yml
           return "null" if d.nil?
         end
@@ -47,7 +47,7 @@ module Flextures
         return 0 if d==false
         d.to_f
       },
-      integer:->(d, format){
+      integer:->( d, format){
         if format == :yml
           return "null" if d.nil?
         end
@@ -55,37 +55,41 @@ module Flextures
         return 0 if d==false
         d.to_i
       },
-      string:->(s, format ){
+      string:->( s, format ){
         if format == :yml
           return "null"                            if s.nil?
           if s.kind_of?(String)
             s = s.gsub(/\t/,"  ")                  if s["\t"]
             s = s.sub(/ +/, "")                    if s[0]==' '
+            s = s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") # 改行方法統一
             s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]
           end
         end
         if format == :csv
           return nil if s.nil? # nil は空白文字 
           s = s.to_s
+          s = s.gsub(/\r\n/,"\n").gsub(/\r/,"\n")
         end
         s
       },
-      text:->(s, format){
+      text:->( s, format ){
         if format == :yml
           return "null"                            if s.nil?
           if s.kind_of?(String)
             s = s.gsub(/\t/,"  ")                  if s["\t"]
             s = s.sub(/ +/, "")                    if s[0]==' '
+            s = s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") # 改行方法統一
             s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]
           end
         end
         if format == :csv
           return nil if s.nil? # nil は空白文字
           s = s.to_s
+          s = s.gsub(/\r\n/,"\n").gsub(/\r/,"\n")
         end
         s
       },
-      time:->(d, format ){
+      time:->( d, format ){
         if format == :yml
           return "null" if d.nil?
           return "null" if d==""
@@ -93,7 +97,7 @@ module Flextures
         end
         d.to_s
       },
-      timestamp:->(d, format ){
+      timestamp:->( d, format ){
         if format == :yml
           return "null" if d.nil?
           return "null" if d==""
