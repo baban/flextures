@@ -44,18 +44,25 @@ module Flextures
   end
 
   # テーブル情報の初期化
-  def self.init_tables(ignore_tables=[])
+  def self.init_tables
     tables = ActiveRecord::Base.connection.tables
     tables.delete "schema_migrations"
-    tables.delete ignore_tables
     tables.each do |name|
       # テーブルではなくviewを拾って止まる場合があるのでrescueしてしまう
       begin
-        klass = Class.new(ActiveRecord::Base){ |o| o.table_name= name }
-        klass.delete_all
+        Class.new(ActiveRecord::Base){ |o| o.table_name= name }.delete_all
       rescue => e
-        p :init_table_error
-        p klass.table_name
+      end
+    end
+  end
+
+  # テーブル情報の初期化
+  def self.delete_tables *tables
+    tables.each do |name|
+      # テーブルではなくviewを拾って止まる場合があるのでrescueしてしまう
+      begin
+        Class.new(ActiveRecord::Base){ |o| o.table_name= name }.delete_all
+      rescue => e
       end
     end
   end

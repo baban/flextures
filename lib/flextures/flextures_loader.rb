@@ -80,14 +80,36 @@ module Flextures
       },
     }
 
-    # csv 優先で存在している fixtures をロード
-    def self.load format
+    # どのファイルが存在するかチェック
+    # @param [Hash] format ロードしたいファイルの情報
+    # @return 存在するファイルの種類(csv,yml)、どちも存在しないならnil
+    def self.file_exist format, type = [:csv,:yml]
+      table_name = format[:table].to_s
       file_name = format[:file] || format[:table]
       dir_name = format[:dir] || LOAD_DIR
-      method = nil
-      method = :csv if File.exist? "#{dir_name}#{file_name}.csv"
-      method = :yml if File.exist? "#{dir_name}#{file_name}.yml"
-      self::send(method, format) if method
+
+      ext_check=->{
+        if    type.member?(:csv) and File.exist? "#{dir_name}#{file_name}.csv"
+          :csv
+        elsif type.member?(:yml) and File.exist? "#{dir_name}#{file_name}.yml"
+          :yml
+        else
+          nil
+        end
+      }
+
+      [table_name, "#{dir_name}#{file_name}"]<< ext_check.call
+    end
+
+    # csv 優先で存在している fixtures をロード
+    def self.load format
+      table_name, file_name, method = file_exist format
+      if method
+        self::send(method, format)
+      else
+        # ファイルが存在しない時
+        print "Warning: #{file_name}  is not exist!\n" 
+      end
     end
 
     # fixturesをまとめてロード、主にテストtest/unit, rspec で使用する
@@ -109,15 +131,12 @@ module Flextures
 
     # CSVのデータをロードする
     def self.csv format
-      table_name = format[:table].to_s
-      file_name = format[:file] || table_name
-      dir_name = format[:dir] || LOAD_DIR
-      inpfile = "#{dir_name}#{file_name}.csv"
+      table_name, file_name, ext = file_exist format, [:csv]
       klass = PARENT::create_model table_name
       attributes = klass.columns.map &:name
       filter = create_filter klass, Factory[table_name], file_name, :csv
       klass.delete_all
-      CSV.open( inpfile ) do |csv|
+      CSV.open( "#{file_name}.csv" ) do |csv|
         keys = csv.shift # keyの設定
         warning "CSV", attributes, keys
         csv.each do |values|
@@ -130,15 +149,12 @@ module Flextures
 
     # YAML形式でデータをロードする
     def self.yml format
-      table_name = format[:table].to_s
-      file_name = format[:file] || table_name
-      dir_name = format[:dir] || LOAD_DIR
-      inpfile = "#{dir_name}#{file_name}.yml"
+      table_name, file_name, ext = file_exist format, [:yml]
       klass = PARENT::create_model table_name
       attributes = klass.columns.map &:name
       filter = create_filter klass, Factory[table_name], file_name, :yml
       klass.delete_all
-      YAML.load(File.open(inpfile)).each do |k,h|
+      YAML.load(File.open("#{file_name}.yml")).each do |k,h|
         warning "YAML", attributes, h.keys
         o = filter.call h
         o.save

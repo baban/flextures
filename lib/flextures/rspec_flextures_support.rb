@@ -10,8 +10,14 @@ module RSpec
       end
 
       # 引数で渡されたテーブルのデータをdeleteする
-      def flextures_delete
-        before { Flextures::init_tables }
+      def flextures_delete *_
+        before {
+          if _.empty?
+            Flextures::init_tables
+          else
+            Flextures::delete_tables *_
+          end
+        }
       end
 
       def flextures_set_config
