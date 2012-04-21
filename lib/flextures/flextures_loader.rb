@@ -104,7 +104,6 @@ module Flextures
     # csv 優先で存在している fixtures をロード
     def self.load format
       table_name, file_name, method = file_exist format
-      p [table_name, file_name, method]
       if method
         self::send(method, format)
       else
@@ -133,6 +132,9 @@ module Flextures
     # CSVのデータをロードする
     def self.csv format
       table_name, file_name, ext = file_exist format, [:csv]
+
+      return nil unless File.exist? "#{file_name}.csv"
+
       klass = PARENT::create_model table_name
       attributes = klass.columns.map &:name
       filter = create_filter klass, Factory[table_name], file_name, :csv
@@ -146,11 +148,15 @@ module Flextures
           o.save
         end
       end
+      "#{file_name}.csv"
     end
 
     # YAML形式でデータをロードする
     def self.yml format
       table_name, file_name, ext = file_exist format, [:yml]
+
+      return nil unless File.exist? "#{file_name}.yml"
+
       klass = PARENT::create_model table_name
       attributes = klass.columns.map &:name
       filter = create_filter klass, Factory[table_name], file_name, :yml
@@ -160,6 +166,7 @@ module Flextures
         o = filter.call h
         o.save
       end
+      "#{file_name}.yml"
     end
 
     # 欠けたカラムを検知してメッセージを出しておく
@@ -170,8 +177,6 @@ module Flextures
 
     # フィクスチャから取り出した値を、加工して欲しいデータにするフィルタを作成して返す
     def self.create_filter klass, factory, filename, ext
-      p filename
-      p ext
       columns = klass.columns
       # テーブルからカラム情報を取り出し
       column_hash = {}
@@ -185,11 +190,12 @@ module Flextures
         h.select! { |k,v| column_hash[k] }
         o = klass.new 
         # 値がnilでないなら型をDBで適切なものに変更
-        h.each{ |k,v| nil==v || o[k] = TRANSLATER[column_hash[k].type].call(v) }
-        not_nullable_columns.each{ |k| o[k]==nil && o[k] = TRANSLATER[column_hash[k].type].call(k) }
+        h.each{ |k,v| nil==v || o[k] = (TRANSLATER[column_hash[k].type] ? TRANSLATER[column_hash[k].type].call(v) : nil) }
         # FactoryFilterを動作させる
         factory.call(*[o, :load, filename, ext][0,factory.arity]) if factory
         # 値がnilの列にデフォルト値を補間
+        not_nullable_columns.each{ |k| o[k]==nil && o[k] = (COMPLETER[column_hash[k].type] ? COMPLETER[column_hash[k].type].call : nil) }
+        # 列ごと抜けているデータを保管
         lack_columns.each { |k| nil==o[k] && o[k] = COMPLETER[column_hash[k].type].call }
         o
       }

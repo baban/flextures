@@ -11,7 +11,7 @@ require 'flextures/flextures_factory'
 module Flextures
   module Rake
     module Command
-      def dump
+      def self.dump
         table_names = Flextures::ARGS.parse
         Flextures::init_load
         puts "dumping..."
@@ -22,19 +22,19 @@ module Flextures
         end
       end
 
-      def csvdump
+      def self.csvdump
         table_names = Flextures::ARGS.parse
         Flextures::init_load
         table_names.each { |fmt| Flextures::Dumper::csv(fmt) }
       end
 
-      def ymldump
+      def self.ymldump
         table_names = Flextures::ARGS.parse
         Flextures::init_load
         table_names.each { |fmt| Flextures::Dumper::yml(fmt) }
       end
 
-      def load
+      def self.load
         table_names = Flextures::ARGS.parse
         Flextures::init_load
         Flextures::init_tables
@@ -42,18 +42,22 @@ module Flextures
         table_names.each { |fmt| Flextures::Loader::load(fmt) }
       end
 
-      def csvload
+      def self.csvload
         table_names = Flextures::ARGS.parse
         Flextures::init_load
         Flextures::init_tables
-        table_names.each { |fmt| Flextures::Loader::csv(fmt) }
+        puts "loading..."
+        table_names.map { |fmt| 
+          Flextures::Loader::csv(fmt)
+        }
       end
 
-      def ymlload
+      def self.ymlload
         table_names = Flextures::ARGS::parse
         Flextures::init_load
         Flextures::init_tables
-        table_names.each { |fmt| Flextures::Loader::yml(fmt) }
+        puts "loading..."
+        table_names.map { |fmt| Flextures::Loader::yml(fmt) }
       end
     end
   end
