@@ -36,11 +36,7 @@ namespace :db do
       Flextures::init_load
       Flextures::init_tables
       puts "loading..."
-      if ["yml","yaml"].include? ENV["FORMAT"]
-        table_names.each { |fmt| Flextures::Loader::yml(fmt) }
-      else
-        table_names.each { |fmt| Flextures::Loader::csv(fmt) }
-      end
+      table_names.each { |fmt| Flextures::Loader::load(fmt) }
     end
 
     desc "load fixture data only csv format files"

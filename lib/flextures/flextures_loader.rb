@@ -88,7 +88,7 @@ module Flextures
       file_name = format[:file] || format[:table]
       dir_name = format[:dir] || LOAD_DIR
 
-      ext_check=->{
+      ext=->{
         if    type.member?(:csv) and File.exist? "#{dir_name}#{file_name}.csv"
           :csv
         elsif type.member?(:yml) and File.exist? "#{dir_name}#{file_name}.yml"
@@ -96,14 +96,15 @@ module Flextures
         else
           nil
         end
-      }
+      }.call
 
-      [table_name, "#{dir_name}#{file_name}"]<< ext_check.call
+      [table_name, "#{dir_name}#{file_name}",ext]
     end
 
     # csv 優先で存在している fixtures をロード
     def self.load format
       table_name, file_name, method = file_exist format
+      p [table_name, file_name, method]
       if method
         self::send(method, format)
       else
@@ -169,6 +170,8 @@ module Flextures
 
     # フィクスチャから取り出した値を、加工して欲しいデータにするフィルタを作成して返す
     def self.create_filter klass, factory, filename, ext
+      p filename
+      p ext
       columns = klass.columns
       # テーブルからカラム情報を取り出し
       column_hash = {}
