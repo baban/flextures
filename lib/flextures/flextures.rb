@@ -43,10 +43,16 @@ module Flextures
     end
   end
 
-  # テーブル情報の初期化
-  def self.init_tables
+  # 前テーブル削除のときにほんとうに消去して良いテーブル一覧を返す
+  def self.deletable_tables
     tables = ActiveRecord::Base.connection.tables
     tables.delete "schema_migrations"
+    tables
+  end
+
+  # テーブル情報の初期化
+  def self.init_tables
+    tables = Flextures::deletable_tables
     tables.each do |name|
       # テーブルではなくviewを拾って止まる場合があるのでrescueしてしまう
       begin
@@ -70,8 +76,7 @@ module Flextures
   # デバッグ用のメソッド、渡されたブロックを実行する
   # 主にテーブルの今の中身を覗きたい時に使う
   def self.table_tap &dumper
-    tables = ActiveRecord::Base.connection.tables
-    tables.delete "schema_migrations"
+    tables = Flextures::deletable_tables
     tables.each do |name|
       # テーブルではなくviewを拾って止まる場合があるのでrescueしてしまう
       begin

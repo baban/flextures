@@ -122,7 +122,7 @@ module Flextures
     # fixtures :users => :users2
     def self.flextures *fixtures
       # :allですべてのfixtureを反映
-      fixtures = ActiveRecord::Base.connection.tables if fixtures.size== 1 and :all == fixtures.first
+      fixtures = Flextures::deletable_tables if fixtures.size== 1 and :all == fixtures.first
       fixtures_hash = fixtures.pop if fixtures.last and fixtures.last.is_a? Hash # ハッシュ取り出し
       fixtures.each{ |table_name| Loader::load table: table_name }
       fixtures_hash.each{ |k,v| Loader::load table: k, file: v } if fixtures_hash
