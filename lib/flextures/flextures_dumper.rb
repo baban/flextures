@@ -10,7 +10,8 @@ module Flextures
         if format == :yml
           return "null" if d.nil?
         end
-        d.to_s
+        return nil if d.nil?
+        Base64.encode64(d)
       },
       boolean:->( d, format ){
         if format == :yml
