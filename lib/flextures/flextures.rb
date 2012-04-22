@@ -99,7 +99,7 @@ module Flextures
         table_names = (ENV["M"] or ENV["MODEL"]).split(',').map{ |name| { table: name.constantize.table_name } }
       end
       if table_names.empty?
-        table_names = ActiveRecord::Base.connection.tables.map{ |name| { table: name } }
+        table_names = Flextures::deletable_tables.map{ |table| { table: table }  }
       end
       # ENV["FIXTURES"]の中身を解析
       fixtures_args_parser =->(s){
@@ -112,7 +112,7 @@ module Flextures
       table_names = fixtures_args_parser.call ENV["F"] if ENV["F"]
       table_names = table_names.map{ |option| option.merge dir: ENV["DIR"] } if ENV["DIR"]
       # read mode だとcsvもyaml存在しないファイルは返さない
-      table_names.select! &exist if option[:mode] && option[:mode].to_sym == :read
+      table_names.select! &exist if option[:mode] && option[:mode] == 'read'
       table_names
     end
 

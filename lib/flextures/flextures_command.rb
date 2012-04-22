@@ -12,8 +12,8 @@ module Flextures
   module Rake
     module Command
       def self.dump
-        table_names = Flextures::ARGS.parse
         Flextures::init_load
+        table_names = Flextures::ARGS.parse
         puts "dumping..."
         if ["yml","yaml"].include? ENV["FORMAT"]
           table_names.each { |fmt| Flextures::Dumper::yml(fmt) }
@@ -23,19 +23,19 @@ module Flextures
       end
 
       def self.csvdump
-        table_names = Flextures::ARGS.parse
         Flextures::init_load
+        table_names = Flextures::ARGS.parse mode:'read'
         table_names.each { |fmt| Flextures::Dumper::csv(fmt) }
       end
 
       def self.ymldump
-        table_names = Flextures::ARGS.parse
         Flextures::init_load
+        table_names = Flextures::ARGS.parse mode:'read'
         table_names.each { |fmt| Flextures::Dumper::yml(fmt) }
       end
 
       def self.load
-        table_names = Flextures::ARGS.parse
+        table_names = Flextures::ARGS.parse mode:'read'
         Flextures::init_load
         Flextures::init_tables
         puts "loading..."
