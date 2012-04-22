@@ -39,7 +39,7 @@ module Flextures
         Flextures::init_load
         Flextures::init_tables
         puts "loading..."
-        table_names.each { |fmt| Flextures::Loader::load(fmt) }
+        table_names.map { |fmt| Flextures::Loader::load(fmt) }
       end
 
       def self.csvload
