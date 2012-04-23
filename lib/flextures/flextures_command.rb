@@ -35,7 +35,7 @@ module Flextures
       end
 
       def self.load
-        table_names = Flextures::ARGS.parse mode:'read'
+        table_names = Flextures::ARGS.parse
         Flextures::init_load
         Flextures::init_tables
         puts "loading..."
@@ -47,9 +47,7 @@ module Flextures
         Flextures::init_load
         Flextures::init_tables
         puts "loading..."
-        table_names.map { |fmt| 
-          Flextures::Loader::csv(fmt)
-        }
+        table_names.map { |fmt| Flextures::Loader::csv(fmt) }
       end
 
       def self.ymlload
