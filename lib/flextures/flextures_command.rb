@@ -15,23 +15,25 @@ module Flextures
         Flextures::init_load
         table_names = Flextures::ARGS.parse
         puts "dumping..."
-        if ["yml","yaml"].include? ENV["FORMAT"]
-          table_names.each { |fmt| Flextures::Dumper::yml(fmt) }
+        if ["yml","yaml"].member? ENV["FORMAT"]
+          table_names.map { |fmt| Flextures::Dumper::yml(fmt) }
         else
-          table_names.each { |fmt| Flextures::Dumper::csv(fmt) }
+          table_names.map { |fmt| Flextures::Dumper::csv(fmt) }
         end
       end
 
       def self.csvdump
         Flextures::init_load
-        table_names = Flextures::ARGS.parse mode:'read'
-        table_names.each { |fmt| Flextures::Dumper::csv(fmt) }
+        puts "dumping..."
+        table_names = Flextures::ARGS.parse
+        table_names.map { |fmt| Flextures::Dumper::csv(fmt) }
       end
 
       def self.ymldump
         Flextures::init_load
-        table_names = Flextures::ARGS.parse mode:'read'
-        table_names.each { |fmt| Flextures::Dumper::yml(fmt) }
+        puts "dumping..."
+        table_names = Flextures::ARGS.parse
+        table_names.map { |fmt| Flextures::Dumper::yml(fmt) }
       end
 
       def self.load

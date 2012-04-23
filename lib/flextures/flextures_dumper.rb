@@ -133,6 +133,7 @@ module Flextures
           csv<< attr_type.map { |h| trans(row[h[:name]], h[:type], :csv) }
         end
       end
+      outfile
     end
 
     # yaml で fixtures を dump
@@ -143,7 +144,6 @@ module Flextures
       table_name = format[:table]
       klass = PARENT::create_model(table_name)
       attributes = klass.columns.map { |colum| colum.name }
-
       columns = klass.columns
       # テーブルからカラム情報を取り出し
       column_hash = {}
@@ -162,6 +162,7 @@ module Flextures
             }.join
         end
       end
+      outfile
     end
   end
 end
