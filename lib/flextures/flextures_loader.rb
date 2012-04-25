@@ -101,17 +101,6 @@ module Flextures
       [table_name, "#{dir_name}#{file_name}",ext]
     end
 
-    # csv 優先で存在している fixtures をロード
-    def self.load format
-      table_name, file_name, method = file_exist format
-      if method
-        self::send(method, format)
-      else
-        # ファイルが存在しない時
-        print "Warning: #{file_name}  is not exist!\n" 
-      end
-    end
-
     # fixturesをまとめてロード、主にテストtest/unit, rspec で使用する
     #
     # 全テーブルが対象
@@ -124,16 +113,27 @@ module Flextures
       # :allですべてのfixtureを反映
       fixtures = Flextures::deletable_tables if fixtures.size== 1 and :all == fixtures.first
       fixtures_hash = fixtures.pop if fixtures.last and fixtures.last.is_a? Hash # ハッシュ取り出し
-      fixtures.each{ |table_name| Loader::load table: table_name }
-      fixtures_hash.each{ |k,v| Loader::load table: k, file: v } if fixtures_hash
+      fixtures.each{ |table_name| Loader::load table: table_name, loader: :fun }
+      fixtures_hash.each{ |k,v| Loader::load table: k, file: v,   loader: :fun } if fixtures_hash
       fixtures
+    end
+
+    # csv 優先で存在している fixtures をロード
+    def self.load format
+      table_name, file_name, method = file_exist format
+      if method
+        send(method, format)
+      else
+        # ファイルが存在しない時
+        print "Warning: #{file_name}  is not exist!\n" 
+      end
     end
 
     # CSVのデータをロードする
     def self.csv format
       table_name, file_name, ext = file_exist format, [:csv]
 
-      print "try loading #{file_name}.yml\n"
+      print "try loading #{file_name}.yml\n" unless [:fun].include? format[:loader]
       return nil unless File.exist? "#{file_name}.csv"
 
       klass = PARENT::create_model table_name
@@ -156,7 +156,7 @@ module Flextures
     def self.yml format
       table_name, file_name, ext = file_exist format, [:yml]
 
-      print "try loading #{file_name}.yml\n"
+      print "try loading #{file_name}.yml\n" unless [:function].include? format[:loader]
       return nil unless File.exist? "#{file_name}.yml"
 
       klass = PARENT::create_model table_name
