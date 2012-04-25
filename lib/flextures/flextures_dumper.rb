@@ -65,8 +65,11 @@ module Flextures
           if s.kind_of?(String)
             s = s.gsub(/\t/,"  ")                  if s["\t"]
             s = s.sub(/ +/, "")                    if s[0]==' '
+            is_nl = false
+            is_nl |= s["\n"]
+            is_nl |= ["[","]","{","}","|","#","@","~","!","'","$","&","^","<",">","?","-","+","=",";",":",".",",","*","`","(",")"].member? s[0]
             s = s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") # 改行方法統一
-            s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]
+            s = "|-\n    " + s.gsub(/\n/,"\n    ") if is_nl
           end
         end
         if format == :csv
@@ -82,8 +85,11 @@ module Flextures
           if s.kind_of?(String)
             s = s.gsub(/\t/,"  ")                  if s["\t"]
             s = s.sub(/ +/, "")                    if s[0]==' '
+            is_nl = false
+            is_nl |= s["\n"]
+            is_nl |= ["[","]","{","}","|","#","@","~","!","'","$","&","^","<",">","?","-","+","=",";",":",".",",","*","`","(",")"].member? s[0]
             s = s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") # 改行方法統一
-            s = "|-\n    " + s.gsub(/\n/,"\n    ") if s["\n"]
+            s = "|-\n    " + s.gsub(/\n/,"\n    ") if is_nl
           end
         end
         if format == :csv
