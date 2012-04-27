@@ -156,13 +156,17 @@ module Flextures
     def self.yml format
       table_name, file_name, ext = file_exist format, [:yml]
 
-      print "try loading #{file_name}.yml\n" unless [:function].include? format[:loader]
+      print "try loading #{file_name}.yml\n" unless [:fun].include? format[:loader]
       return nil unless File.exist? "#{file_name}.yml"
 
-      klass = PARENT::create_model table_name
-      attributes = klass.columns.map &:name
-      filter = create_filter klass, Factory[table_name], file_name, :yml
-      klass.delete_all
+      attributes, filter = ->{
+        klass = PARENT::create_model table_name
+        klass.delete_all
+        attributes = klass.columns.map &:name
+        filter = create_filter klass, Factory[table_name], file_name, :yml
+        [attributes, filter]
+      }.call
+
       yaml = YAML.load(File.open("#{file_name}.yml"))
       return false unless yaml # ファイルの中身が空の場合
       yaml.each do |k,h|
