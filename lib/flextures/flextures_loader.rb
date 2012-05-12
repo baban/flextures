@@ -62,10 +62,14 @@ module Flextures
       },
       string:->(d){
         return d   if d.nil?
+        return d.to_yaml if d.is_a?(Hash)
+        return d.to_yaml if d.is_a?(Array)
         d.to_s
       },
       text:->(d){
         return d   if d.nil?
+        return d.to_yaml if d.is_a?(Hash)
+        return d.to_yaml if d.is_a?(Array)
         d.to_s
       },
       time:->(d){
