@@ -47,7 +47,7 @@ module Flextures
   def self.deletable_tables
     tables = ActiveRecord::Base.connection.tables
     Flextures::Config.ignore_tables.each do |name|
-      tables.delete "schema_migrations"
+      tables.delete name
     end
     tables
   end
