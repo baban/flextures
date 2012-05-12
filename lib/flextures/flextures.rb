@@ -43,10 +43,11 @@ module Flextures
     end
   end
 
-  # 前テーブル削除のときにほんとうに消去して良いテーブル一覧を返す
+  # 全テーブル削除のときにほんとうに消去して良いテーブル一覧を返す
   def self.deletable_tables
     tables = ActiveRecord::Base.connection.tables
     tables.delete "schema_migrations"
+    tables.delete "admin_tables"
     tables
   end
 

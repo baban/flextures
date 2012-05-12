@@ -39,7 +39,7 @@ module Flextures
       def self.load
         table_names = Flextures::ARGS.parse
         Flextures::init_load
-        Flextures::init_tables
+        Flextures::init_tables unless ENV.member?("T","TABLE","M","MODEL","F","FIXTUES")
         puts "loading..."
         table_names.map { |fmt| Flextures::Loader::load(fmt) }
       end
