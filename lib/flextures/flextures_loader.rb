@@ -133,7 +133,7 @@ module Flextures
     def self.csv format
       table_name, file_name, ext = file_exist format, [:csv]
 
-      print "try loading #{file_name}.yml\n" unless [:fun].include? format[:loader]
+      print "try loading #{file_name}.csv\n" unless [:fun].include? format[:loader]
       return nil unless File.exist? "#{file_name}.csv"
 
       klass = PARENT::create_model table_name
