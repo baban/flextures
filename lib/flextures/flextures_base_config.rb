@@ -8,6 +8,7 @@ module Flextures
       fixture_load_directory: "spec/fixtures/",
       fixture_dump_directory: "spec/fixtures/",
       init_all_tables: false,  # 実行後に全テーブルの初期化を行うか？falseにするとそのぶん高速化できる
+      ignore_tables: ["schema_migrations","admin_users"],
     }
     # ハッシュをsetter、getterに変換
     class<< self
