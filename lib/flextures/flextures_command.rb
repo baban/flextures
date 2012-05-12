@@ -39,7 +39,7 @@ module Flextures
       def self.load
         table_names = Flextures::ARGS.parse
         Flextures::init_load
-        Flextures::init_tables unless ENV.member?("T","TABLE","M","MODEL","F","FIXTUES")
+        Flextures::init_tables unless ENV["T"] or ENV["TABLE"] or ENV["M"] or ENV["MODEL"] or ENV["F"] or ENV["FIXTUES"]
         puts "loading..."
         table_names.map { |fmt| Flextures::Loader::load(fmt) }
       end
@@ -47,7 +47,7 @@ module Flextures
       def self.csvload
         table_names = Flextures::ARGS.parse
         Flextures::init_load
-        Flextures::init_tables
+        Flextures::init_tables unless ENV["T"] or ENV["TABLE"] or ENV["M"] or ENV["MODEL"] or ENV["F"] or ENV["FIXTUES"]
         puts "loading..."
         table_names.map { |fmt| Flextures::Loader::csv(fmt) }
       end
@@ -55,7 +55,7 @@ module Flextures
       def self.ymlload
         table_names = Flextures::ARGS::parse
         Flextures::init_load
-        Flextures::init_tables
+        Flextures::init_tables unless ENV["T"] or ENV["TABLE"] or ENV["M"] or ENV["MODEL"] or ENV["F"] or ENV["FIXTUES"]
         puts "loading..."
         table_names.map { |fmt| Flextures::Loader::yml(fmt) }
       end
