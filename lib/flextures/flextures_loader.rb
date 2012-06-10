@@ -61,15 +61,15 @@ module Flextures
         d.to_i
       },
       string:->(d){
-        return d   if d.nil?
-        return d.to_yaml if d.is_a?(Hash)
-        return d.to_yaml if d.is_a?(Array)
+        return d if d.nil?
+        return d if d.is_a?(Hash)
+        return d if d.is_a?(Array)
         d.to_s
       },
       text:->(d){
-        return d   if d.nil?
-        return d.to_yaml if d.is_a?(Hash)
-        return d.to_yaml if d.is_a?(Array)
+        return d if d.nil?
+        return d if d.is_a?(Hash)
+        return d if d.is_a?(Array)
         d.to_s
       },
       time:->(d){
@@ -143,7 +143,8 @@ module Flextures
       klass = PARENT::create_model table_name
       attributes = klass.columns.map &:name
       filter = create_filter klass, Factory[table_name], file_name, :csv
-      klass.delete_all
+      # rails3_acts_as_paranoid がdelete_allで物理削除しないことの対策
+      klass.send( klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all )
       CSV.open( "#{file_name}.csv" ) do |csv|
         keys = csv.shift # keyの設定
         warning "CSV", attributes, keys
@@ -165,7 +166,8 @@ module Flextures
 
       attributes, filter = ->{
         klass = PARENT::create_model table_name
-        klass.delete_all
+        # rails3_acts_as_paranoid がdelete_allで物理削除しないことの対策
+        klass.send( klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all )
         attributes = klass.columns.map &:name
         filter = create_filter klass, Factory[table_name], file_name, :yml
         [attributes, filter]
