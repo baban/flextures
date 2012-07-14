@@ -20,7 +20,7 @@ module Flextures
       Proc.new(b)
     end
     
-    def self.translate_creater( rules, *args )
+    def self.translate_creater( val, rules )
       rule_map ={ 
         nullstr: proc { |d|
           return "null" if d.nil?
@@ -67,7 +67,7 @@ module Flextures
         },
       }
       pr = rules.inject(proc{ |d| d }) { |sum,i| sum * (rule_map[i] || i)  }
-      pr.call(*args)
+      pr.call(val)
     end
 
     PARENT = Flextures
@@ -77,67 +77,67 @@ module Flextures
         procs = (format == :yml)?
           [:nullstr, :null, proc { |d| Base64.encode64(d) } ] :
           [:null, proc { |d| Base64.encode64(d) } ]
-        self.translate_creater procs, d
+        self.translate_creater d, procs
       },
       boolean:->( d, format ){
         procs = (format == :yml) ?
           [ :nullstr, proc { !(0==d || ""==d || !d) } ] :
           [ proc { !(0==d || ""==d || !d) } ]
-        self.translate_creater procs, d
+        self.translate_creater d, procs
       },
       date:->( d, format ){
         procs = (format == :yml) ?
           [:nullstr, :blankstr, :false2nullstr, proc { |d| d.to_s }] :
           [proc { |d| d.to_s }]
-        self.translate_creater procs, d
+        self.translate_creater d, procs
       },
       datetime:->( d, format ){
         procs = (format == :yml) ?
           [:nullstr, :blankstr, :false2nullstr, proc { |d| d.to_s }] :
           [proc { |d| d.to_s }]
-        self.translate_creater procs, d
+        self.translate_creater d, procs
       },
       decimal:->( d, format ){
         procs = (format == :yml) ?
           [:nullstr, :blank2num, :bool2num, proc { |d| d.to_i } ] : 
           [:blank2num, :bool2num, proc { |d| d.to_i } ]
-        self.translate_creater procs, d
+        self.translate_creater d, procs
       },
       float:->(d, format){
         procs = (format == :yml) ?
           [:nullstr, :blank2num, :bool2num, proc { |d| d.to_f } ] : 
           [:blank2num, :bool2num, proc { |d| d.to_f } ]
-        self.translate_creater procs, d
+        self.translate_creater d, procs
       },
       integer:->( d, format){
         procs = (format == :yml) ?
           [:nullstr, :blank2num, :bool2num, proc { |d| d.to_i } ] : 
           [:blank2num, :bool2num, proc { |d| d.to_i } ]
-        self.translate_creater procs, d
+        self.translate_creater d, procs
       },
       string:->( d, format ){
         procs = (format == :yml) ?
           [:nullstr, :ymlspecialstr] :
           [:null, proc{ |s| s.to_s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") } ]
-        self.translate_creater procs, d
+        self.translate_creater d, procs
       },
       text:->( d, format ){
         procs = (format == :yml) ?
           [:nullstr, :ymlspecialstr] :
           [:null, proc{ |s| s.to_s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") } ]
-        self.translate_creater procs, d
+        self.translate_creater d, procs
       },
       time:->( d, format ){
         procs = (format == :yml) ?
           [:ymlnulltime, proc { |d| d.to_s }] :
           [proc { |d| d.to_s }]
-        self.translate_creater procs, d
+        self.translate_creater d, procs
       },
       timestamp:->( d, format ){
         procs = (format == :yml) ?
           [:ymlnulltime, proc { |d| d.to_s }] :
           [proc { |d| d.to_s }]
-        self.translate_creater procs, d
+        self.translate_creater d, procs
       },
     }
 
