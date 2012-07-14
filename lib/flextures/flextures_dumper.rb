@@ -3,29 +3,72 @@
 module Flextures
   # データを吐き出す処理をまとめる
   module Dumper
+    # procに機能追加、関数合成のためのメソッドを追加する
+    class Proc < ::Proc
+      def *(other)
+        if self.lambda? and other.lambda?
+          lambda {|*x| other.call(self.call(*x)) }
+        elsif not self.lambda? and not other.lambda?
+          Proc.new {|*x| other.call(self.call(*x)) }
+        else
+          raise ArgumentError, "lambda/Proc type mismatch"
+        end
+      end
+    end
+
+    def self.proc(&b)
+      Proc.new(b)
+    end
+    
+    def self.translate_creater( rules, *args )
+      rule_map ={ 
+        nullstr: proc { |d|
+          return "null" if d.nil?
+          d
+        },
+        null: proc { |d|
+          return nil if d.nil?
+          d
+        },
+        blankstr: proc { |d|
+          return "null" if d==""
+          d
+        },
+        false2nullstr: proc { |d|
+          return "null" if d==false
+          d
+        }
+      }
+      pr = rules.inject(proc{ |d| d }) { |sum,i| sum * (rule_map[i] || i)  }
+      pr.call(*args)
+    end
+
     PARENT = Flextures
 
     TRANSLATER = {
       binary:->( d, format ){
         if format == :yml
-          return "null" if d.nil?
+          procs = [:nullstr, :null, proc { |d| Base64.encode64(d) } ]
+        else
+          procs = [:null, proc { |d| Base64.encode64(d) } ]
         end
-        return nil if d.nil?
-        Base64.encode64(d)
+        return self.translate_creater procs, d
       },
       boolean:->( d, format ){
         if format == :yml
-          return "null" if d.nil?
+          procs = [ :nullstr, proc { !(0==d || ""==d || !d) } ]
+        else
+          procs = [ proc { !(0==d || ""==d || !d) } ]
         end
-        (0==d || ""==d || !d) ? false : true
+        return self.translate_creater procs, d
       },
       date:->( d, format ){
         if format == :yml
-          return "null" if d.nil?
-          return "null" if d==""
-          return "null" if d==false
+          procs = [:nullstr, :blankstr, :false2nullstr, proc { |d| d.to_s }]
+        else
+          procs = [proc { |d| d.to_s }]
         end
-        d.to_s
+        return self.translate_creater procs, d
       },
       datetime:->( d, format ){
         if format == :yml
