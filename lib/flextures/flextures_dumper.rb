@@ -3,6 +3,8 @@
 module Flextures
   # データを吐き出す処理をまとめる
   module Dumper
+    PARENT = Flextures
+
     # procに機能追加、関数合成のためのメソッドを追加する
     class Proc < ::Proc
       def *(other)
@@ -60,17 +62,12 @@ module Flextures
           s
         },
         ymlnulltime: proc { |d|
-          return "null" if d.nil?
-          return "null" if d==""
-          return "null" if d==false
+          return "null" if d.nil? or d=="" or d==false
           d
         },
       }
-      pr = rules.inject(proc{ |d| d }) { |sum,i| sum * (rule_map[i] || i)  }
-      pr.call(val)
+      rules.inject(proc{ |d| d }) { |sum,i| sum * (rule_map[i] || i)  }.call
     end
-
-    PARENT = Flextures
 
     TRANSLATER = {
       binary:->( d, format ){
