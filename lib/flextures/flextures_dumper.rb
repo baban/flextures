@@ -46,7 +46,25 @@ module Flextures
           return 0 if d==false
           return 1 if d==true
           d
-        }
+        },
+        ymlspecialstr: proc { |s|
+          if s.kind_of?(String)
+            s = s.gsub(/\t/,"  ")                  if s["\t"]
+            s = s.sub(/ +/, "")                    if s[0]==' '
+            is_nl = false
+            is_nl |= s["\n"]
+            is_nl |= ["[","]","{","}","|","#","@","~","!","'","$","&","^","<",">","?","-","+","=",";",":",".",",","*","`","(",")"].member? s[0]
+            s = s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") # 改行方法統一
+            s = "|-\n    " + s.gsub(/\n/,"\n    ") if is_nl
+          end
+          s
+        },
+        ymlnulltime: proc { |d|
+          return "null" if d.nil?
+          return "null" if d==""
+          return "null" if d==false
+          d
+        },
       }
       pr = rules.inject(proc{ |d| d }) { |sum,i| sum * (rule_map[i] || i)  }
       pr.call(*args)
@@ -92,68 +110,34 @@ module Flextures
         self.translate_creater procs, d
       },
       integer:->( d, format){
-        if format == :yml
-          return "null" if d.nil?
-        end
-        return 0 if d==""
-        return 0 if d==false
-        d.to_i
+        procs = (format == :yml) ?
+          [:nullstr, :blank2num, :bool2num, proc { |d| d.to_i } ] : 
+          [:blank2num, :bool2num, proc { |d| d.to_i } ]
+        self.translate_creater procs, d
       },
-      string:->( s, format ){
-        if format == :yml
-          return "null"                            if s.nil?
-          if s.kind_of?(String)
-            s = s.gsub(/\t/,"  ")                  if s["\t"]
-            s = s.sub(/ +/, "")                    if s[0]==' '
-            is_nl = false
-            is_nl |= s["\n"]
-            is_nl |= ["[","]","{","}","|","#","@","~","!","'","$","&","^","<",">","?","-","+","=",";",":",".",",","*","`","(",")"].member? s[0]
-            s = s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") # 改行方法統一
-            s = "|-\n    " + s.gsub(/\n/,"\n    ") if is_nl
-          end
-        end
-        if format == :csv
-          return nil if s.nil? # nil は空白文字 
-          s = s.to_s
-          s = s.gsub(/\r\n/,"\n").gsub(/\r/,"\n")
-        end
-        s
+      string:->( d, format ){
+        procs = (format == :yml) ?
+          [:nullstr, :ymlspecialstr] :
+          [:null, proc{ |s| s.to_s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") } ]
+        self.translate_creater procs, d
       },
-      text:->( s, format ){
-        if format == :yml
-          return "null"                            if s.nil?
-          if s.kind_of?(String)
-            s = s.gsub(/\t/,"  ")                  if s["\t"]
-            s = s.sub(/ +/, "")                    if s[0]==' '
-            is_nl = false
-            is_nl |= s["\n"]
-            is_nl |= ["[","]","{","}","|","#","@","~","!","'","$","&","^","<",">","?","-","+","=",";",":",".",",","*","`","(",")"].member? s[0]
-            s = s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") # 改行方法統一
-            s = "|-\n    " + s.gsub(/\n/,"\n    ") if is_nl
-          end
-        end
-        if format == :csv
-          return nil if s.nil? # nil は空白文字
-          s = s.to_s
-          s = s.gsub(/\r\n/,"\n").gsub(/\r/,"\n")
-        end
-        s
+      text:->( d, format ){
+        procs = (format == :yml) ?
+          [:nullstr, :ymlspecialstr] :
+          [:null, proc{ |s| s.to_s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") } ]
+        self.translate_creater procs, d
       },
       time:->( d, format ){
-        if format == :yml
-          return "null" if d.nil?
-          return "null" if d==""
-          return "null" if d==false
-        end
-        d.to_s
+        procs = (format == :yml) ?
+          [:ymlnulltime, proc { |d| d.to_s }] :
+          [proc { |d| d.to_s }]
+        self.translate_creater procs, d
       },
       timestamp:->( d, format ){
-        if format == :yml
-          return "null" if d.nil?
-          return "null" if d==""
-          return "null" if d==false
-        end
-        d.to_s
+        procs = (format == :yml) ?
+          [:ymlnulltime, proc { |d| d.to_s }] :
+          [proc { |d| d.to_s }]
+        self.translate_creater procs, d
       },
     }
 
