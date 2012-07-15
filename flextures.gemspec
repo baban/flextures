@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "flextures"
-  s.version = "1.9.14"
+  s.version = "1.9.15"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["baban"]
-  s.date = "2012-07-14"
+  s.date = "2012-07-15"
   s.description = "load and dump fixtures"
   s.email = "babanba.n@gmail.com"
   s.extra_rdoc_files = [
