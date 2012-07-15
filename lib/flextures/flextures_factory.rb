@@ -2,7 +2,7 @@
 
 module Flextures
   # ロードするデータを必要に応じて加工する
-  class Factory
+  class LoadFilter
     # 設置ファイルから取得した Factoryの一覧を取得
     FACTORIES={}
 
@@ -29,5 +29,9 @@ module Flextures
     end
     def self.[](table_name); self.get(table_name); end
   end
+  class DumpFilter
+    
+  end
+  Factory = LoadFilter
 end
 

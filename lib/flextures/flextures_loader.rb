@@ -142,7 +142,7 @@ module Flextures
 
       klass = PARENT::create_model table_name
       attributes = klass.columns.map &:name
-      filter = create_filter klass, Factory[table_name], file_name, :csv
+      filter = create_filter klass, LoadFilter[table_name], file_name, :csv
       # rails3_acts_as_paranoid がdelete_allで物理削除しないことの対策
       klass.send( klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all )
       CSV.open( "#{file_name}.csv" ) do |csv|
@@ -169,7 +169,7 @@ module Flextures
         # rails3_acts_as_paranoid がdelete_allで物理削除しないことの対策
         klass.send( klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all )
         attributes = klass.columns.map &:name
-        filter = create_filter klass, Factory[table_name], file_name, :yml
+        filter = create_filter klass, LoadFilter[table_name], file_name, :yml
         [attributes, filter]
       }.call
 

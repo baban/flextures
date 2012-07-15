@@ -157,7 +157,9 @@ module Flextures
         attr_type = klass.columns.map { |column| { name: column.name, type: column.type } }
         csv<< attributes
         klass.all.each do |row|
-          csv<< attr_type.map { |h| trans(row[h[:name]], h[:type], :csv) }
+          csv<< attr_type.map do |h|
+            trans(row[h[:name]], h[:type], :csv)
+          end
         end
       end
       outfile
