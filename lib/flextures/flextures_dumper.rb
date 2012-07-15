@@ -66,7 +66,7 @@ module Flextures
           d
         },
       }
-      rules.inject(proc{ |d| d }) { |sum,i| sum * (rule_map[i] || i)  }.call
+      rules.inject(proc{ |d| d }) { |sum,i| sum * (rule_map[i] || i)  }.call(val)
     end
 
     TRANSLATER = {
