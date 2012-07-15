@@ -153,12 +153,17 @@ module Flextures
       table_name = format[:table]
       klass = PARENT.create_model(table_name)
       attributes = klass.columns.map { |column| column.name }
+      filter = DumpFilter[table_name]
       CSV.open(outfile,'w') do |csv|
         attr_type = klass.columns.map { |column| { name: column.name, type: column.type } }
         csv<< attributes
         klass.all.each do |row|
           csv<< attr_type.map do |h|
-            trans(row[h[:name]], h[:type], :csv)
+            if (filter && filter[h[:name].to_sym])
+              filter[h[:name].to_sym].call(row[h[:name]])
+            else
+              trans(row[h[:name]], h[:type], :csv)
+            end
           end
         end
       end

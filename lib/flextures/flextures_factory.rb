@@ -38,22 +38,15 @@ module Flextures
     # @params options
     # @params block
     # @return Flextures::Factory
-    def self.define table_name, *options, &block
-      h={ block: block }
-      options.each do |o|
-        begin
-          h[:model] = o if o.new.is_a? ActiveRecord::Base
-        rescue
-        end
-      end
-      FACTORIES[table_name.to_sym]=h
+    def self.define table_name, hash
+      FACTORIES[table_name.to_sym]=hash
     end
 
     # Factoryを取得
-    def self.get table_name, key
-      f = FACTORIES[table_name.to_sym]
-      f && f[:block]
+    def self.get table_name
+      FACTORIES[table_name.to_sym]
     end
+    def self.[](table_name); self.get(table_name); end
   end
   Factory = LoadFilter
 end
