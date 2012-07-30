@@ -3,9 +3,9 @@
 require 'ostruct'
 require 'csv'
 
-require 'flextures/flextures_base_config'
-require 'flextures/flextures_extension_modules'
-require 'flextures/flextures_factory'
+require "flextures/flextures_base_config"
+require "flextures/flextures_extension_modules"
+require "flextures/flextures_factory"
 
 module Flextures
   LOAD_DIR = Config.fixture_load_directory
