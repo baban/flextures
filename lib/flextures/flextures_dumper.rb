@@ -19,11 +19,11 @@ module Flextures
     end
 
     def self.proc(&b)
-      Proc.new(b)
+      Proc.new(&b)
     end
-    
+
     def self.translate_creater( val, rules )
-      rule_map ={ 
+      rule_map ={
         nullstr: proc { |d|
           return "null" if d.nil?
           d
@@ -51,8 +51,8 @@ module Flextures
         },
         ymlspecialstr: proc { |s|
           if s.kind_of?(String)
-            s = s.gsub(/\t/,"  ")                  if s["\t"]
-            s = s.sub(/ +/, "")                    if s[0]==' '
+            s = s.gsub(/\t/,"  ") if s["\t"]
+            s = s.sub(/ +/, "")   if s[0]==' '
             is_nl = false
             is_nl |= s["\n"]
             is_nl |= ["[","]","{","}","|","#","@","~","!","'","$","&","^","<",">","?","-","+","=",";",":",".",",","*","`","(",")"].member? s[0]
@@ -66,7 +66,8 @@ module Flextures
           d
         },
       }
-      rules.inject(proc{ |d| d }) { |sum,i| sum * (rule_map[i] || i)  }.call(val)
+      procs = rules.inject(proc{ |d| d }) { |sum,i| sum * (rule_map[i] || i)  }
+      procs.call(val)
     end
 
     TRANSLATER = {
@@ -106,7 +107,7 @@ module Flextures
           [:blank2num, :bool2num, proc { |d| d.to_f } ]
         self.translate_creater d, procs
       },
-      integer:->( d, format){
+      integer:->( d, format ){
         procs = (format == :yml) ?
           [:nullstr, :blank2num, :bool2num, proc { |d| d.to_i } ] : 
           [:blank2num, :bool2num, proc { |d| d.to_i } ]
@@ -139,7 +140,7 @@ module Flextures
     }
 
     # 適切な型に変換
-    def self.trans(v, type, format)
+    def self.trans( v, type, format )
       trans = TRANSLATER[type]
       return trans.call( v, format ) if trans
       v

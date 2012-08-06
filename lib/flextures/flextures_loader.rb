@@ -32,7 +32,7 @@ module Flextures
     TRANSLATER = {
       binary:->(d){
         return d if d.nil?
-        Base64.encode64(d)
+        Base64.decode64(d)
       },
       boolean:->(d){
         return d if d.nil?
