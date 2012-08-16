@@ -84,7 +84,9 @@ Flextures function can change load file name.
  describe ItemShopController do
    flextures :items, :users => :users_for_itmshop # load "users_for_itemshop.csv"
 
-=== Flextures factory filter
+=== Flextures load & dump filter
+
+==== load filter
 
 If you create filter file.(File name is "config/flextures.factory.rb")
 Factory filter translate fixture data and set database.
@@ -105,10 +107,21 @@ This sample, generate name and sex automatically, and other tables data generate
    f.items<< [ Item.new( master_item_id: 1, count: 5 ), Item.new( master_item_id: 2, count: 3 ) ]
  end
 
+==== dump filter
+
+if you need to convert table data into other data format, you use dump filter.
+(dump filter is same file as load filter)
+
+dump filter has hash argumtne, it is formatted colum name key and convert method, proc, lambda value
+
+ Flextures::DumpFilter.define :users, {
+   :encrypted_password => lambda { |v| Base64.encode64(v) }
+ }
+
 === Configuration file
 
 Configuration file can change load and dump directory
-(file is confi/flextures.config.rb)
+(file is config/flextures.config.rb)
 
  # config/flextures.config.rb
  module Flextures
