@@ -86,7 +86,9 @@ RSpec中でfixtures関数の代わりにfixtureのロード機能を使えます
  describe ItemShopController do
    flextures :items, :users => :users_for_itmshop # users_for_itemshop.csv をロードする
 
-=== Flextures factory filter
+=== Flextures load and dump filter
+
+==== load filer
 
 Railsのプロジェクトに config/flextures.factory.rb というファイルを作成して、そこにフィルタを記述することによって
 フィクスチャの読み込み時に、値を加工して読み込む事が可能になっています
@@ -110,6 +112,14 @@ Railsのプロジェクトに config/flextures.factory.rb というファイル�
  end
 
 * {wiki:has_manyな感じのデータの精製法}[https://github.com/baban/flextures/wiki/Has-many%E3%81%AA%E6%84%9F%E3%81%98%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E7%B2%BE%E8%A3%BD%E6%96%B9%E6%B3%95]
+
+==== dump filer
+
+データのdump時に加工が必要になった時には次の様ハッシュで加工したいカラム名を指定して与えることで加納になります
+
+ Flextures::DumpFilter.define :users, {
+   :encrypted_password => lambda { |v| Base64.encode64(v) }
+ }
 
 === 設定ファイル
 
