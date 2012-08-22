@@ -4,9 +4,6 @@ module Flextures
   # データを吐き出す処理をまとめる
   module Dumper
     PARENT = Flextures
-
-    @@table_cache = {}
-
     # procに機能追加、関数合成のためのメソッドを追加する
     class Proc < ::Proc
       def *(other)
@@ -154,9 +151,6 @@ module Flextures
       dir_name = format[:dir] || DUMP_DIR
       outfile = "#{dir_name}#{file_name}.csv"
       table_name = format[:table]
-
-      @@table_name[table_name.to_sym] = file_name
-
       klass = PARENT.create_model(table_name)
       attributes = klass.columns.map { |column| column.name }
       filter = DumpFilter[table_name]
@@ -182,9 +176,6 @@ module Flextures
       dir_name = format[:dir] || DUMP_DIR
       outfile = "#{dir_name}#{file_name}.yml"
       table_name = format[:table]
-
-      @@table_name[table_name.to_sym] = file_name
-
       klass = PARENT::create_model(table_name)
       attributes = klass.columns.map { |colum| colum.name }
       columns = klass.columns

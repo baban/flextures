@@ -13,6 +13,8 @@ module Flextures
   module Loader 
     PARENT = Flextures
 
+    @@table_cache = {}
+
     # 型に応じて勝手にdefault値を設定する
     COMPLETER = {
       binary:->{ 0 },
@@ -114,6 +116,9 @@ module Flextures
     # ハッシュで指定
     # fixtures :users => :users2
     def self.flextures *fixtures
+      options = {}
+      options = fixtures.shift if fixtures.size > 1 and fixtures.first.is_a?(Hash)
+
       # :allですべてのfixtureを反映
       fixtures = Flextures::deletable_tables if fixtures.size== 1 and :all == fixtures.first
       fixtures_hash = fixtures.pop if fixtures.last and fixtures.last.is_a? Hash # ハッシュ取り出し
@@ -136,6 +141,8 @@ module Flextures
     # CSVのデータをロードする
     def self.csv format
       table_name, file_name, ext = file_exist format, [:csv]
+
+      @@table_cache[table_name.to_sym] = file_name
 
       print "try loading #{file_name}.csv\n" unless [:fun].include? format[:loader]
       return nil unless File.exist? "#{file_name}.csv"
@@ -160,6 +167,8 @@ module Flextures
     # YAML形式でデータをロードする
     def self.yml format
       table_name, file_name, ext = file_exist format, [:yml]
+
+      @@table_cache[table_name.to_sym] = file_name
 
       print "try loading #{file_name}.yml\n" unless [:fun].include? format[:loader]
       return nil unless File.exist? "#{file_name}.yml"
