@@ -32,8 +32,12 @@ module Flextures
           return nil if d.nil?
           d
         },
-        blankstr: proc { |d|
+        blank2null: proc { |d|
           return "null" if d==""
+          d
+        },
+        blankstr: proc { |d|
+          return '""' if d==""
           d
         },
         false2nullstr: proc { |d|
@@ -85,13 +89,13 @@ module Flextures
       },
       date:->( d, format ){
         procs = (format == :yml) ?
-          [:nullstr, :blankstr, :false2nullstr, proc { |d| d.to_s }] :
+          [:nullstr, :blank2null, :false2nullstr, proc { |d| d.to_s }] :
           [proc { |d| d.to_s }]
         self.translate_creater d, procs
       },
       datetime:->( d, format ){
         procs = (format == :yml) ?
-          [:nullstr, :blankstr, :false2nullstr, proc { |d| d.to_s }] :
+          [:nullstr, :blank2null, :false2nullstr, proc { |d| d.to_s }] :
           [proc { |d| d.to_s }]
         self.translate_creater d, procs
       },
@@ -115,13 +119,13 @@ module Flextures
       },
       string:->( d, format ){
         procs = (format == :yml) ?
-          [:nullstr, :ymlspecialstr] :
+          [:blankstr, :nullstr, :ymlspecialstr] :
           [:null, proc{ |s| s.to_s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") } ]
         self.translate_creater d, procs
       },
       text:->( d, format ){
         procs = (format == :yml) ?
-          [:nullstr, :ymlspecialstr] :
+          [:blankstr, :nullstr, :ymlspecialstr] :
           [:null, proc{ |s| s.to_s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") } ]
         self.translate_creater d, procs
       },
