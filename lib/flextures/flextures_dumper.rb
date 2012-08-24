@@ -101,8 +101,8 @@ module Flextures
       },
       decimal:->( d, format ){
         procs = (format == :yml) ?
-          [:nullstr, :blank2num, :bool2num, proc { |d| d.to_i } ] : 
-          [:blank2num, :bool2num, proc { |d| d.to_i } ]
+          [:nullstr, :blank2num, :bool2num, proc { |d| d.to_f } ] : 
+          [:blank2num, :bool2num, proc { |d| d.to_f } ]
         self.translate_creater d, procs
       },
       float:->(d, format){
