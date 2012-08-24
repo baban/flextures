@@ -154,7 +154,7 @@ module Flextures
     def self.csv format
       file_name = format[:file] || format[:table]
       dir_name = format[:dir] || DUMP_DIR
-      outfile = "#{dir_name}#{file_name}.csv"
+      outfile = File.join(dir_name, "#{file_name}.csv")
       table_name = format[:table]
       klass = PARENT.create_model(table_name)
       attributes = klass.columns.map { |column| column.name }
@@ -179,7 +179,7 @@ module Flextures
     def self.yml format
       file_name = format[:file] || format[:table]
       dir_name = format[:dir] || DUMP_DIR
-      outfile = "#{dir_name}#{file_name}.yml"
+      outfile = File.join(dir_name, "#{file_name}.yml")
       table_name = format[:table]
       klass = PARENT::create_model(table_name)
       attributes = klass.columns.map { |colum| colum.name }
