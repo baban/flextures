@@ -154,6 +154,8 @@ module Flextures
     def self.csv format
       file_name = format[:file] || format[:table]
       dir_name = format[:dir] || DUMP_DIR
+      # 指定されたディレクトリを作成
+      recursive_mkdir(dir_name)
       outfile = File.join(dir_name, "#{file_name}.csv")
       table_name = format[:table]
       klass = PARENT.create_model(table_name)
@@ -179,6 +181,8 @@ module Flextures
     def self.yml format
       file_name = format[:file] || format[:table]
       dir_name = format[:dir] || DUMP_DIR
+      # 指定されたディレクトリを作成
+      recursive_mkdir(dir_name)
       outfile = File.join(dir_name, "#{file_name}.yml")
       table_name = format[:table]
       klass = PARENT::create_model(table_name)
@@ -202,6 +206,13 @@ module Flextures
         end
       end
       outfile
+    end
+
+    def self.recursive_mkdir(path)
+      return if FileTest.exist?(path)
+      dir = File.dirname(path)
+      recursive_mkdir(dir)
+      Dir.mkdir(path)
     end
   end
 end
