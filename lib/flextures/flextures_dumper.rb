@@ -100,8 +100,8 @@ module Flextures
       },
       decimal:->( d, format ){
         procs = (format == :yml) ?
-          [:nullstr, :blank2num, :bool2num, proc { |d| d.to_i } ] : 
-          [:blank2num, :bool2num, proc { |d| d.to_i } ]
+          [:nullstr, :blank2num, :bool2num, proc { |d| d.to_f } ] : 
+          [:blank2num, :bool2num, proc { |d| d.to_f } ]
         self.translate_creater d, procs
       },
       float:->(d, format){
@@ -153,7 +153,9 @@ module Flextures
     def self.csv format
       file_name = format[:file] || format[:table]
       dir_name = format[:dir] || DUMP_DIR
-      outfile = "#{dir_name}#{file_name}.csv"
+      # 指定されたディレクトリを作成
+      recursive_mkdir(dir_name)
+      outfile = File.join(dir_name, "#{file_name}.csv")
       table_name = format[:table]
       klass = PARENT.create_model(table_name)
       attributes = klass.columns.map { |column| column.name }
@@ -178,7 +180,9 @@ module Flextures
     def self.yml format
       file_name = format[:file] || format[:table]
       dir_name = format[:dir] || DUMP_DIR
-      outfile = "#{dir_name}#{file_name}.yml"
+      # 指定されたディレクトリを作成
+      recursive_mkdir(dir_name)
+      outfile = File.join(dir_name, "#{file_name}.yml")
       table_name = format[:table]
       klass = PARENT::create_model(table_name)
       attributes = klass.columns.map { |colum| colum.name }
@@ -201,6 +205,13 @@ module Flextures
         end
       end
       outfile
+    end
+
+    def self.recursive_mkdir(path)
+      return if FileTest.exist?(path)
+      dir = File.dirname(path)
+      recursive_mkdir(dir)
+      Dir.mkdir(path)
     end
   end
 end
