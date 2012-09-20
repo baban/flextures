@@ -15,7 +15,7 @@ module Flextures
 
     @@table_cache = {}
 
-    # 型に応じて勝手にdefault値を設定する
+    # column set default value
     COMPLETER = {
       binary:->{ 0 },
       boolean:->{ false },
@@ -30,7 +30,7 @@ module Flextures
       timestamp:->{ DateTime.now },
     }
 
-    # 型の変換を行う
+    # colum data translate
     TRANSLATER = {
       binary:->(d){
         return d if d.nil?
