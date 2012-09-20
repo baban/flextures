@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "flextures"
-  s.version = "2.0.1"
+  s.version = "2.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["baban"]
-  s.date = "2012-08-28"
+  s.date = "2012-09-20"
   s.description = "load and dump fixtures"
   s.email = "babanba.n@gmail.com"
   s.extra_rdoc_files = [
@@ -40,12 +40,17 @@ Gem::Specification.new do |s|
     "lib/flextures/flextures_loader.rb",
     "lib/flextures/flextures_railtie.rb",
     "lib/flextures/rspec_flextures_support.rb",
-    "lib/flextures/testunit_flextures_support.rb"
+    "lib/flextures/testunit_flextures_support.rb",
+    "lib/flextures/version.rb",
+    "test/test_helper.rb",
+    "test/unit/test_flextures.rb",
+    "test/unit/test_flextures_dumper.rb",
+    "test/unit/test_simple.rb"
   ]
   s.homepage = "http://github.com/baban/flextures"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.21"
+  s.rubygems_version = "1.8.24"
   s.summary = "load and dump fixtures"
 
   if s.respond_to? :specification_version then
