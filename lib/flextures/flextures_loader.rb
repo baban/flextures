@@ -137,11 +137,8 @@ module Flextures
     # flextures :users => :users2
     #
     # @params [Hash] 読み込むテーブルとファイル名のペア
-    # @return [Array] 読み込テーブルごとに切り分けられた設定のハッシュを格納
     def self.flextures *fixtures
-      load_options = parse_flextures_options *fixtures
-      load_options.each{ |option| Loader::load option }
-      load_options
+      parse_flextures_options(*fixtures).each{ |option| Loader::load option }
     end
 
     # csv 優先で存在している fixtures をロード
