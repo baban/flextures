@@ -166,7 +166,7 @@ module Flextures
         csv.each do |values|
           h = values.extend(Extensions::Array).to_hash(keys)
           o = filter.call h
-          o.save(false)
+          o.save( validate: false )
         end
       end
       "#{file_name}.csv"
@@ -195,7 +195,7 @@ module Flextures
       yaml.each do |k,h|
         warning "YAML", attributes, h.keys
         o = filter.call h
-        o.save(false)
+        o.save( validate: false )
       end
       "#{file_name}.yml"
     end
