@@ -157,13 +157,9 @@ class FlexturesDumperTest < Test::Unit::TestCase
             assert_equal false, @trans.call( false, :yml )
           end
           should "「true」は「true」" do
-            assert_equal false, @trans.call( false, :yml )
+            assert_equal true, @trans.call( true, :yml )
           end
         end
-        context :csv do
-        end
-      end
-      context :text do
       end
     end
   end
