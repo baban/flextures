@@ -106,7 +106,12 @@ module Flextures
 
       [table_name, "#{dir_name}#{file_name}",ext]
     end
-
+    
+    # flextures関数の引数をパースして
+    # 単純な読み込み向け形式に変換します
+    #
+    # @params [Hash] 読み込むテーブルとファイル名のペア
+    # @return [Array] 読み込テーブルごとに切り分けられた設定のハッシュを格納
     def self.parse_flextures_options *fixtures
       options = {}
       options = fixtures.shift if fixtures.size > 1 and fixtures.first.is_a?(Hash)
@@ -114,12 +119,12 @@ module Flextures
       # :allですべてのfixtureを反映
       fixtures = Flextures::deletable_tables if fixtures.size== 1 and :all == fixtures.first
 
-      last_hash = fixtures.pop if fixtures.last and fixtures.last.is_a? Hash # ハッシュ取り出し
-      load_hash = fixtures.inject({}){ |h,name| h[name.to_sym] = name; h }
-      load_hash.merge(last_hash) if last_hash
+      last_hash = {}
+      last_hash = fixtures.pop if fixtures.last.is_a? Hash # ハッシュ取り出し
 
-      load_options = load_hash.map { |k,v| { table: k, file: v, loader: :fun } }
-      load_options
+      load_hash = fixtures.inject({}){ |h,name| h[name.to_sym] = name; h }
+      load_hash.merge!(last_hash)
+      load_hash.map { |k,v| { table: k, file: v, loader: :fun } }
     end
 
     # fixturesをまとめてロード、主にテストtest/unit, rspec で使用する
