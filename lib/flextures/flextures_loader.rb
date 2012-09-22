@@ -126,7 +126,7 @@ module Flextures
       fixtures = Flextures::deletable_tables if fixtures.size== 1 and :all == fixtures.first
 
       last_hash = fixtures.pop if fixtures.last and fixtures.last.is_a? Hash # ハッシュ取り出し
-      load_hash = fixtures.inject({}){ |name,h| h[name.to_sym] = name; h }
+      load_hash = fixtures.inject({}){ |h,name| h[name.to_sym] = name; h }
       load_hash.merge(last_hash) if last_hash
 
       load_options = load_hash.map { |k,v| { table: k, file: v, loader: :fun } }

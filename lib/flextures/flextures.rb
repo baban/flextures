@@ -103,9 +103,6 @@ module Flextures
           { table: name, file: name }
         end
       end
-      if ENV["FIXTURES"]
-        table_names = (ENV["FIXTURES"]).split(',').map{ |name| { table: name, file: name } }
-      end
 
       if table_names.empty?
         table_names = Flextures::deletable_tables.map{ |table| { table: table } }
@@ -118,7 +115,8 @@ module Flextures
           names.map{ |name| { table: name, file: name } }
       }
       # ファイル名を調整
-      table_names = table_names.map { |row| row[:file]=ENV["FILE"] } if ENV["FILE"]
+      table_names = fixtures_args_parser.call ENV["FIXTURES"] if ENV["FIXTURES"]
+      table_names = fixtures_args_parser.call ENV["FILE"]     if ENV["FILE"]
 
       table_names = table_names.map{ |option| option.merge dir: ENV["DIR"] } if ENV["DIR"]
       # read mode だとcsvもyaml存在しないファイルは返さない
