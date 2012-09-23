@@ -110,15 +110,19 @@ module Flextures
       # ENV["FIXTURES"]の中身を解析
       fixtures_args_parser =->(s){
         names = s.split(',')
-        ( names.size==1 and ENV.values_at("M", "MODEL", "T", "TABLE").first ) ?
-          [ table_names.first.merge( file: names.first ) ] :
+        if ENV["TABLE"] or ENV["T"] or ENV["MODEL"] or ENV["M"]
+          [ table_names.first.merge( file: names.first ) ]
+        else
           names.map{ |name| { table: name, file: name } }
+        end
       }
       # ファイル名を調整
       table_names = fixtures_args_parser.call ENV["FIXTURES"] if ENV["FIXTURES"]
       table_names = fixtures_args_parser.call ENV["FILE"]     if ENV["FILE"]
+      table_names = fixtures_args_parser.call ENV["F"]        if ENV["F"]
 
       table_names = table_names.map{ |option| option.merge dir: ENV["DIR"] } if ENV["DIR"]
+      table_names = table_names.map{ |option| option.merge dir: ENV["D"]   } if ENV["D"]
       # read mode だとcsvもyaml存在しないファイルは返さない
       table_names.select! &exist if option[:mode] && option[:mode] == 'read'
       table_names
