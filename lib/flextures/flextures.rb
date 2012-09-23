@@ -104,9 +104,8 @@ module Flextures
         end
       end
 
-      if table_names.empty?
-        table_names = Flextures::deletable_tables.map{ |table| { table: table } }
-      end
+      table_names = Flextures::deletable_tables.map{ |table| { table: table } } if table_names.empty?
+
       # ENV["FIXTURES"]の中身を解析
       fixtures_args_parser =->(s){
         names = s.split(',')

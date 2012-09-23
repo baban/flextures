@@ -10,4 +10,3 @@ require 'flextures/flextures_command'
 require 'flextures/flextures_railtie' if defined? Rails
 require 'flextures/rspec_flextures_support' if defined? RSpec
 require 'flextures/testunit_flextures_support' if defined? Test::Unit::TestCase
-
