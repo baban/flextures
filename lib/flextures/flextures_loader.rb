@@ -124,7 +124,8 @@ module Flextures
 
       load_hash = fixtures.inject({}){ |h,name| h[name.to_sym] = name; h }
       load_hash.merge!(last_hash)
-      load_hash.map { |k,v| { table: k, file: v, loader: :fun } }
+      load_hash = load_hash.map { |k,v| { table: k, file: v, loader: :fun } }
+      [load_hash, options]
     end
 
     # fixturesをまとめてロード、主にテストtest/unit, rspec で使用する
@@ -138,11 +139,12 @@ module Flextures
     #
     # @params [Hash] 読み込むテーブルとファイル名のペア
     def self.flextures *fixtures
-      parse_flextures_options(*fixtures).each{ |option| Loader::load option }
+      loas_hash, options = parse_flextures_options(*fixtures)
+      load_hash.each{ |params| Loader::load params }
     end
 
     # csv 優先で存在している fixtures をロード
-    def self.load format
+    def self.load format, option
       table_name, file_name, method = file_exist format
       if method
         send(method, format)
@@ -153,9 +155,11 @@ module Flextures
     end
 
     # CSVのデータをロードする
-    def self.csv format
+    def self.csv format, options={}
       table_name, file_name, ext = file_exist format, [:csv]
 
+      # キャッシュ利用可能ならそれをそのまま使う
+      return if options[:cache] and @@table_cache[table_name.to_sym] and @@table_cache[table_name.to_sym] == file_name
       @@table_cache[table_name.to_sym] = file_name
 
       print "try loading #{file_name}.csv\n" unless [:fun].include? format[:loader]
@@ -166,6 +170,7 @@ module Flextures
       filter = create_filter klass, LoadFilter[table_name], file_name, :csv
       # rails3_acts_as_paranoid がdelete_allで物理削除しないことの対策
       klass.send( klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all )
+
       CSV.open( "#{file_name}.csv" ) do |csv|
         keys = csv.shift # keyの設定
         warning "CSV", attributes, keys
@@ -179,9 +184,11 @@ module Flextures
     end
 
     # YAML形式でデータをロードする
-    def self.yml format
+    def self.yml format, option={}
       table_name, file_name, ext = file_exist format, [:yml]
 
+      # キャッシュ利用可能ならそれをそのまま使う
+      return if options[:cache] and @@table_cache[table_name.to_sym] and @@table_cache[table_name.to_sym] == file_name
       @@table_cache[table_name.to_sym] = file_name
 
       print "try loading #{file_name}.yml\n" unless [:fun].include? format[:loader]

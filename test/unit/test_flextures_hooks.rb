@@ -5,7 +5,7 @@ class FlexturesHookTest < Test::Unit::TestCase
     context ".parse_flextures_options" do
       context "通常動作" do
         setup do
-          @ret = Flextures::Loader.parse_flextures_options(:users)
+          @ret, option = Flextures::Loader.parse_flextures_options(:users)
         end
         should "指定したテーブル分だけハッシュが返されている" do
           assert_equal 1, @ret.size
@@ -17,7 +17,7 @@ class FlexturesHookTest < Test::Unit::TestCase
       end
       context "違うファイルをロードした時" do
         setup do
-          @ret = Flextures::Loader.parse_flextures_options( :users => :users_another3 )
+          @ret, option = Flextures::Loader.parse_flextures_options( :users => :users_another3 )
         end
         should "指定したテーブル分だけハッシュが返されている" do
           assert_equal 1, @ret.size

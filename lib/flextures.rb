@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+require 'flextures/version'
 require 'flextures/flextures_base_config'
 require 'flextures/flextures_extension_modules'
 require 'flextures/flextures'
