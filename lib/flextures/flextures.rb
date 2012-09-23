@@ -89,7 +89,7 @@ module Flextures
     end
   end
 
-  # 引数解析
+  # parse arguments functions
   module ARGS
     # 書き出し 、読み込み すべきファイルとオプションを書きだす
     def self.parse option={}
@@ -104,9 +104,9 @@ module Flextures
         end
       end
 
-      table_names = Flextures::deletable_tables.map{ |table| { table: table } } if table_names.empty?
+      table_names = Flextures::deletable_tables.map{ |name| { table: name, file: name } } if table_names.empty?
 
-      # ENV["FIXTURES"]の中身を解析
+      # parse ENV["FIXTURES"] paameter
       fixtures_args_parser =->(s){
         names = s.split(',')
         if ENV["TABLE"] or ENV["T"] or ENV["MODEL"] or ENV["M"]
@@ -115,7 +115,7 @@ module Flextures
           names.map{ |name| { table: name, file: name } }
         end
       }
-      # ファイル名を調整
+      # parse filename define parameters
       table_names = fixtures_args_parser.call ENV["FIXTURES"] if ENV["FIXTURES"]
       table_names = fixtures_args_parser.call ENV["FILE"]     if ENV["FILE"]
       table_names = fixtures_args_parser.call ENV["F"]        if ENV["F"]
@@ -127,7 +127,7 @@ module Flextures
       table_names
     end
 
-    # 存在しているファイルで絞り込む
+    # check exist filename block
     def self.exist
       return->(name){ File.exists?("#{LOAD_DIR}#{name}.csv") or File.exists?("#{LOAD_DIR}#{name}.yml") }
     end
