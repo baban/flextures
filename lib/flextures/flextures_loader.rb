@@ -139,15 +139,15 @@ module Flextures
     #
     # @params [Hash] 読み込むテーブルとファイル名のペア
     def self.flextures *fixtures
-      loas_hash, options = parse_flextures_options(*fixtures)
+      load_hash, options = parse_flextures_options(*fixtures)
       load_hash.each{ |params| Loader::load params }
     end
 
     # csv 優先で存在している fixtures をロード
-    def self.load format, option
+    def self.load format, options = {}
       table_name, file_name, method = file_exist format
       if method
-        send(method, format)
+        send(method, format, options)
       else
         # ファイルが存在しない時
         print "Warning: #{file_name}  is not exist!\n" 
@@ -184,7 +184,7 @@ module Flextures
     end
 
     # YAML形式でデータをロードする
-    def self.yml format, option={}
+    def self.yml format, options={}
       table_name, file_name, ext = file_exist format, [:yml]
 
       # キャッシュ利用可能ならそれをそのまま使う
