@@ -165,7 +165,11 @@ module Flextures
         csv<< attributes
         klass.all.each do |row|
           csv<< attr_type.map do |h|
-            (filter && filter[h[:name].to_sym]) ? filter[h[:name].to_sym].call(row[h[:name]]) : trans(row[h[:name]], h[:type], :csv)
+            if (filter && filter[h[:name].to_sym])
+              filter[h[:name].to_sym].call(row[h[:name]])
+            else
+              trans(row[h[:name]], h[:type], :csv)
+            end
           end
         end
       end
@@ -190,13 +194,16 @@ module Flextures
       lack_columns = columns.select { |c| !c.null and !c.default }.map{ |o| o.name.to_sym }
       not_nullable_columns = columns.select { |c| !c.null }.map &:name
 
-      filter = DumpFilter[table_name]
       File.open(outfile,"w") do |f|
         klass.all.each_with_index do |row,idx|
           f<< "#{table_name}_#{idx}:\n" +
             klass.columns.map { |column|
               colname, coltype = column.name, column.type
-              v = (filter && filter[h[:name].to_sym]) ? filter[h[:name].to_sym].call(row[h[:name]]) : trans(row[h[:name]], h[:type], :yml)
+              if (filter && filter[colname.to_sym])
+                v = filter[colname.to_sym].call(row[colname.to_sym])
+              else
+                v = trans(row[colname], coltype, :yml)
+              end
               "  #{colname}: #{v}\n"
             }.join
         end
