@@ -165,11 +165,7 @@ module Flextures
         csv<< attributes
         klass.all.each do |row|
           csv<< attr_type.map do |h|
-            if (filter && filter[h[:name].to_sym])
-              filter[h[:name].to_sym].call(row[h[:name]])
-            else
-              trans(row[h[:name]], h[:type], :csv)
-            end
+            (filter && filter[h[:name].to_sym]) ? filter[h[:name].to_sym].call(row[h[:name]]) : trans(row[h[:name]], h[:type], :csv)
           end
         end
       end
@@ -199,7 +195,7 @@ module Flextures
           f<< "#{table_name}_#{idx}:\n" +
             klass.columns.map { |column|
               colname, coltype = column.name, column.type
-              v = trans(row[colname], coltype, :yml)
+              v = (filter && filter[h[:name].to_sym]) ? filter[h[:name].to_sym].call(row[h[:name]]) : trans(row[h[:name]], h[:type], :yml)
               "  #{colname}: #{v}\n"
             }.join
         end
