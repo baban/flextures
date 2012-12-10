@@ -1,6 +1,6 @@
 source "http://rubygems.org"
 
-gem "activerecord"
+#gem "activerecord"
 
 group :development, :test do
   gem "bundler", "1.2.0"

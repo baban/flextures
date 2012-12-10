@@ -194,6 +194,7 @@ module Flextures
       lack_columns = columns.select { |c| !c.null and !c.default }.map{ |o| o.name.to_sym }
       not_nullable_columns = columns.select { |c| !c.null }.map &:name
 
+      filter = DumpFilter[table_name]
       File.open(outfile,"w") do |f|
         klass.all.each_with_index do |row,idx|
           f<< "#{table_name}_#{idx}:\n" +
