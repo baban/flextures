@@ -140,6 +140,15 @@ class FlexturesDumperTest < Test::Unit::TestCase
           end
         end
         context :csv do
+          setup do
+            @trans = Flextures::Dumper::TRANSLATER[:integer]
+          end
+          should "「integer」はそのまま" do
+            assert_equal 10, @trans.call( 10, :csv )
+          end
+          should '「nil」は文字列「""」' do
+            assert_equal "", @trans.call( nil, :csv )
+          end
         end
       end
       context :string do
