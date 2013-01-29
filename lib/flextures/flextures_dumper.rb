@@ -47,6 +47,10 @@ module Flextures
           return 0 if d==""
           d
         },
+        null2blankstr: proc { |d|
+          return "" if d.nil?
+          d
+        },
         bool2num: proc { |d|
           return 0 if d==false
           return 1 if d==true
@@ -101,19 +105,19 @@ module Flextures
       decimal:->( d, format ){
         procs = (format == :yml) ?
           [:nullstr, :blank2num, :bool2num, proc { |d| d.to_f } ] : 
-          [:blank2num, :bool2num, proc { |d| d.to_f } ]
+          [:null2blankstr, :bool2num, proc { |d| d.to_f } ]
         self.translate_creater d, procs
       },
       float:->(d, format){
         procs = (format == :yml) ?
           [:nullstr, :blank2num, :bool2num, proc { |d| d.to_f } ] : 
-          [:blank2num, :bool2num, proc { |d| d.to_f } ]
+          [:null2blankstr, :bool2num, proc { |d| d.to_f } ]
         self.translate_creater d, procs
       },
       integer:->( d, format ){
         procs = (format == :yml) ?
           [:nullstr, :blank2num, :bool2num, proc { |d| d.to_i } ] : 
-          [:blank2num, :bool2num, proc { |d| d.to_i } ]
+          [:null2blankstr, :bool2num, proc { |d| d.to_i } ]
         self.translate_creater d, procs
       },
       string:->( d, format ){
