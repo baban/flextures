@@ -15,49 +15,30 @@ module Flextures
         Flextures::init_load
         table_names = Flextures::ARGS.parse
         puts "dumping..."
-        if ["yml","yaml"].member? ENV["FORMAT"]
+        case ENV["FORMAT"]
+        when "yml","yaml"
           table_names.map { |fmt| Flextures::Dumper::yml(fmt) }
+        when "csv"
+          table_names.map { |fmt| Flextures::Dumper::csv(fmt) }
         else
           table_names.map { |fmt| Flextures::Dumper::csv(fmt) }
         end
-      end
-
-      def self.csvdump
-        Flextures::init_load
-        puts "dumping..."
-        table_names = Flextures::ARGS.parse
-        table_names.map { |fmt| Flextures::Dumper::csv(fmt) }
-      end
-
-      def self.ymldump
-        Flextures::init_load
-        puts "dumping..."
-        table_names = Flextures::ARGS.parse
-        table_names.map { |fmt| Flextures::Dumper::yml(fmt) }
       end
 
       def self.load
         Flextures::init_load
         table_names = Flextures::ARGS.parse
         Flextures::init_tables unless ENV["T"] or ENV["TABLE"] or ENV["M"] or ENV["MODEL"] or ENV["F"] or ENV["FIXTUES"]
+        file_format = ENV["FORMAT"]
         puts "loading..."
-        table_names.map { |fmt| Flextures::Loader::load(fmt) }
-      end
-
-      def self.csvload
-        Flextures::init_load
-        table_names = Flextures::ARGS.parse
-        Flextures::init_tables unless ENV["T"] or ENV["TABLE"] or ENV["M"] or ENV["MODEL"] or ENV["F"] or ENV["FIXTUES"]
-        puts "loading..."
-        table_names.map { |fmt| Flextures::Loader::csv(fmt) }
-      end
-
-      def self.ymlload
-        Flextures::init_load
-        table_names = Flextures::ARGS::parse
-        Flextures::init_tables unless ENV["T"] or ENV["TABLE"] or ENV["M"] or ENV["MODEL"] or ENV["F"] or ENV["FIXTUES"]
-        puts "loading..."
-        table_names.map { |fmt| Flextures::Loader::yml(fmt) }
+        case file_format.to_s
+        when "csv";
+          table_names.map { |fmt| Flextures::Loader::csv(fmt) }
+        when "yml";
+          table_names.map { |fmt| Flextures::Loader::yml(fmt) }
+        else
+          table_names.map { |fmt| Flextures::Loader::load(fmt) }
+        end
       end
     end
   end

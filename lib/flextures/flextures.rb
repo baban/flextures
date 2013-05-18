@@ -8,8 +8,10 @@ require "flextures/flextures_extension_modules"
 require "flextures/flextures_factory"
 
 module Flextures
-  LOAD_DIR = Config.fixture_load_directory
-  DUMP_DIR = Config.fixture_dump_directory
+  @@config = {
+    load_dir: Config.fixture_load_directory,
+    dump_dir: Config.fixture_dump_directory,
+  }
 
   # テーブルモデルの作成
   def self.create_model table_name
@@ -94,11 +96,11 @@ module Flextures
     # 書き出し 、読み込み すべきファイルとオプションを書きだす
     def self.parse option={}
       table_names = []
-      if ENV["T"] or ENV["TABLE"]
-        table_names = (ENV["T"] or ENV["TABLE"]).split(',').map{ |name| { table: name, file: name } }
+      if v = (ENV["T"] or ENV["TABLE"])
+        table_names = v.split(',').map{ |name| { table: name, file: name } }
       end
-      if ENV["M"] or ENV["MODEL"]
-        table_names = (ENV["M"] or ENV["MODEL"]).split(',').map do |name|
+      if v = (ENV["M"] or ENV["MODEL"])
+        table_names = v.split(',').map do |name|
           name = name.constantize.table_name
           { table: name, file: name }
         end
@@ -129,7 +131,8 @@ module Flextures
 
     # check exist filename block
     def self.exist
-      return->(name){ File.exists?("#{LOAD_DIR}#{name}.csv") or File.exists?("#{LOAD_DIR}#{name}.yml") }
+      return->(name){ File.exists?( File.join( @@config[:load_dir], "#{name}.csv") ) or
+                      File.exists?( File.join( @@config[:load_dir], "#{name}.yml") ) }
     end
   end
 end

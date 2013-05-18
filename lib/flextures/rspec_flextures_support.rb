@@ -20,7 +20,7 @@ module RSpec
         }
       end
 
-      def flextures_set_config
+      def flextures_set_config *_
         # TODO: ハッシュで渡された設定をセットする
       end
     end

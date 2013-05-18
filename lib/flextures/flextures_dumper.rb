@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require "fileutils"
+
 module Flextures
   # データを吐き出す処理をまとめる
   module Dumper
@@ -8,7 +10,7 @@ module Flextures
     class Proc < ::Proc
       def *(other)
         if self.lambda? and other.lambda?
-          lambda {|*x| other.call(self.call(*x)) }
+          lambda { |*x| other.call(self.call(*x)) }
         elsif not self.lambda? and not other.lambda?
           Proc.new {|*x| other.call(self.call(*x)) }
         else
@@ -22,7 +24,7 @@ module Flextures
     end
 
     def self.translate_creater( val, rules )
-      rule_map ={
+      rule_map = {
         nullstr: proc { |d|
           return "null" if d.nil?
           d
@@ -154,27 +156,27 @@ module Flextures
     end
 
     # csv で fixtures を dump
-    def self.csv format
+    def self.csv format, options
+      # TODO: 拡張子は指定してもしなくても良いようにする
       file_name = format[:file] || format[:table]
-      dir_name = format[:dir] || DUMP_DIR
+      dir_name = format[:dir] || @@config[:dump_dir]
       # 指定されたディレクトリを作成
-      recursive_mkdir(dir_name)
+      FileUtils.mkdir_p(dir_name)
       outfile = File.join(dir_name, "#{file_name}.csv")
       table_name = format[:table]
       klass = PARENT.create_model(table_name)
-      attributes = klass.columns.map { |column| column.name }
-      filter = DumpFilter[table_name]
+      attributes = klass.columns.map &:name
+      filter = DumpFilter[table_name] || {}
+      values_filter =->(h) { filter[h[:name].to_sym] ? filter[h[:name].to_sym].call(row[h[:name]]) : trans(row[h[:name]], h[:type], :csv) }
       CSV.open(outfile,'w') do |csv|
         attr_type = klass.columns.map { |column| { name: column.name, type: column.type } }
-        csv<< attributes
+        # dump column names
+        csv<< attributes + options[:plus].to_a
         klass.all.each do |row|
-          csv<< attr_type.map do |h|
-            if (filter && filter[h[:name].to_sym])
-              filter[h[:name].to_sym].call(row[h[:name]])
-            else
-              trans(row[h[:name]], h[:type], :csv)
-            end
-          end
+          values = attr_type.map &values_filter
+          # 出力したくないカラムを削除
+          values.reject! { |v| options[:minus].include?(v) } unless options[:minus].empty?
+          csv<< values
         end
       end
       outfile
@@ -182,45 +184,38 @@ module Flextures
 
     # yaml で fixtures を dump
     def self.yml format
+      # TODO: 拡張子は指定してもしなくても良いようにする
       file_name = format[:file] || format[:table]
-      dir_name = format[:dir] || DUMP_DIR
+      dir_name = format[:dir] || @@config[:dump_dir]
       # 指定されたディレクトリを作成
-      recursive_mkdir(dir_name)
+      FileUtils.mkdir_p(dir_name)
       outfile = File.join(dir_name, "#{file_name}.yml")
       table_name = format[:table]
       klass = PARENT::create_model(table_name)
-      attributes = klass.columns.map { |colum| colum.name }
+      attributes = klass.columns.map &:name
       columns = klass.columns
       # テーブルからカラム情報を取り出し
-      column_hash = {}
-      columns.each { |col| column_hash[col.name] = col }
+      column_hash = columns.inject({}) { |col,h| column_hash[col.name] = col; h }
       # 自動補完が必要なはずのカラム
-      lack_columns = columns.select { |c| !c.null and !c.default }.map{ |o| o.name.to_sym }
-      not_nullable_columns = columns.select { |c| !c.null }.map &:name
+      lack_columns = columns.reject { |c| c.null or c.default }.map{ |o| o.name.to_sym }
+      not_nullable_columns = columns.reject(&:null).map &:name
 
-      filter = DumpFilter[table_name]
+      filter = DumpFilter[table_name] || {}
+      # 追加のカラムを指定
+      plus = options[:plus].to_a.map { |colname| "  #{colname}: null\n" }
       File.open(outfile,"w") do |f|
-        klass.all.each_with_index do |row,idx|
-          f<< "#{table_name}_#{idx}:\n" +
-            klass.columns.map { |column|
-              colname, coltype = column.name, column.type
-              if (filter && filter[colname.to_sym])
-                v = filter[colname.to_sym].call(row[colname.to_sym])
-              else
-                v = trans(row[colname], coltype, :yml)
-              end
-              "  #{colname}: #{v}\n"
-            }.join
+        klass.all.each.with_index do |row,idx|
+          columns = klass.columns
+          columns = columns.reject { |v| options[:minus].include?(v) }
+          columns = columns.map {
+            colname, coltype = column.name.to_sym, column.type
+            filter[colname] ? filter[colname].call(row[colname]) : trans(row[colname], coltype, :yml)
+          }
+          columns = columns.map { |column| "  #{colname}: #{v}\n" } + plus
+          f<< "#{table_name}_#{idx}:\n" + columns
         end
       end
       outfile
-    end
-
-    def self.recursive_mkdir(path)
-      return if FileTest.exist?(path)
-      dir = File.dirname(path)
-      recursive_mkdir(dir)
-      Dir.mkdir(path)
     end
   end
 end
