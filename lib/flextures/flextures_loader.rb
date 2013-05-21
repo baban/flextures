@@ -212,8 +212,8 @@ module Flextures
     end
 
     # フィルタを適応してデータを保存する処理
-    def self.create_object_filter klass, LoadFilter[table_name], file_name, ext, options
-      filter = create_filter klass, LoadFilter[table_name], file_name, ext, options
+    def self.create_object_filter klass, filter_base, file_name, ext, options
+      filter = create_filter klass, filter_base, file_name, ext, options
       return ->(h){
         o = klass.new
         o = filter.call h
