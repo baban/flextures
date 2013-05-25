@@ -8,19 +8,14 @@ require "flextures/flextures_extension_modules"
 require "flextures/flextures_factory"
 
 module Flextures
-  @@config = {
-    load_dir: Config.fixture_load_directory,
-    dump_dir: Config.fixture_dump_directory,
-  }
-
-  # テーブルモデルの作成
+  # ActiveRecord Model is created that guess by table_name
   def self.create_model table_name
-    # Factoryにオプションで指定があった時
+    # when Model is defined in FactoryFilter
     a = ->{
       f = Factory::FACTORIES[table_name.to_sym]
       f && f[:model]
     }
-    # テーブル名からモデル名が推測できるとき
+    # when program can guess Model name by table_name
     b = ->{
       begin
         table_name.singularize.camelize.constantize
@@ -28,14 +23,14 @@ module Flextures
         nil
       end
     }
-    # モデル名推測不可能なとき
+    # when cannot guess Model name
     c = ->{ 
       Class.new(ActiveRecord::Base){ |o| o.table_name=table_name }
     }
     a.call || b.call || c.call
   end
 
-  # 設定ファイルが存在すればロード
+  # load configuration file, if file is exist
   def self.init_load
     if defined?(Rails) and Rails.root
       [
@@ -93,7 +88,7 @@ module Flextures
 
   # parse arguments functions
   module ARGS
-    # 書き出し 、読み込み すべきファイルとオプションを書きだす
+    # parse rake ENV parameters
     def self.parse option={}
       table_names = []
       if v = (ENV["T"] or ENV["TABLE"])
@@ -124,15 +119,18 @@ module Flextures
 
       table_names = table_names.map{ |option| option.merge dir: ENV["DIR"] } if ENV["DIR"]
       table_names = table_names.map{ |option| option.merge dir: ENV["D"]   } if ENV["D"]
-      # read mode だとcsvもyaml存在しないファイルは返さない
+
+      table_names = table_names.map{ |option| option.merge minus: ENV["MINUS"].to_s.split(",") } if ENV["MINUS"]
+      table_names = table_names.map{ |option| option.merge plus:  ENV["PLUS"].to_s.split(",")  } if ENV["PLUS"]
+      # if mode is 'read mode' and file is not exist value is not return
       table_names.select! &exist if option[:mode] && option[:mode] == 'read'
       table_names
     end
 
     # check exist filename block
     def self.exist
-      return->(name){ File.exists?( File.join( @@config[:load_dir], "#{name}.csv") ) or
-                      File.exists?( File.join( @@config[:load_dir], "#{name}.yml") ) }
+      return->(name){ File.exists?( File.join( Config.fixture_load_directory, "#{name}.csv") ) or
+                      File.exists?( File.join( Config.fixture_load_directory, "#{name}.yml") ) }
     end
   end
 end

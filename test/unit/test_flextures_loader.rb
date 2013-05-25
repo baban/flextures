@@ -1,40 +1,37 @@
 # encoding: utf-8
 
-# ruby -I"lib:lib:test" -I"/Users/matsubaramasanao/.rvm/gems/ruby-1.9.3-p0/gems/rake-0.9.2.2/lib" "/Users/matsubaramasanao/.rvm/gems/ruby-1.9.3-p0/gems/rake-0.9.2.2/lib/rake/rake_test_loader.rb" test/**/test_*.rb
-# ruby -I"lib:lib:test" "/Users/matsubaramasanao/.rvm/gems/ruby-1.9.3-p0/gems/rake-0.9.2.2/lib/rake/rake_test_loader.rb" test/**/test_*.rb
-
 class FlexturesLoaderTest < Test::Unit::TestCase
   context Flextures::Loader do
     context "TRANSLATER" do
       context :binary do
-        should "nil" do
+        should "'nil' value not changed" do
           assert_equal nil, Flextures::Loader::TRANSLATER[:binary].call(nil)
         end
       end
       context :boolean do
-        should "nilはそのまま" do
+        should "'nil' value not changed" do
           assert_equal nil, Flextures::Loader::TRANSLATER[:boolean].call(nil)
         end
-        should "trueもそのまま" do
+        should "'true' value not changed" do
           assert_equal true, Flextures::Loader::TRANSLATER[:boolean].call(true)
         end
-        should "falseもそのまま" do
+        should "'false' value not changed" do
           assert_equal false, Flextures::Loader::TRANSLATER[:boolean].call(false)
         end
-        should "0" do
+        should "'0' is change to 'false'" do
           assert_equal false, Flextures::Loader::TRANSLATER[:boolean].call(0)
         end
-        should "1" do
+        should "'1' is change to 'true'" do
           assert_equal true, Flextures::Loader::TRANSLATER[:boolean].call(1)
         end
-        should "-1" do
+        should "'-1' is change to 'true'" do
           assert_equal true, Flextures::Loader::TRANSLATER[:boolean].call(-1)
         end
-        should "空白文字" do
-          assert_equal false, Flextures::Loader::TRANSLATER[:boolean].call("")
-        end
-        should "文字" do
+        should "'string data' is change to 'true'" do
           assert_equal true, Flextures::Loader::TRANSLATER[:boolean].call("Hello")
+        end
+        should "'empty string' is change to 'true'" do
+          assert_equal false, Flextures::Loader::TRANSLATER[:boolean].call("")
         end
       end
       context :date do

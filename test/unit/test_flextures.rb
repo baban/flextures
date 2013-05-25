@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 class FlexturesTest < Test::Unit::TestCase
-  should "データの型が一致" do
+  should "data type test" do
     assert_equal Module, Flextures.class
   end
 end

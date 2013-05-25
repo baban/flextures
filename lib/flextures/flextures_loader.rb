@@ -88,7 +88,7 @@ module Flextures
     def self.file_exist format, type = [:csv,:yml]
       table_name = format[:table].to_s
       file_name = format[:file] || format[:table]
-      dir_name = format[:dir] || @@config[:load_dir]
+      dir_name = format[:dir] || Flextures::Config.fixture_load_directory
 
       ext=->{
         if    type.member?(:csv) and File.exist? File.join( dir_name, "#{file_name}.csv" )
@@ -153,7 +153,7 @@ module Flextures
       table_name, file_name, ext = file_exist format, [:csv]
       ext_file_name = "#{file_name}.csv"
       # キャッシュ利用可能ならそれをそのまま使う
-      return if options[:cache] and @@table_cache[table_name.to_sym] and @@table_cache[table_name.to_sym] == file_name
+      return if options[:cache] and @@table_cache[table_name.to_sym] == file_name
       @@table_cache[table_name.to_sym] = file_name
 
       puts "try loading #{ext_file_name}" if !options[:silent] and ![:fun].include?(format[:loader])
@@ -181,7 +181,7 @@ module Flextures
       table_name, file_name, ext = file_exist format, [:yml]
       ext_file_name = "#{file_name}.yml"
       # キャッシュ利用可能ならそれをそのまま使う
-      return if options[:cache] and @@table_cache[table_name.to_sym] and @@table_cache[table_name.to_sym] == file_name
+      return if options[:cache] and @@table_cache[table_name.to_sym] == file_name
       @@table_cache[table_name.to_sym] = file_name
 
       puts "try loading #{ext_file_name}" if !options[:silent] and ![:fun].include?(format[:loader])
@@ -189,23 +189,23 @@ module Flextures
 
       attributes, filter = ->{
         klass = PARENT::create_model table_name
-        # rails3_acts_as_paranoid がdelete_allで物理削除しないことの対策
-        klass.send( klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all )
+        # if you use 'rails3_acts_as_paranoid' gem, that is not delete data 'delete_all' method
+        klass.send (klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all)
         attributes = klass.columns.map &:name
         filter = create_object_filter klass, LoadFilter[table_name], file_name, :yml, options
         [attributes, filter]
       }.call
 
-      yaml = YAML.load(File.open(ext_file_name))
-      return false unless yaml # ファイルの中身が空の場合
+      yaml = YAML.load File.open(ext_file_name)
+      return false unless yaml # if file is empty
       yaml.each do |k,h|
         warning "YAML", attributes, h.keys
-        create_object h
+        filter.call h
       end
       ext_file_name
     end
 
-    # 欠けたカラムを検知してメッセージを出しておく
+    # print warinig message that lack or not exist colum names
     def self.warning format, attributes, keys
       (attributes-keys).each { |name| puts "Warning: #{format} colum is missing! [#{name}]" }
       (keys-attributes).each { |name| puts "Warning: #{format} colum is left over! [#{name}]" }
@@ -216,7 +216,7 @@ module Flextures
       filter = create_filter klass, filter_base, file_name, ext, options
       return ->(h){
         o = klass.new
-        o = filter.call h
+        o = filter.call o, h
         o.save( validate: false )
         o
       }
@@ -225,10 +225,10 @@ module Flextures
     # フィクスチャから取り出した値を、加工して欲しいデータにするフィルタを作成して返す
     def self.create_filter klass, factory, filename, ext, options
       columns = klass.columns
-      # 出力したいくないカラムを選択から外す
-      columns.reject! { |col| options[:minus].include?(col.name.to_sym) }
-      # テーブルからカラム情報を取り出し
-      column_hash = columns.inject({}) { |col,h| column_hash[col.name] = col; h }
+      # delete unload columns
+      columns.reject! { |col| options[:minus].include?(col.name) } if options[:minus]
+      # data translat array to hash
+      column_hash = columns.inject({}) { |h,col| h[col.name] = col; h }
       # 自動補完が必要なはずのカラム
       lack_columns = columns.reject { |c| c.null and c.default }.map{ |o| o.name.to_sym }
       not_nullable_columns = columns.reject(&:null).map &:name
@@ -237,13 +237,13 @@ module Flextures
         # テーブルに存在しないキーが定義されているときは削除
         h.select! { |k,v| column_hash[k] }
         # 値がnilでないなら型をDBで適切なものに変更
-        h.each{ |k,v| v.nil? || o[k] = (TRANSLATER[column_hash[k].type] && TRANSLATER[column_hash[k].type].call(v)) }
+        h.each{ |k,v| v.nil? || o[k] = (column_hash[k] && TRANSLATER[column_hash[k].type] && TRANSLATER[column_hash[k].type].call(v)) }
         # FactoryFilterを動作させる
         factory.call(*[o, :load, filename, ext][0,factory.arity]) if factory and !options[:unfilter]
         # 値がnilの列にデフォルト値を補間
-        not_nullable_columns.each{ |k| o[k].nil? && o[k] = (COMPLETER[column_hash[k].type] && COMPLETER[column_hash[k].type].call) }
+        not_nullable_columns.each{ |k| o[k].nil? && o[k] = (column_hash[k] && COMPLETER[column_hash[k].type] && COMPLETER[column_hash[k].type].call) }
         # 列ごと抜けているデータを保管
-        lack_columns.each { |k| o[k].nil? && o[k] = COMPLETER[column_hash[k].type].call }
+        lack_columns.each { |k| o[k].nil? && o[k] = (column_hash[k] && COMPLETER[column_hash[k].type] && COMPLETER[column_hash[k].type].call) }
         o
       }
       # 本来のfixtureの読み込み時のように

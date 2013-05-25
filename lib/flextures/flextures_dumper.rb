@@ -156,46 +156,51 @@ module Flextures
     end
 
     # csv で fixtures を dump
-    def self.csv format, options
+    def self.csv format, options={}
       # TODO: 拡張子は指定してもしなくても良いようにする
       file_name = format[:file] || format[:table]
-      dir_name = format[:dir] || @@config[:dump_dir]
-      # 指定されたディレクトリを作成
-      FileUtils.mkdir_p(dir_name)
+      dir_name = format[:dir] || Flextures::Config.fixture_dump_directory
       outfile = File.join(dir_name, "#{file_name}.csv")
       table_name = format[:table]
       klass = PARENT.create_model(table_name)
       attributes = klass.columns.map &:name
       filter = DumpFilter[table_name] || {}
-      values_filter =->(h) { filter[h[:name].to_sym] ? filter[h[:name].to_sym].call(row[h[:name]]) : trans(row[h[:name]], h[:type], :csv) }
+
+      attr_type = klass.columns.map { |column| { name: column.name, type: column.type } }
+      # 出力したくないカラムを削除
+      attr_type.reject! { |v| options[:minus].include?(v) } if options[:minus]
+      values_filter =->(row) {
+        attr_type.map do |h|
+          filter[h[:name].to_sym] ? filter[h[:name].to_sym].call(row[h[:name]]) : trans(row[h[:name]], h[:type], :csv)
+        end
+      }
+
+      header = attributes + options[:plus].to_a
+      # outfile, dir_name, header, klass
       CSV.open(outfile,'w') do |csv|
-        attr_type = klass.columns.map { |column| { name: column.name, type: column.type } }
+        # 指定されたディレクトリを作成
+        FileUtils.mkdir_p(dir_name)
         # dump column names
-        csv<< attributes + options[:plus].to_a
+        csv<< header
         klass.all.each do |row|
-          values = attr_type.map &values_filter
-          # 出力したくないカラムを削除
-          values.reject! { |v| options[:minus].include?(v) } unless options[:minus].empty?
-          csv<< values
+          csv<< values_filter.call(row)
         end
       end
       outfile
     end
 
     # yaml で fixtures を dump
-    def self.yml format
+    def self.yml format, options={}
       # TODO: 拡張子は指定してもしなくても良いようにする
       file_name = format[:file] || format[:table]
-      dir_name = format[:dir] || @@config[:dump_dir]
-      # 指定されたディレクトリを作成
-      FileUtils.mkdir_p(dir_name)
+      dir_name = format[:dir] || Flextures::Config.fixture_dump_directory
       outfile = File.join(dir_name, "#{file_name}.yml")
       table_name = format[:table]
       klass = PARENT::create_model(table_name)
       attributes = klass.columns.map &:name
       columns = klass.columns
       # テーブルからカラム情報を取り出し
-      column_hash = columns.inject({}) { |col,h| column_hash[col.name] = col; h }
+      column_hash = columns.inject({}) { |h,col| h[col.name] = col; h }
       # 自動補完が必要なはずのカラム
       lack_columns = columns.reject { |c| c.null or c.default }.map{ |o| o.name.to_sym }
       not_nullable_columns = columns.reject(&:null).map &:name
@@ -203,16 +208,18 @@ module Flextures
       filter = DumpFilter[table_name] || {}
       # 追加のカラムを指定
       plus = options[:plus].to_a.map { |colname| "  #{colname}: null\n" }
+      columns = klass.columns
+      columns.reject! { |v| options[:minus].include?(v) } if options[:minus]
       File.open(outfile,"w") do |f|
+        # 指定されたディレクトリを作成
+        FileUtils.mkdir_p(dir_name)
         klass.all.each.with_index do |row,idx|
-          columns = klass.columns
-          columns = columns.reject { |v| options[:minus].include?(v) }
-          columns = columns.map {
+          values = columns.map { |column|
             colname, coltype = column.name.to_sym, column.type
-            filter[colname] ? filter[colname].call(row[colname]) : trans(row[colname], coltype, :yml)
-          }
-          columns = columns.map { |column| "  #{colname}: #{v}\n" } + plus
-          f<< "#{table_name}_#{idx}:\n" + columns
+            v = filter[colname] ? filter[colname].call(row[colname]) : trans(row[colname], coltype, :yml)
+            "  #{colname}: #{v}\n"
+          } + plus
+          f<< "#{table_name}_#{idx}:\n" + values*""
         end
       end
       outfile

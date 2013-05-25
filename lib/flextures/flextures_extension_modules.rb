@@ -17,7 +17,7 @@ module Flextures
   module Extensions
     module Array
       def to_hash keys
-        [keys,self].transpose.inject({}){ |pair,h| k,v=pair; h[k]=v; h }
+        [keys,self].transpose.inject({}){ |h,pair| k,v=pair; h[k]=v; h }
       end
     end
   end
