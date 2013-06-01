@@ -163,6 +163,10 @@ module Flextures
       v
     end
 
+    # dump attributes data
+    # @params klass dump table Model
+    # @params [Hash] options dump options
+    # @return [Array] columns format information
     def self.dump_attributes klass, options
       columns = klass.columns.map { |column| { name: column.name, type: column.type } }
       # option[:minus] colum is delete columns
@@ -178,10 +182,10 @@ module Flextures
     # @params [String] table_name table name
     # @params [Hash] options options
     # @params [Symbol] type format type (:yml or :csv)
-    # @return [Proc]
-    def self.create_filter klass, table_name, options, type
-      filter = DumpFilter[table_name] || {}
-      attr_type = self.dump_attributes klass, options
+    # @return [Proc] filter function
+    def self.create_filter klass, format, type
+      filter = DumpFilter[format[:table]] || {}
+      attr_type = self.dump_attributes klass, format
       ->(row) {
         attr_type.map do |h|
           v = filter[h[:name].to_sym] ? filter[h[:name].to_sym].call(row[h[:name]]) : trans(row[h[:name]], h[:type], type)
@@ -193,13 +197,13 @@ module Flextures
     # data dump to csv format
     # @params [Hash] format file format data
     # @params [Hash] options dump format options
-    def self.csv format, options={}
-      table_name = format[:table]
-      klass = PARENT.create_model(table_name)
-      filter = self.create_filter klass, table_name, options, :csv
+    def self.csv format
+      klass = PARENT.create_model(format[:table])
+      filter = self.create_filter klass, format, :csv
       self.dump_csv klass, filter, format
     end
 
+    # dump csv format data
     def self.dump_csv klass, values_filter, format
       # TODO: 拡張子は指定してもしなくても良いようにする
       file_name = format[:file] || format[:table]
@@ -220,14 +224,13 @@ module Flextures
     # data dump to yaml format
     # @params [Hash] format file format data
     # @params [Hash] options dump format options
-    def self.yml format, options={}
-      table_name = format[:table]
-      klass = PARENT::create_model(table_name)
-      filter = self.create_filter klass, table_name, options, :yml
+    def self.yml format
+      klass = PARENT::create_model(format[:table])
+      filter = self.create_filter klass, format, :yml
       self.dump_yml klass, filter, format
     end
 
-    # dump csv format data
+    # dump yml format data
     def self.dump_yml klass, values_filter, format
       # TODO: 拡張子は指定してもしなくても良いようにする
       table_name = format[:table]
