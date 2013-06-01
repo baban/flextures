@@ -144,7 +144,7 @@ module Flextures
         send(method, format, options)
       else
         # ファイルが存在しない時
-        print "Warning: #{file_name} is not exist!\n" 
+        puts "Warning: #{file_name} is not exist!" unless options[:silent]
       end
     end
 
@@ -167,7 +167,7 @@ module Flextures
 
       CSV.open( ext_file_name ) do |csv|
         keys = csv.shift # keyの設定
-        warning "CSV", attributes, keys
+        warning "CSV", attributes, keys unless options[:silent]
         csv.each do |values|
           h = values.extend(Extensions::Array).to_hash(keys)
           filter.call h
@@ -199,7 +199,7 @@ module Flextures
       yaml = YAML.load File.open(ext_file_name)
       return false unless yaml # if file is empty
       yaml.each do |k,h|
-        warning "YAML", attributes, h.keys
+        warning "YAML", attributes, h.keys unless options[:silent]
         filter.call h
       end
       ext_file_name

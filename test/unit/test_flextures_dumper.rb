@@ -170,6 +170,24 @@ class FlexturesDumperTest < Test::Unit::TestCase
           end
         end
       end
+      context :null do
+        context :yml do
+          setup do
+            @trans = Flextures::Dumper::TRANSLATER[:null]
+          end
+          should "values is 'null' string" do
+            assert_equal "null", @trans.call( nil, :yml )
+          end
+        end
+        context :csv do
+          setup do
+            @trans = Flextures::Dumper::TRANSLATER[:null]
+          end
+          should "values is empty string" do
+            assert_equal "", @trans.call( nil, :csv )
+          end
+        end
+      end
     end
   end
 end

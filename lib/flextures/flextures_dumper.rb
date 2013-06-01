@@ -146,80 +146,99 @@ module Flextures
           [proc { |d| d.to_s }]
         self.translate_creater d, procs
       },
+      # use null only value
+      null:->( d, format ){
+        format==:yml ? "null" : ""
+      },
     }
 
-    # 適切な型に変換
+    # translate data
+    # @params [Object] value
+    # @params [Symbol] type datatype
+    # @params [Symbol] format data type (:yml or :csv)
+    # @return translated value
     def self.trans( v, type, format )
       trans = TRANSLATER[type]
       return trans.call( v, format ) if trans
       v
     end
 
-    # csv で fixtures を dump
+    def self.dump_attributes klass, options
+      columns = klass.columns.map { |column| { name: column.name, type: column.type } }
+      # option[:minus] colum is delete columns
+      columns.reject! { |column| options[:minus].include?(column[:name]) } if options[:minus]
+      # option[:plus] colum is new columns
+      # values is all nil
+      plus = options[:plus].to_a.map { |colname| { name: colname, type: :null } }
+      columns + plus
+    end
+
+    # filter is translate value safe YAML or CSV string
+    # @params [Class] klass ActiveRecord class
+    # @params [String] table_name table name
+    # @params [Hash] options options
+    # @params [Symbol] type format type (:yml or :csv)
+    # @return [Proc]
+    def self.create_filter klass, table_name, options, type
+      filter = DumpFilter[table_name] || {}
+      attr_type = self.dump_attributes klass, options
+      ->(row) {
+        attr_type.map do |h|
+          v = filter[h[:name].to_sym] ? filter[h[:name].to_sym].call(row[h[:name]]) : trans(row[h[:name]], h[:type], type)
+          [h[:name],v]
+        end
+      }
+    end
+
+    # data dump to csv format
+    # @params [Hash] format file format data
+    # @params [Hash] options dump format options
     def self.csv format, options={}
+      table_name = format[:table]
+      klass = PARENT.create_model(table_name)
+      filter = self.create_filter klass, table_name, options, :csv
+      self.dump_csv klass, filter, format
+    end
+
+    def self.dump_csv klass, values_filter, format
       # TODO: 拡張子は指定してもしなくても良いようにする
       file_name = format[:file] || format[:table]
       dir_name = format[:dir] || Flextures::Config.fixture_dump_directory
       outfile = File.join(dir_name, "#{file_name}.csv")
-      table_name = format[:table]
-      klass = PARENT.create_model(table_name)
-      attributes = klass.columns.map &:name
-      filter = DumpFilter[table_name] || {}
-
-      attr_type = klass.columns.map { |column| { name: column.name, type: column.type } }
-      # 出力したくないカラムを削除
-      attr_type.reject! { |v| options[:minus].include?(v) } if options[:minus]
-      values_filter =->(row) {
-        attr_type.map do |h|
-          filter[h[:name].to_sym] ? filter[h[:name].to_sym].call(row[h[:name]]) : trans(row[h[:name]], h[:type], :csv)
-        end
-      }
-
-      header = attributes + options[:plus].to_a
-      # outfile, dir_name, header, klass
+      FileUtils.mkdir_p(dir_name)
       CSV.open(outfile,'w') do |csv|
-        # 指定されたディレクトリを作成
-        FileUtils.mkdir_p(dir_name)
         # dump column names
-        csv<< header
+        csv<< values_filter.call({}).map(&:first)
+        # dump column datas
         klass.all.each do |row|
-          csv<< values_filter.call(row)
+          csv<< values_filter.call(row).map(&:last)
         end
       end
       outfile
     end
 
-    # yaml で fixtures を dump
+    # data dump to yaml format
+    # @params [Hash] format file format data
+    # @params [Hash] options dump format options
     def self.yml format, options={}
-      # TODO: 拡張子は指定してもしなくても良いようにする
-      file_name = format[:file] || format[:table]
-      dir_name = format[:dir] || Flextures::Config.fixture_dump_directory
-      outfile = File.join(dir_name, "#{file_name}.yml")
       table_name = format[:table]
       klass = PARENT::create_model(table_name)
-      attributes = klass.columns.map &:name
-      columns = klass.columns
-      # テーブルからカラム情報を取り出し
-      column_hash = columns.inject({}) { |h,col| h[col.name] = col; h }
-      # 自動補完が必要なはずのカラム
-      lack_columns = columns.reject { |c| c.null or c.default }.map{ |o| o.name.to_sym }
-      not_nullable_columns = columns.reject(&:null).map &:name
+      filter = self.create_filter klass, table_name, options, :yml
+      self.dump_yml klass, filter, format
+    end
 
-      filter = DumpFilter[table_name] || {}
-      # 追加のカラムを指定
-      plus = options[:plus].to_a.map { |colname| "  #{colname}: null\n" }
-      columns = klass.columns
-      columns.reject! { |v| options[:minus].include?(v) } if options[:minus]
+    # dump csv format data
+    def self.dump_yml klass, values_filter, format
+      # TODO: 拡張子は指定してもしなくても良いようにする
+      table_name = format[:table]
+      file_name = format[:file] || format[:table]
+      dir_name = format[:dir] || Flextures::Config.fixture_dump_directory
+      FileUtils.mkdir_p(dir_name)
+      outfile = File.join(dir_name, "#{file_name}.yml")
       File.open(outfile,"w") do |f|
-        # 指定されたディレクトリを作成
-        FileUtils.mkdir_p(dir_name)
         klass.all.each.with_index do |row,idx|
-          values = columns.map { |column|
-            colname, coltype = column.name.to_sym, column.type
-            v = filter[colname] ? filter[colname].call(row[colname]) : trans(row[colname], coltype, :yml)
-            "  #{colname}: #{v}\n"
-          } + plus
-          f<< "#{table_name}_#{idx}:\n" + values*""
+          values = values_filter.call(row).map { |k,v| "  #{k}: #{v}\n" }.join
+          f<< "#{table_name}_#{idx}:\n" + values
         end
       end
       outfile
