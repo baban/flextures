@@ -100,7 +100,7 @@ module Flextures
         end
       }.call
 
-      [table_name, "#{dir_name}#{file_name}",ext]
+      [(ext && "#{dir_name}#{file_name}.#{ext}"),ext]
     end
     
     # flextures関数の引数をパースして
@@ -112,7 +112,7 @@ module Flextures
       options = {}
       options = fixtures.shift if fixtures.size > 1 and fixtures.first.is_a?(Hash)
 
-      # :allですべてのfixtureを反映
+      # :all value load all loadable fixtures
       fixtures = Flextures::deletable_tables if fixtures.size==1 and :all == fixtures.first
 
       last_hash = fixtures.last.is_a?(Hash) ? fixtures.pop : {}
@@ -138,71 +138,82 @@ module Flextures
     end
 
     # csv 優先で存在している fixtures をロード
-    def self.load format, options = {}
-      table_name, file_name, method = file_exist format
+    def self.load format
+      file_name, method = file_exist format
       if method
-        send(method, format, options)
+        send(method, format)
       else
         # ファイルが存在しない時
-        puts "Warning: #{file_name} is not exist!" unless options[:silent]
+        puts "Warning: #{file_name} is not exist!" unless format[:silent]
       end
     end
 
-    # CSVのデータをロードする
-    def self.csv format, options={}
-      table_name, file_name, ext = file_exist format, [:csv]
-      ext_file_name = "#{file_name}.csv"
-      # キャッシュ利用可能ならそれをそのまま使う
-      return if options[:cache] and @@table_cache[table_name.to_sym] == file_name
-      @@table_cache[table_name.to_sym] = file_name
+    # load CSV data
+    def self.csv format
+      type = :csv
+      file_name, ext = file_exist format, [type]
 
-      puts "try loading #{ext_file_name}" if !options[:silent] and ![:fun].include?(format[:loader])
-      return nil unless File.exist? ext_file_name
+      return unless self.file_loadable? format, file_name
 
-      klass = PARENT::create_model table_name
+      klass, filter = self.create_model_filter format, file_name, type
+
+      self.load_csv format, klass, filter, file_name
+    end
+
+    # YAML形式でデータをロードする
+    def self.yml format
+      type = :yml
+      file_name, ext = file_exist format, [type]
+
+      return unless self.file_loadable? format, file_name
+
+      klass, filter = self.create_model_filter format, file_name, type
+
+      self.load_yml format, klass, filter, file_name
+    end
+
+    def self.load_csv format, klass, filter, file_name
       attributes = klass.columns.map &:name
-      filter = create_object_filter klass, LoadFilter[table_name], file_name, :csv, options
-      # rails3_acts_as_paranoid がdelete_allで物理削除しないことの対策
-      klass.send( klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all )
-
-      CSV.open( ext_file_name ) do |csv|
+      CSV.open( file_name ) do |csv|
         keys = csv.shift # keyの設定
-        warning "CSV", attributes, keys unless options[:silent]
+        warning "CSV", attributes, keys unless format[:silent]
         csv.each do |values|
           h = values.extend(Extensions::Array).to_hash(keys)
           filter.call h
         end
       end
-      ext_file_name
+      file_name
     end
 
-    # YAML形式でデータをロードする
-    def self.yml format, options={}
-      table_name, file_name, ext = file_exist format, [:yml]
-      ext_file_name = "#{file_name}.yml"
-      # キャッシュ利用可能ならそれをそのまま使う
-      return if options[:cache] and @@table_cache[table_name.to_sym] == file_name
-      @@table_cache[table_name.to_sym] = file_name
-
-      puts "try loading #{ext_file_name}" if !options[:silent] and ![:fun].include?(format[:loader])
-      return nil unless File.exist? ext_file_name
-
-      attributes, filter = ->{
-        klass = PARENT::create_model table_name
-        # if you use 'rails3_acts_as_paranoid' gem, that is not delete data 'delete_all' method
-        klass.send (klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all)
-        attributes = klass.columns.map &:name
-        filter = create_object_filter klass, LoadFilter[table_name], file_name, :yml, options
-        [attributes, filter]
-      }.call
-
-      yaml = YAML.load File.open(ext_file_name)
+    def self.load_yml format, klass, filter, file_name
+      yaml = YAML.load File.open(file_name)
       return false unless yaml # if file is empty
+      attributes = klass.columns.map &:name
       yaml.each do |k,h|
-        warning "YAML", attributes, h.keys unless options[:silent]
+        warning "YAML", attributes, h.keys unless format[:silent]
         filter.call h
       end
-      ext_file_name
+      file_name
+    end
+
+    def self.file_loadable? format, file_name
+      table_name = format[:table].to_s.to_sym
+      # キャッシュ利用可能ならそれをそのまま使う
+      return nil if format[:cache] and @@table_cache[table_name] == file_name
+      @@table_cache[table_name] = file_name
+      return nil unless File.exist? file_name
+      puts "try loading #{file_name}" if !format[:silent] and ![:fun].include?(format[:loader])
+      true
+    end
+
+    # create filter and table info
+    def self.create_model_filter format, file_name, type
+      table_name = format[:table].to_s
+      klass = PARENT::create_model table_name
+      # if you use 'rails3_acts_as_paranoid' gem, that is not delete data 'delete_all' method
+      klass.send (klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all)
+      filter = self.create_object_filter klass, LoadFilter[table_name], file_name, type, format
+      [klass, filter]
     end
 
     # print warinig message that lack or not exist colum names
@@ -232,31 +243,29 @@ module Flextures
       # 自動補完が必要なはずのカラム
       lack_columns = columns.reject { |c| c.null and c.default }.map{ |o| o.name.to_sym }
       not_nullable_columns = columns.reject(&:null).map &:name
-      # ハッシュを受け取って、必要な値に加工してからハッシュで返すラムダを返す
-      loose_filter=->(o,h){
-        # テーブルに存在しないキーが定義されているときは削除
-        h.select! { |k,v| column_hash[k] }
-        # 値がnilでないなら型をDBで適切なものに変更
-        h.each{ |k,v| v.nil? || o[k] = (column_hash[k] && TRANSLATER[column_hash[k].type] && TRANSLATER[column_hash[k].type].call(v)) }
-        # FactoryFilterを動作させる
-        factory.call(*[o, :load, filename, ext][0,factory.arity]) if factory and !options[:unfilter]
-        # 値がnilの列にデフォルト値を補間
-        not_nullable_columns.each{ |k| o[k].nil? && o[k] = (column_hash[k] && COMPLETER[column_hash[k].type] && COMPLETER[column_hash[k].type].call) }
-        # 列ごと抜けているデータを保管
-        lack_columns.each { |k| o[k].nil? && o[k] = (column_hash[k] && COMPLETER[column_hash[k].type] && COMPLETER[column_hash[k].type].call) }
-        o
-      }
       # 本来のfixtureの読み込み時のように
       # 値の保管などはしないで読み込み速度を特化しつつ
       # カラムのエラーなどは出来るだけそのまま扱う
       strict_filter=->(o,h){
         # 値がnilでないなら型をDBで適切なものに変更
         h.each{ |k,v| v.nil? || o[k] = (TRANSLATER[column_hash[k].type] && TRANSLATER[column_hash[k].type].call(v)) }
-        # FactoryFilterを動作させる
+        # call FactoryFilter
         factory.call(*[o, :load, filename, ext][0,factory.arity]) if factory and !options[:unfilter]
         o
       }
-      (options[:error_level]=="strict") ? strict_filter : loose_filter
+      # ハッシュを受け取って、必要な値に加工してからハッシュで返すラムダを返す
+      loose_filter=->(o,h){
+        # h.reject! { |k,v| options[:minus].include?(k) } if options[:minus]
+        # テーブルに存在しないキーが定義されているときは削除
+        h.select! { |k,v| column_hash[k] }
+        strict_filter.call(o,h)
+        # set default value if value is 'nil'
+        not_nullable_columns.each{ |k| o[k].nil? && o[k] = (column_hash[k] && COMPLETER[column_hash[k].type] && COMPLETER[column_hash[k].type].call) }
+        # fill span values if column is not exist
+        lack_columns.each { |k| o[k].nil? && o[k] = (column_hash[k] && COMPLETER[column_hash[k].type] && COMPLETER[column_hash[k].type].call) }
+        o
+      }
+      (options[:strict]==true) ? strict_filter : loose_filter
     end
   end
 end

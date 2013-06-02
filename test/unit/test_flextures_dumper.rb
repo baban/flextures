@@ -1,8 +1,5 @@
 # encoding: utf-8
 
-# ruby -I"lib:lib:test" -I"/Users/matsubaramasanao/.rvm/gems/ruby-1.9.3-p0/gems/rake-0.9.2.2/lib" "/Users/matsubaramasanao/.rvm/gems/ruby-1.9.3-p0/gems/rake-0.9.2.2/lib/rake/rake_test_loader.rb" test/**/test_*.rb
-# ruby -I"lib:lib:test" "/Users/matsubaramasanao/.rvm/gems/ruby-1.9.3-p0/gems/rake-0.9.2.2/lib/rake/rake_test_loader.rb" test/**/test_*.rb
-
 class FlexturesDumperTest < Test::Unit::TestCase
   context Flextures::Dumper do
     should "データの型が一致" do

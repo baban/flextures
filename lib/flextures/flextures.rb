@@ -49,7 +49,7 @@ module Flextures
     tables
   end
 
-  # テーブル情報の初期化
+  # initialize table data
   def self.init_tables
     tables = Flextures::deletable_tables
     tables.each do |name|
@@ -61,7 +61,6 @@ module Flextures
     end
   end
 
-  # テーブル情報の初期化
   def self.delete_tables *tables
     tables.each do |name|
       # テーブルではなくviewを拾って止まる場合があるのでrescueしてしまう
@@ -122,6 +121,10 @@ module Flextures
 
       table_names = table_names.map{ |option| option.merge minus: ENV["MINUS"].to_s.split(",") } if ENV["MINUS"]
       table_names = table_names.map{ |option| option.merge plus:  ENV["PLUS"].to_s.split(",")  } if ENV["PLUS"]
+
+      table_names = table_names.map{ |option| option.merge silent: true }   if ENV["OPTIONS"].to_s.split(",").include?("silent")
+      table_names = table_names.map{ |option| option.merge unfilter: true } if ENV["OPTIONS"].to_s.split(",").include?("unfilter")
+
       # if mode is 'read mode' and file is not exist value is not return
       table_names.select! &exist if option[:mode] && option[:mode] == 'read'
       table_names
