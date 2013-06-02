@@ -82,46 +82,6 @@ module Flextures
       },
     }
 
-    # どのファイルが存在するかチェック
-    # @param [Hash] format ロードしたいファイルの情報
-    # @return 存在するファイルの種類(csv,yml)、どちも存在しないならnil
-    def self.file_exist format, type = [:csv,:yml]
-      table_name = format[:table].to_s
-      file_name = format[:file] || format[:table]
-      dir_name = format[:dir] || Flextures::Config.fixture_load_directory
-
-      ext=->{
-        if    type.member?(:csv) and File.exist? File.join( dir_name, "#{file_name}.csv" )
-          :csv
-        elsif type.member?(:yml) and File.exist? File.join( dir_name, "#{file_name}.yml" )
-          :yml
-        else
-          nil
-        end
-      }.call
-
-      [(ext && "#{dir_name}#{file_name}.#{ext}"),ext]
-    end
-    
-    # flextures関数の引数をパースして
-    # 単純な読み込み向け形式に変換します
-    #
-    # @params [Hash] 読み込むテーブルとファイル名のペア
-    # @return [Array] 読み込テーブルごとに切り分けられた設定のハッシュを格納
-    def self.parse_flextures_options *fixtures
-      options = {}
-      options = fixtures.shift if fixtures.size > 1 and fixtures.first.is_a?(Hash)
-
-      # :all value load all loadable fixtures
-      fixtures = Flextures::deletable_tables if fixtures.size==1 and :all == fixtures.first
-
-      last_hash = fixtures.last.is_a?(Hash) ? fixtures.pop : {}
-      load_hash = fixtures.inject({}){ |h,name| h[name.to_sym] = name; h } # symbolに値を寄せ直す
-      load_hash.merge!(last_hash)
-      load_hash = load_hash.map { |k,v| { table: k, file: v, loader: :fun } }
-      [load_hash, options]
-    end
-
     # fixturesをまとめてロード、主にテストtest/unit, rspec で使用する
     #
     # 全テーブルが対象
@@ -156,11 +116,10 @@ module Flextures
       return unless self.file_loadable? format, file_name
 
       klass, filter = self.create_model_filter format, file_name, type
-
       self.load_csv format, klass, filter, file_name
     end
 
-    # YAML形式でデータをロードする
+    # load YAML data
     def self.yml format
       type = :yml
       file_name, ext = file_exist format, [type]
@@ -168,9 +127,9 @@ module Flextures
       return unless self.file_loadable? format, file_name
 
       klass, filter = self.create_model_filter format, file_name, type
-
       self.load_yml format, klass, filter, file_name
     end
+
 
     def self.load_csv format, klass, filter, file_name
       attributes = klass.columns.map &:name
@@ -196,6 +155,42 @@ module Flextures
       file_name
     end
 
+    # flextures関数の引数をパースして
+    # 単純な読み込み向け形式に変換します
+    #
+    # @params [Hash] 読み込むテーブルとファイル名のペア
+    # @return [Array] 読み込テーブルごとに切り分けられた設定のハッシュを格納
+    def self.parse_flextures_options *fixtures
+      options = {}
+      options = fixtures.shift if fixtures.size > 1 and fixtures.first.is_a?(Hash)
+
+      # :all value load all loadable fixtures
+      fixtures = Flextures::deletable_tables if fixtures.size==1 and :all == fixtures.first
+
+      last_hash = fixtures.last.is_a?(Hash) ? fixtures.pop : {}
+      load_hash = fixtures.inject({}){ |h,name| h[name.to_sym] = name; h } # symbolに値を寄せ直す
+      load_hash.merge!(last_hash)
+      load_hash = load_hash.map { |k,v| { table: k, file: v, loader: :fun } }
+      [load_hash, options]
+    end
+
+    # どのファイルが存在するかチェック
+    # @param [Hash] format ロードしたいファイルの情報
+    # @return 存在するファイルの種類(csv,yml)、どちも存在しないならnil
+    def self.file_exist format, type = [:csv,:yml]
+      table_name = format[:table].to_s
+      file_name = format[:file] || format[:table]
+      dir_name = format[:dir] || Flextures::Config.fixture_load_directory
+
+      ext=->{
+        return :csv if type.member?(:csv) and File.exist? File.join( dir_name, "#{file_name}.csv" )
+        return :yml if type.member?(:yml) and File.exist? File.join( dir_name, "#{file_name}.yml" )
+        nil
+      }.call
+
+      [ File.join(dir_name, "#{file_name}.#{ext||:csv}"), ext ]
+    end
+
     def self.file_loadable? format, file_name
       table_name = format[:table].to_s.to_sym
       # キャッシュ利用可能ならそれをそのまま使う
@@ -206,31 +201,26 @@ module Flextures
       true
     end
 
-    # create filter and table info
-    def self.create_model_filter format, file_name, type
-      table_name = format[:table].to_s
-      klass = PARENT::create_model table_name
-      # if you use 'rails3_acts_as_paranoid' gem, that is not delete data 'delete_all' method
-      klass.send (klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all)
-      filter = self.create_object_filter klass, LoadFilter[table_name], file_name, type, format
-      [klass, filter]
-    end
-
     # print warinig message that lack or not exist colum names
     def self.warning format, attributes, keys
       (attributes-keys).each { |name| puts "Warning: #{format} colum is missing! [#{name}]" }
       (keys-attributes).each { |name| puts "Warning: #{format} colum is left over! [#{name}]" }
     end
 
-    # フィルタを適応してデータを保存する処理
-    def self.create_object_filter klass, filter_base, file_name, ext, options
-      filter = create_filter klass, filter_base, file_name, ext, options
-      return ->(h){
+    # create filter and table info
+    def self.create_model_filter format, file_name, type
+      table_name = format[:table].to_s
+      klass = PARENT::create_model table_name
+      # if you use 'rails3_acts_as_paranoid' gem, that is not delete data 'delete_all' method
+      klass.send (klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all)
+      filter = ->(h){
+        filter = create_filter klass, LoadFilter[table_name], file_name, type, format
         o = klass.new
         o = filter.call o, h
         o.save( validate: false )
         o
       }
+      [klass, filter]
     end
 
     # フィクスチャから取り出した値を、加工して欲しいデータにするフィルタを作成して返す
@@ -242,6 +232,7 @@ module Flextures
       column_hash = columns.inject({}) { |h,col| h[col.name] = col; h }
       # 自動補完が必要なはずのカラム
       lack_columns = columns.reject { |c| c.null and c.default }.map{ |o| o.name.to_sym }
+      # default value shound not be null columns
       not_nullable_columns = columns.reject(&:null).map &:name
       # 本来のfixtureの読み込み時のように
       # 値の保管などはしないで読み込み速度を特化しつつ

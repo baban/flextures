@@ -15,10 +15,10 @@ module Flextures
         Flextures::init_load
         table_names = Flextures::ARGS.parse
         puts "dumping..."
-        case ENV["FORMAT"]
-        when "yml","yaml"
+        case ENV["FORMAT"].to_s.to_sym
+        when :yml,:yaml
           table_names.map { |fmt| Flextures::Dumper::yml(fmt) }
-        when "csv"
+        when :csv
           table_names.map { |fmt| Flextures::Dumper::csv(fmt) }
         else
           table_names.map { |fmt| Flextures::Dumper::csv(fmt) }
@@ -31,10 +31,10 @@ module Flextures
         Flextures::init_tables unless ENV["T"] or ENV["TABLE"] or ENV["M"] or ENV["MODEL"] or ENV["F"] or ENV["FIXTUES"]
         file_format = ENV["FORMAT"]
         puts "loading..."
-        case file_format.to_s
-        when "csv";
+        case file_format.to_s.to_sym
+        when :csv
           table_names.map { |fmt| Flextures::Loader::csv(fmt) }
-        when "yml";
+        when :yml
           table_names.map { |fmt| Flextures::Loader::yml(fmt) }
         else
           table_names.map { |fmt| Flextures::Loader::load(fmt) }
@@ -48,10 +48,10 @@ module Flextures
         Flextures::init_tables unless ENV["T"] or ENV["TABLE"] or ENV["M"] or ENV["MODEL"] or ENV["F"] or ENV["FIXTUES"]
         file_format = ENV["FORMAT"]
         puts "generating..."
-        case file_format.to_s
-        when "yml";
+        case file_format.to_s.to_sym
+        when :yml
           table_names.map { |fmt| Flextures::Loader::yml(fmt); Flextures::Dumper::yml(fmt) }
-        when "csv";
+        when :csv
           table_names.map { |fmt| Flextures::Loader::csv(fmt); Flextures::Dumper::csv(fmt) }
         end
       end

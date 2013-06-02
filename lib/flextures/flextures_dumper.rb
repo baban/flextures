@@ -184,8 +184,7 @@ module Flextures
     # @params [Symbol] type format type (:yml or :csv)
     # @return [Proc] filter function
     def self.create_filter klass, format, type
-      filter = DumpFilter[format[:table]] || {}
-      attr_type = self.dump_attributes klass, format
+      filter = DumpFilter[format[:table].to_s.to_sym] || {}
       ->(row) {
         attr_type.map do |h|
           v = filter[h[:name].to_sym] ? filter[h[:name].to_sym].call(row[h[:name]]) : trans(row[h[:name]], h[:type], type)
@@ -199,12 +198,13 @@ module Flextures
     # @params [Hash] options dump format options
     def self.csv format
       klass = PARENT.create_model(format[:table])
-      filter = self.create_filter klass, format, :csv
-      self.dump_csv klass, filter, format
+      attr_type = self.dump_attributes klass, format
+      filter = self.create_filter attr_type, format, :csv
+      self.dump_csv klass, attr_type, filter, format
     end
 
     # dump csv format data
-    def self.dump_csv klass, values_filter, format
+    def self.dump_csv klass, attr_type, values_filter, format
       # TODO: 拡張子は指定してもしなくても良いようにする
       file_name = format[:file] || format[:table]
       dir_name = format[:dir] || Flextures::Config.fixture_dump_directory
@@ -212,7 +212,7 @@ module Flextures
       FileUtils.mkdir_p(dir_name)
       CSV.open(outfile,'w') do |csv|
         # dump column names
-        csv<< values_filter.call({}).map(&:first)
+        csv<< attr_type.map { |h| h[:name].to_s }
         # dump column datas
         klass.all.each do |row|
           csv<< values_filter.call(row).map(&:last)
@@ -226,7 +226,8 @@ module Flextures
     # @params [Hash] options dump format options
     def self.yml format
       klass = PARENT::create_model(format[:table])
-      filter = self.create_filter klass, format, :yml
+      attr_type = self.dump_attributes klass, format
+      filter = self.create_filter attr_type, format, :yml
       self.dump_yml klass, filter, format
     end
 
