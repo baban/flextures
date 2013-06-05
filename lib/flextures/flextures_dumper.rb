@@ -183,7 +183,7 @@ module Flextures
     # @params [Hash] options options
     # @params [Symbol] type format type (:yml or :csv)
     # @return [Proc] filter function
-    def self.create_filter klass, format, type
+    def self.create_filter attr_type, format, type
       filter = DumpFilter[format[:table].to_s.to_sym] || {}
       ->(row) {
         attr_type.map do |h|

@@ -171,6 +171,61 @@ class FlexturesLoaderTest < Test::Unit::TestCase
         end
       end
     end
+
+    context ".stair_list" do
+      context " stair is 'false' " do
+        context "argument is null" do
+          setup do
+            @list = Flextures::Loader::stair_list nil, false
+          end
+          should " return array include only empty string" do
+            assert_equal @list, [""]
+          end
+        end
+        context "argument is empty string" do
+          setup do
+            @list = Flextures::Loader::stair_list "", false
+          end
+          should " return array include only empty string" do
+            assert_equal @list, [""]
+          end
+        end
+        context "include '/' mark" do
+          setup do
+            @list = Flextures::Loader::stair_list "a/b/c", false
+          end
+          should " return directory list" do
+            assert_equal @list, ["a/b/c"]
+          end
+        end
+      end
+      context " stair is 'true' " do
+        context "argument is null" do
+          setup do
+            @list = Flextures::Loader::stair_list nil, true
+          end
+          should " return array include only empty string" do
+            assert_equal @list, [""]
+          end
+        end
+        context "argument is empty string" do
+          setup do
+            @list = Flextures::Loader::stair_list "", true
+          end
+          should " return array include only empty string" do
+            assert_equal @list, [""]
+          end
+        end
+        context "include '/' mark" do
+          setup do
+            @list = Flextures::Loader::stair_list "a/b/c", true
+          end
+          should " return directory list" do
+            assert_equal @list, ["a/b/c","a/b","a",""]
+          end
+        end
+      end
+    end
   end
 end
 
