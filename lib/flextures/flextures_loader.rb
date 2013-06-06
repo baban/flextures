@@ -14,6 +14,7 @@ module Flextures
     PARENT = Flextures
 
     @@table_cache = {}
+    @@option_cache = {}
 
     # column set default value
     COMPLETER = {
@@ -157,6 +158,20 @@ module Flextures
       file_name
     end
 
+    def self.parse_controller_option options
+      controller_dir = ["controllers"]
+      controller_dir<< options[:controller] if options[:controller]
+      controller_dir<< options[:action]     if options[:controller] and options[:action]
+      File.join(*controller_dir)
+    end
+
+    def self.parse_model_options options
+      model_dir = ["models"]
+      model_dir<< options[:model]  if options[:model]
+      model_dir<< options[:method] if options[:model] and options[:method]
+      File.join(*model_dir)
+    end
+
     # flextures関数の引数をパースして
     # 単純な読み込み向け形式に変換します
     #
@@ -166,16 +181,8 @@ module Flextures
       options = {}
       options = fixtures.shift if fixtures.size > 1 and fixtures.first.is_a?(Hash)
 
-      # ディレクトリ
-      controller_dir = ["controllers"]
-      controller_dir<< options[:controller] if options[:controller]
-      controller_dir<< options[:action]     if options[:controller] and options[:action]
-      options[:dir] = File.join(*controller_dir) if options[:controller]
-
-      model_dir = ["models"]
-      model_dir<< options[:model]  if options[:model]
-      model_dir<< options[:method] if options[:model] and options[:method]
-      options[:dir] = File.join(*model_dir) if options[:model]
+      options[:dir] = self.parse_controller_option( options ) if options[:controller]
+      options[:dir] = self.parse_model_options( options )     if options[:model]
 
       # :all value load all loadable fixtures
       fixtures = Flextures::deletable_tables if fixtures.size==1 and :all == fixtures.first

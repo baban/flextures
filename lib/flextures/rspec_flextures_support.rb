@@ -1,15 +1,17 @@
 # encoding: utf-8
 
-# Rspecの内部でflextures関数を使える様にする
+# flextures function use like fixtures method in RSpec
 module RSpec
   module Core
     module Hooks
-      # 引数で渡されたファイルを読み込みする
+      # load fixtture data
+      # @params [Array] _ fixture file names
       def flextures *_
         before { Flextures::Loader::flextures *_ }
       end
 
-      # 引数で渡されたテーブルのデータをdeleteする
+      # delete table data
+      # @params [Array] _ table names
       def flextures_delete *_
         before {
           if _.empty?
@@ -20,7 +22,13 @@ module RSpec
         }
       end
 
-      def flextures_set_config *_
+      def flextures_set_option options
+        before do
+          p :set_option
+        end
+        after do
+          p :delete_option
+        end
         # TODO: ハッシュで渡された設定をセットする
       end
     end
@@ -40,7 +48,7 @@ module RSpec
   end
 end
 
-# 既存のsetup_fixturesの機能を上書きする必要があったのでこちらを作成
+# override setup_fixtures function
 module ActiveRecord
   module TestFixtures
     alias :setup_fixtures_bkup :setup_fixtures
