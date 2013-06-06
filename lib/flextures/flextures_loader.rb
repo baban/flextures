@@ -15,7 +15,7 @@ module Flextures
 
     @@table_cache = {}
     @@option_cache = {}
-
+    
     # column set default value
     COMPLETER = {
       binary:->{ 0 },
@@ -96,6 +96,19 @@ module Flextures
     def self.flextures *fixtures
       load_hash = parse_flextures_options(*fixtures)
       load_hash.each{ |params| Loader::load params }
+    end
+
+    def self.set_options options
+      @@option_cache ||= {}
+      @@option_cache.merge!(options)
+    end
+
+    def self.delete_options
+      @@option_cache = {}
+    end
+
+    def self.flextures_options
+      @@option_cache
     end
 
     # load fixture data
@@ -186,12 +199,10 @@ module Flextures
 
       # :all value load all loadable fixtures
       fixtures = Flextures::deletable_tables if fixtures.size==1 and :all == fixtures.first
-
       last_hash = fixtures.last.is_a?(Hash) ? fixtures.pop : {}
       load_hash = fixtures.inject({}){ |h,name| h[name.to_sym] = name; h } # symbolに値を寄せ直す
       load_hash.merge!(last_hash)
-      load_list = load_hash.map { |k,v| { table: k, file: v, loader: :fun }.merge(options) }
-      load_list
+      load_hash.map { |k,v| { table: k, file: v, loader: :fun }.merge(@@option_cache).merge(options) }
     end
 
     # example:
@@ -212,8 +223,7 @@ module Flextures
       table_name = format[:table].to_s
       file_name = (format[:file] || format[:table]).to_s
       base_dir_name = Flextures::Config.fixture_load_directory
-      stairs = self.stair_list(format[:dir], format[:stair])
-      stairs.each do |dir|
+      self.stair_list(format[:dir], format[:stair]).each do |dir|
         file_path = File.join( base_dir_name, dir, file_name )
         return ["#{file_path}.csv", :csv] if type.member?(:csv) and File.exist? "#{file_path}.csv"
         return ["#{file_path}.yml", :yml] if type.member?(:yml) and File.exist? "#{file_path}.yml"

@@ -22,14 +22,13 @@ module RSpec
         }
       end
 
-      def flextures_set_option options
+      def flextures_set_options options
         before do
-          p :set_option
+          Flextures::Loader::set_options options
         end
         after do
-          p :delete_option
+          Flextures::Loader::delete_options
         end
-        # TODO: ハッシュで渡された設定をセットする
       end
     end
   end
