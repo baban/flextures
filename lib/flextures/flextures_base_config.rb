@@ -12,7 +12,7 @@ module Flextures
       options: [],
       table_load_order: [],
     }
-    # ハッシュをsetter、getterに変換
+    # hash key change to getter and setter
     class<< self
       @@configs.each do |setting_key, setting_value|
         define_method(setting_key){ @@configs[setting_key] }

@@ -233,7 +233,19 @@ class FlexturesLoaderTest < Test::Unit::TestCase
           @proc = Flextures::Loader.loading_order
         end
         should "not sort" do
-          ["a","b","c"].sort(&@proc).should == ["a","b","c"]
+          assert_equal ["a","b","c"].sort(&@proc), ["a","b","c"]
+        end
+      end
+      context "set orderd table name" do
+        setup do
+          Flextures::Config.table_load_order=["b"]
+          @proc = Flextures::Loader.loading_order
+        end
+        should "first table name is setted table" do
+          assert_equal ["a","b","c"].sort(&@proc), ["b","a","c"]
+        end
+        teardown do
+          Flextures::Config.table_load_order=[]
         end
       end
     end
