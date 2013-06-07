@@ -94,19 +94,32 @@ module Flextures
     #
     # @params [Hash] fixtures load table data
     def self.flextures *fixtures
-      load_hash = parse_flextures_options(*fixtures)
-      load_hash.each{ |params| Loader::load params }
+      load_list = parse_flextures_options(*fixtures)
+      load_list.sort_by &self.loading_order
+      load_list.each{ |params| Loader::load params }
     end
 
+    # @return [Proc] order rule block (user Array#sort_by methd)
+    def self.loading_order
+      ->(a,b){ 0 }
+    end
+    
+    # called by Rspec or Should
+    # set options
+    # @params [Hash] options exmple : { cashe: true, dir: "models/users" }
     def self.set_options options
       @@option_cache ||= {}
       @@option_cache.merge!(options)
     end
 
+    # called by Rspec or Should after filter
+    # reflesh options
     def self.delete_options
       @@option_cache = {}
     end
 
+    # return current option status
+    # @return [Hash] current option status
     def self.flextures_options
       @@option_cache
     end
@@ -200,7 +213,7 @@ module Flextures
       # :all value load all loadable fixtures
       fixtures = Flextures::deletable_tables if fixtures.size==1 and :all == fixtures.first
       last_hash = fixtures.last.is_a?(Hash) ? fixtures.pop : {}
-      load_hash = fixtures.inject({}){ |h,name| h[name.to_sym] = name; h } # symbolに値を寄せ直す
+      load_hash = fixtures.inject({}){ |h,name| h[name.to_sym] = name.to_s; h } # symbolに値を寄せ直す
       load_hash.merge!(last_hash)
       load_hash.map { |k,v| { table: k, file: v, loader: :fun }.merge(@@option_cache).merge(options) }
     end

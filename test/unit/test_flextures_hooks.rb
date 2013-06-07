@@ -17,7 +17,7 @@ class FlexturesHookTest < Test::Unit::TestCase
           assert_equal true, @list.first.is_a?(Hash)
         end
         should "return data is contain loading table infomation" do
-          h = { table: :users, file: :users, loader: :fun }
+          h = { table: :users, file: "users", loader: :fun }
           assert_equal h, @list.first
         end
       end

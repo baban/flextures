@@ -226,6 +226,17 @@ class FlexturesLoaderTest < Test::Unit::TestCase
         end
       end
     end
+    
+    context ".loading_order" do
+      context "simple test" do
+        setup do
+          @proc = Flextures::Loader.loading_order
+        end
+        should "not sort" do
+          ["a","b","c"].sort(&@proc).should == ["a","b","c"]
+        end
+      end
+    end
   end
 end
 

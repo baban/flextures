@@ -8,8 +8,9 @@ module Flextures
       ignore_tables: ["schema_migrations"],
       fixture_load_directory: "spec/fixtures/",
       fixture_dump_directory: "spec/fixtures/",
-      error_level:"loose",    # エラーに対して無視か警告かエラーメッセージ表示かを選べる
-      init_all_tables: false,  # 実行後に全テーブルの初期化を行うか？falseにするとそのぶん高速化できる
+      init_all_tables: false,  # 実行後に全テーブルの初期化を行うか？falseにするとその分高速化できる
+      options: [],
+      table_load_order: [],
     }
     # ハッシュをsetter、getterに変換
     class<< self
