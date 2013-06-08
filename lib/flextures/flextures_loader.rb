@@ -85,12 +85,10 @@ module Flextures
 
     # load fixture datas
     #
-    # 全テーブルが対象
-    # flextures :all
-    # テーブル名で一覧する
-    # flextures :users, :items
-    # ハッシュで指定
-    # flextures :users => :users2
+    # example:
+    # flextures :all # load all table data
+    # flextures :users, :items # load table data, received arguments
+    # flextures :users => :users2 # :table_name => :file_name
     #
     # @params [Hash] fixtures load table data
     def self.flextures *fixtures
@@ -167,7 +165,7 @@ module Flextures
     def self.load_csv format, klass, filter, file_name
       attributes = klass.columns.map &:name
       CSV.open( file_name ) do |csv|
-        keys = csv.shift # keyの設定
+        keys = csv.shift # active record column names
         warning "CSV", attributes, keys unless format[:silent]
         csv.each do |values|
           h = values.extend(Extensions::Array).to_hash(keys)
@@ -188,6 +186,10 @@ module Flextures
       file_name
     end
 
+    # if parameter include controller, action value
+    # load directroy is change
+    # spec/fixtures/:controller_name/:action_name/
+    # @return [String] directory path
     def self.parse_controller_option options
       controller_dir = ["controllers"]
       controller_dir<< options[:controller] if options[:controller]
@@ -195,6 +197,10 @@ module Flextures
       File.join(*controller_dir)
     end
 
+    # if parameter include controller, action value
+    # load directroy is change
+    # spec/fixtures/:model_name/:method_name/
+    # @return [String] directory path
     def self.parse_model_options options
       model_dir = ["models"]
       model_dir<< options[:model]  if options[:model]
@@ -202,11 +208,9 @@ module Flextures
       File.join(*model_dir)
     end
 
-    # flextures関数の引数をパースして
-    # 単純な読み込み向け形式に変換します
-    #
-    # @params [Hash] 読み込むテーブルとファイル名のペア
-    # @return [Array] 読み込テーブルごとに切り分けられた設定のハッシュを格納
+    # parse flextures function arguments
+    # @params [Hash] fixtures function arguments
+    # @return [Array] formatted load options
     def self.parse_flextures_options *fixtures
       options = {}
       options = fixtures.shift if fixtures.size > 1 and fixtures.first.is_a?(Hash)
@@ -217,7 +221,7 @@ module Flextures
       # :all value load all loadable fixtures
       fixtures = Flextures::deletable_tables if fixtures.size==1 and :all == fixtures.first
       last_hash = fixtures.last.is_a?(Hash) ? fixtures.pop : {}
-      load_hash = fixtures.inject({}){ |h,name| h[name.to_sym] = name.to_s; h } # symbolに値を寄せ直す
+      load_hash = fixtures.inject({}){ |h,name| h[name.to_sym] = name.to_s; h } # if name is string is buged
       load_hash.merge!(last_hash)
       load_hash.map { |k,v| { table: k, file: v, loader: :fun }.merge(@@option_cache).merge(options) }
     end
@@ -233,9 +237,9 @@ module Flextures
       l
     end
 
-    # どのファイルが存在するかチェック
-    # @param [Hash] format ロードしたいファイルの情報
-    # @return 存在するファイルの種類(csv,yml)、どちも存在しないならnil
+    # parse format option and return load file info
+    # @param [Hash] format load file format informations
+    # @return [Array] [file_name, filt_type(:csv or :yml)]
     def self.file_exist format, type = [:csv,:yml]
       table_name = format[:table].to_s
       file_name = (format[:file] || format[:table]).to_s
@@ -249,6 +253,9 @@ module Flextures
       [ File.join(base_dir_name, "#{file_name}.csv"), nil ]
     end
 
+    # file load check
+    # file is cached or not exist file don't load
+    # @return [Bool] lodable is 'true'
     def self.file_loadable? format, file_name
       table_name = format[:table].to_s.to_sym
       # if table data is loaded, use cached data
@@ -281,18 +288,23 @@ module Flextures
       [klass, filter]
     end
 
-    # フィクスチャから取り出した値を、加工して欲しいデータにするフィルタを作成して返す
+    # return flextures data translate filter
+    # translate filter is some functions
+    # 1. column value is fill, if colum is not nullable
+    # 2. factory filter
+    # @params [ActiveRecord::Base] klass ActiveRecord model data
+    # @params [Proc] factory FactoryFilter
+    # @params [String] filename
+    # @params [Symbol] ext file type (:csv or :yml)
+    # @params [Hash] options other options
+    # @return [Proc] translate filter
     def self.create_filter klass, factory, filename, ext, options
       columns = klass.columns
       # data translat array to hash
       column_hash = columns.inject({}) { |h,col| h[col.name] = col; h }
-      # 自動補完が必要なはずのカラム
       lack_columns = columns.reject { |c| c.null and c.default }.map{ |o| o.name.to_sym }
       # default value shound not be null columns
       not_nullable_columns = columns.reject(&:null).map &:name
-      # 本来のfixtureの読み込み時のように
-      # 値の保管などはしないで読み込み速度を特化しつつ
-      # カラムのエラーなどは出来るだけそのまま扱う
       strict_filter=->(o,h){
         # if value is not 'nil', value translate suitable form
         h.each{ |k,v| v.nil? || o[k] = (TRANSLATER[column_hash[k].type] && TRANSLATER[column_hash[k].type].call(v)) }
@@ -300,10 +312,12 @@ module Flextures
         factory.call(*[o, :load, filename, ext][0,factory.arity]) if factory and !options[:unfilter]
         o
       }
-      # ハッシュを受け取って、必要な値に加工してからハッシュで返すラムダを返す
+      # receives hased data and translate ActiveRecord Model data
+      # loose filter correct error values
+      # strict filter don't correct errora values and raise error
       loose_filter=->(o,h){
         h.reject! { |k,v| options[:minus].include?(k) } if options[:minus]
-        # テーブルに存在しないキーが定義されているときは削除
+        # if column name is not include database table columns, those names delete
         h.select! { |k,v| column_hash[k] }
         strict_filter.call(o,h)
         # set default value if value is 'nil'

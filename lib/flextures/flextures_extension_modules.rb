@@ -3,9 +3,9 @@
 require 'ostruct'
 
 module Flextures
-  # Plug-in 内部拡張
+  # OpenStruct hack in flextures Plug-in
   class OpenStruct < ::OpenStruct
-    # hashに変化させる
+    # Struct Data translate to Hash
     def to_hash
       (self.methods - ::OpenStruct.new.methods)
         .select{ |name| name.to_s.match(/\w+=/) }
@@ -16,6 +16,11 @@ module Flextures
 
   module Extensions
     module Array
+      # use Object#extend
+      # @params [Array] keys hash keys
+      # @return [Hash] tanslated Hash data
+      # example:
+      # hash = array.extend(Extensions::Array).to_hash(keys)
       def to_hash keys
         [keys,self].transpose.inject({}){ |h,pair| k,v=pair; h[k]=v; h }
       end

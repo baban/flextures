@@ -1,16 +1,15 @@
 # encoding: utf-8
 
 module Flextures
-  # ロードするデータを必要に応じて加工する
+  # Flextures FactoryFilter is program to translate ActiveRecord data
   class LoadFilter
-    # 設置ファイルから取得した Factoryの一覧を取得
+    # FactoryFilter data
     FACTORIES={}
 
-    # Factory を定義
-    # @params table_name
-    # @params options
-    # @params block
-    # @return Flextures::Factory
+    # set FactoryFilter
+    # @params [String] table_name
+    # @params [Array] options arguments ActiveRecord Model
+    # @params [Proc] block FactoryFilter
     def self.define table_name, *options, &block
       h={ block: block }
       options.each do |o|
@@ -22,18 +21,21 @@ module Flextures
       FACTORIES[table_name.to_sym]=h
     end
 
-    # Factoryを取得
+    # get FactoryFilter
+    # @params [String|Symbol] table_name
+    # @return [Proc] filter block
     def self.get table_name
       f = FACTORIES[table_name.to_sym]
       f && f[:block]
     end
     def self.[](table_name); self.get(table_name); end
   end
+
   class DumpFilter
-    # 設置ファイルから取得した Factoryの一覧を取得
+    # FactoryDumpFilter data
     FACTORIES={}
 
-    # Factory を定義
+    # set FactoryFilter
     # @params table_name
     # @params options
     # @params block
@@ -42,7 +44,7 @@ module Flextures
       FACTORIES[table_name.to_sym]=hash
     end
 
-    # Factoryを取得
+    # get FactoryFilter
     def self.get table_name
       FACTORIES[table_name.to_sym]
     end

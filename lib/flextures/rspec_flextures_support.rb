@@ -36,7 +36,6 @@ module RSpec
   module Rails
     module FlextureSupport
       def self.included(m)
-        # 実行前にテーブルの初期化
         Flextures::init_tables
       end
     end

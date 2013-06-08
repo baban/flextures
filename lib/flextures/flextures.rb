@@ -9,6 +9,8 @@ require "flextures/flextures_factory"
 
 module Flextures
   # ActiveRecord Model is created that guess by table_name
+  # @params [String|Symbol] table_name
+  # @params [ActiveRecord::Base] model class
   def self.create_model table_name
     # when Model is defined in FactoryFilter
     a = ->{
@@ -40,12 +42,10 @@ module Flextures
     end
   end
 
-  # 全テーブル削除のときにほんとうに消去して良いテーブル一覧を返す
+  # @return [Array] flextures useable table names
   def self.deletable_tables
     tables = ActiveRecord::Base.connection.tables
-    Flextures::Config.ignore_tables.each do |name|
-      tables.delete name
-    end
+    Flextures::Config.ignore_tables.each { |name| tables.delete name }
     tables
   end
 
@@ -53,7 +53,7 @@ module Flextures
   def self.init_tables
     tables = Flextures::deletable_tables
     tables.each do |name|
-      # テーブルではなくviewを拾って止まる場合があるのでrescueしてしまう
+      # if 'name' variable is 'database view', raise error
       begin
         Class.new(ActiveRecord::Base){ |o| o.table_name= name }.delete_all
       rescue => e
@@ -63,24 +63,24 @@ module Flextures
 
   def self.delete_tables *tables
     tables.each do |name|
-      # テーブルではなくviewを拾って止まる場合があるのでrescueしてしまう
+      # if 'name' variable is 'database view', raise error
       begin
         Class.new(ActiveRecord::Base){ |o| o.table_name= name }.delete_all
-      rescue => e
+      rescue StandaraError => e
       end
     end
   end
 
-  # デバッグ用のメソッド、渡されたブロックを実行する
-  # 主にテーブルの今の中身を覗きたい時に使う
+  # It is debug method to use like 'tab' method
+  # @params [Proc] dumper write dump information
   def self.table_tap &dumper
     tables = Flextures::deletable_tables
     tables.each do |name|
-      # テーブルではなくviewを拾って止まる場合があるのでrescueしてしまう
+      # if 'name' variable is 'database view', raise error
       begin
         klass = Class.new(ActiveRecord::Base){ |o| o.table_name= name; }
         dumper.call klass
-      rescue => e
+      rescue StandaraError => e
       end
     end
   end

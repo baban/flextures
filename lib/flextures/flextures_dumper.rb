@@ -3,7 +3,7 @@
 require "fileutils"
 
 module Flextures
-  # データを吐き出す処理をまとめる
+  # defined data dump methods
   module Dumper
     PARENT = Flextures
     # procに機能追加、関数合成のためのメソッドを追加する
@@ -23,6 +23,7 @@ module Flextures
       Proc.new(&b)
     end
 
+    # create data translater
     def self.translate_creater( val, rules )
       rule_map = {
         nullstr: proc { |d|
@@ -79,6 +80,7 @@ module Flextures
       procs.call(val)
     end
 
+    # data translaters
     TRANSLATER = {
       binary:->( d, format ){
         procs = (format == :yml)?

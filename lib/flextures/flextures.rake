@@ -12,8 +12,8 @@ namespace :db do
     desc "Dump data to prefer csv format"
     task :csvdump => :environment do
       puts "This command is deprecated"
-      puts "please use 'rake db:flextures:dump FORMAT='csv''"
-      # TODO: deprecatedを出す
+      # TODO: deprecated message
+      # please use 'FOAMRT=csv' option
       ENV["FORMAT"]="csv"
       Flextures::Rake::Command::dump
     end
@@ -22,8 +22,8 @@ namespace :db do
     task :ymldump => :environment do
       puts "This command is deprecated"
       puts "please use 'rake db:flextures:dump FORMAT='yml''"
-      # TODO: deprecatedを出す
-      # FOAMRT=ymlで置き換えるように設定
+      # TODO: deprecated message
+      # please use 'FOAMRT=yml' option
       ENV["FORMAT"]="yml"
       Flextures::Rake::Command::dump
     end
@@ -37,15 +37,16 @@ namespace :db do
     task :csvload => :environment do
       puts "This command is deprecated"
       puts "please use 'rake db:flextures:load FORMAT='csv''"
-      # TODO: deprecatedを出す
+      # TODO: deprecated message
+      # please use 'FOAMRT=csv' option
       ENV["FORMAT"]="csv"
       Flextures::Rake::Command::load
     end
 
     desc "load fixture files only yaml format"
     task :ymlload => :environment do
-      # TODO: deprecatedを出す
-      # FORMAT=ymlで指定を行う
+      # TODO: deprecated message
+      # please use 'FOAMRT=yml' option
       ENV["FORMAT"]="yml"
       puts "This command is deprecated"
       puts "please use 'rake db:flextures:load FORMAT='yml''"
