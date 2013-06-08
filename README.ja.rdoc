@@ -15,8 +15,8 @@ Rails標準のfixtureの不満点を解消するために作成しました
 通常のfixtureとの主な違いは次の４点です
 
 1. yamlよりもcsvを優先する
-2. migrationでテーブル構成が変わっても、ロードを停止しないで、カラムの変更点を検知して値を補完する
-3. テーブル名と、fixtureのファイル名を一致させないでも自由なロード＆ダンプが出来る機能
+2. migrationでテーブル構成が変わっても、カラムの変更点を無視、補完してロードを行う
+3. テーブル名とfixtureのファイル名を一致させないでも、自由なロード＆ダンプが出来るオプション
 4. FactoyGirl風の読み込みフィルタで、Fixtureのデータを加工しながら読み込む事が出来る
 
 == インストール方法
@@ -26,14 +26,14 @@ gem化されているので、bundlerで次のように記述して、普通にb
 
  gem "flextures"
 
-ちなみに開発環境はruby1.9系、rails3環境を想定しています
+ちなみに開発環境はruby1.9以上のバージョン、rails3以上、もしくはPadrinoを想定しています
 
 == 使い方
 
 === rakeコマンド
 
 次のコマンドで spec/fixtures/ 以下にあるfixtureのロード＆ダンプを行います
-(ディレクトリは設定ファイルで変更可能)
+(読み込む基本のディレクトリは設定ファイルで変更可能)
 
  rake db:flextures:load
  rake db:flextures:dump
@@ -49,31 +49,31 @@ Usersモデルのfixture(users.csvか　users.yml)をロードする
 
  rake db:flextures:load MODEL=User
 
-その他オプションは以下のとおりな感じです:
+その他オプションは以下の通りです:
 
  TABLE : テーブル名を指定してロード。テーブル名はカンマ切りで複数指定が可能
  MODEL : モデル名を指定してロード。モデル名はカンマ区切りで複数指定が可能
  DIR : フィクスチャをロード＆ダンプするディレクトリを指定する
- FIXTURES : ロード、ダンプをするファイル名をRails標準以外のもので直接指定(Userモデルのusers.csv以外を指定)
- FILE : ロード、ダンプをするファイル名をRails標準以外のもので直接指定(Userモデルのusers.csv以外を指定)
+ FILE : loadまたはdumpするファイル名を直接指定(Userモデルのusers.csv以外を指定)
+ FORMAT：ダンプ、またはロードするデータの種類を指定できる(csvかyml)
+ OPTION：その他の細かい読み込みオプションはここで指定出来ます
  T : TABLEのエイリアス
- M : モデル名指定のエイリアス
  D : ディレクトリ指定のエイリアス
  F : ファイル名指定のエイリアス
 
-yamlのファイルはロードしたいけどcsvはロードをしたくない
-またはその逆の場合は、以下のコマンドでそれが可能です
- 
- rake db:flextures:csvload
- rake db:flextures:ymlload
- rake db:flextures:csvdump
- rake db:flextures:ymldump
+migration等でテーブルの構成が変わった時には
+generateコマンドを実行すると、テーブル情報のloadとdumpをセットで行なってくれるので便利です
 
-通常の load や dump で使えるオプションはこちらでも使用可能です
+ rake db:flextures:generate T=users
 
-=== RSpec flexture support
+さらに詳しい説明に関してはWikiを参照して下さい
 
-RSpec中でfixtures関数の代わりにfixtureのロード機能を使えます
+=== Unit test flexture support
+
+ユニットテスト中でデータの読み込みが行いたくなったときのために
+fixtureのロード機能を使えます
+
+次の例はRSpecからの読み込みですが
 基本的な機能は、通常のfixturesと同じですので、fixtures と同じ感覚で使用して下さい
 
  describe ItemShopController do
@@ -86,11 +86,15 @@ RSpec中でfixtures関数の代わりにfixtureのロード機能を使えます
  describe ItemShopController do
    flextures :items, :users => :users_for_itmshop # users_for_itemshop.csv をロードする
 
-=== Flextures load and dump filter
+その他現在はShouldからの呼び出しや様々なオプションを載せていますが
+さらに詳しい使い方に関してはWikiを参照して下さい
+
+=== Flextures load filter (and dump filter)
 
 ==== load filer
 
 Railsのプロジェクトに config/flextures.factory.rb というファイルを作成して、そこにフィルタを記述することによって
+(Padrinoでも設置場所は同じです)
 フィクスチャの読み込み時に、値を加工して読み込む事が可能になっています
 例えば、次の様に記述するとusersテーブルのlast_login_dateの値を、常に現在の時間として設定できます
 
@@ -98,8 +102,8 @@ Railsのプロジェクトに config/flextures.factory.rb というファイル�
    f.last_login_date = DateTime.now
  end
 
-テーブルにdefaultとか設定していなくても
-カラムのデータとかを、適当に補完する機能があるので
+テーブルにdefaultの値を設定していなくても
+カラムのデータを適当に補完する機能があるので
 大量のデータを生成したい時は次のように{faker}[https://github.com/stympy/faker]等と組み合わせて
 必要な分だけ生成をさせると、今までより若干捗るかもしれません
 
@@ -132,5 +136,6 @@ config/flextures.config.rb　で設定ファイルを作成すると、データ
    Config.fixture_dump_directory = "test/fixtures/"
  end
 
+さらに細かい使い方に関してはWikiを参照して下さい
 
 
