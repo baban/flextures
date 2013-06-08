@@ -38,13 +38,13 @@ class FlexturesArgsTest < Test::Unit::TestCase
         ENV["DIR"] = "test/fixtures/"
         @format = Flextures::ARGS.parse
       end
-      should "ディレクトリ名を取得できる" do
+      should "directory name is exist" do
         assert_equal "test/fixtures/", @format.first[:dir]
       end
-      should "テーブル名を指定できている" do
+      should "set table name" do
         assert_equal "users", @format.first[:table]
       end
-      should "ファイル名はテーブル名と同じ" do
+      should "file name is equal table name" do
         assert_equal "users", @format.first[:file]
       end
       teardown do
@@ -52,19 +52,19 @@ class FlexturesArgsTest < Test::Unit::TestCase
         ENV.delete("DIR")
       end
     end
-    context " D=でもダンプするディレクトリを変更できる " do
+    context " D=option " do
       setup do
         ENV["T"] = "users"
         ENV["D"] = "test/fixtures/"
         @format = Flextures::ARGS.parse
       end
-      should "ディレクトリ名を取得できる" do
+      should "directory name" do
         assert_equal "test/fixtures/", @format.first[:dir]
       end
-      should "テーブル名を指定できている" do
+      should "table name is exist" do
         assert_equal "users", @format.first[:table]
       end
-      should "ファイル名はテーブル名と同じ" do
+      should "file name is equal table name" do
         assert_equal "users", @format.first[:file]
       end
       teardown do
@@ -72,16 +72,16 @@ class FlexturesArgsTest < Test::Unit::TestCase
         ENV.delete("D")
       end
     end
-    context " FIXTURES=でもダンプするファイルを変更できる " do
+    context " FIXTURES=option " do
       setup do
         ENV["T"] = "users"
         ENV["FIXTURES"] = "user_another"
         @format = Flextures::ARGS.parse
       end
-      should "テーブル名は指定したもの" do
+      should "table name is exist" do
         assert_equal "users", @format.first[:table]
       end
-      should "ファイル名はテーブル名と違う指定したものに変わっている" do
+      should " file name is changed by option's name " do
         assert_equal "user_another", @format.first[:file]
       end
       teardown do
