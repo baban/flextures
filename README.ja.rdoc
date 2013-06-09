@@ -70,7 +70,7 @@ generateコマンドを実行すると、テーブル情報のloadとdumpをセ�
 
  rake db:flextures:generate T=users
 
-さらに詳しい説明に関してはWikiを参照して下さい
+さらに詳しい説明に関しては[Wiki|https://github.com/baban/flextures/wiki/Rake%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%82%AA%E3%83%97%E3%82%B7%E3%83%A7%E3%83%B3]を参照して下さい
 
 === Unit test flexture support
 
