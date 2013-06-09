@@ -67,7 +67,7 @@ next comannd regenerate (load fixture and dump) fixtures
 
  rake db:flextures:generate T=users
 
- other information please see wiki ...
+ other information please see {wiki}[https://github.com/baban/flextures/wiki/Rake-command-option] ...
 
 === Unit test flexture support
 
@@ -85,7 +85,7 @@ Flextures function can change load file name.
    flextures :items, :users => :users_for_itmshop # load "users_for_itemshop.csv"
 
  other option information
- please see wiki ...
+ please see {wiki}[https://github.com/baban/flextures/wiki/Unittestsupport] ...
 
 === Flextures load & dump filter
 
@@ -121,7 +121,7 @@ dump filter has hash argumtne, it is formatted colum name key and convert method
    :encrypted_password => lambda { |v| Base64.encode64(v) }
  }
 
- other options please see wiki ...
+ other options please see {wiki}[https://github.com/baban/flextures/wiki/Factoryfilter] ...
 
 === Configuration file
 
@@ -135,5 +135,5 @@ Configuration file can change load and dump directory
    Config.fixture_dump_directory = "test/fixtures/"
  end
 
- other options please see wiki ...
+ other options please see {wiki}[https://github.com/baban/flextures/wiki/Configuration-file] ...
 
