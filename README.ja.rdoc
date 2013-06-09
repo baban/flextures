@@ -70,7 +70,7 @@ generateコマンドを実行すると、テーブル情報のloadとdumpをセ�
 
  rake db:flextures:generate T=users
 
-さらに詳しい説明に関しては {WikiのRakeコマンドラインオプション}[https://github.com/baban/flextures/wiki/Rake%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%82%AA%E3%83%97%E3%82%B7%E3%83%A7%E3%83%B3]を参照して下さい
+さらに詳しい説明に関しては {Wiki:Rakeコマンドラインオプション}[https://github.com/baban/flextures/wiki/Rake%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%82%AA%E3%83%97%E3%82%B7%E3%83%A7%E3%83%B3]を参照して下さい
 
 === Unit test flexture support
 
@@ -91,7 +91,7 @@ fixtureのロード機能を使えます
    flextures :items, :users => :users_for_itmshop # users_for_itemshop.csv をロードする
 
 その他現在はShouldからの呼び出しや様々なオプションを載せていますが
-さらに詳しい使い方に関してはWikiを参照して下さい
+さらに詳しい使い方に関しては {Wiki:Unit Test Supportの説明}[https://github.com/baban/flextures/wiki/Unit-test-support%E3%81%AE%E8%AA%AC%E6%98%8E] を参照して下さい
 
 === Flextures load filter (and dump filter)
 
@@ -119,8 +119,6 @@ Railsのプロジェクトに config/flextures.factory.rb というファイル�
    f.items<< [ Item.new( master_item_id: 1, count: 5 ), Item.new( master_item_id: 2, count: 3 ) ]
  end
 
-さらに細かい使い方に関してはWikiを参照して下さい
-
 * {wiki:has_manyな感じのデータの精製法}[https://github.com/baban/flextures/wiki/Has-many%E3%81%AA%E6%84%9F%E3%81%98%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E7%B2%BE%E8%A3%BD%E6%96%B9%E6%B3%95]
 
 ==== dump filer
@@ -130,6 +128,9 @@ Railsのプロジェクトに config/flextures.factory.rb というファイル�
  Flextures::DumpFilter.define :users, {
    :encrypted_password => lambda { |v| Base64.encode64(v) }
  }
+
+
+さらに細かい使い方に関しては {Wiki:FactoryFilterについて}[https://github.com/baban/flextures/wiki/Factoryfilter%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6] を参照して下さい
 
 === 設定ファイル
 
@@ -142,6 +143,5 @@ config/flextures.config.rb　で設定ファイルを作成すると、データ
    Config.fixture_dump_directory = "test/fixtures/"
  end
 
-さらに細かい使い方に関してはWikiを参照して下さい
-
+その他の情報は {Wiki:設定ファイルの書式について}[https://github.com/baban/flextures/wiki/%E8%A8%AD%E5%AE%9A%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%81%AE%E6%9B%B8%E5%BC%8F%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6] を参照して下さい
 
