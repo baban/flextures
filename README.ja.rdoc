@@ -26,6 +26,10 @@ gem化されているので、bundlerで次のように記述して、普通にb
 
  gem "flextures"
 
+現在flexturesは機能を追加したバージョンアップをした３系への移行作業途中で
+ソースコード、マニュアルは３系のものになっています
+最新版のソースコードはgithub上に挙げられているのでbundlerにguthubのリポジトリのURLを追加して下さい
+
 ちなみに開発環境はruby1.9以上のバージョン、rails3以上、もしくはPadrinoを想定しています
 
 == 使い方
@@ -114,6 +118,8 @@ Railsのプロジェクトに config/flextures.factory.rb というファイル�
    # Factory Girlの様にhas_manyな感じのデータも生成できます。（初期設定でアイテムを２個持たせる）
    f.items<< [ Item.new( master_item_id: 1, count: 5 ), Item.new( master_item_id: 2, count: 3 ) ]
  end
+
+さらに細かい使い方に関してはWikiを参照して下さい
 
 * {wiki:has_manyな感じのデータの精製法}[https://github.com/baban/flextures/wiki/Has-many%E3%81%AA%E6%84%9F%E3%81%98%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E7%B2%BE%E8%A3%BD%E6%96%B9%E6%B3%95]
 

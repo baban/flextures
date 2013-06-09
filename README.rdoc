@@ -26,7 +26,13 @@ Please use bundler.
 
  gem "flextures"
 
-(Development emnvoriment must be ruby1.9 and rails3)
+ curent flextures is developping version3.0
+ 
+sourcecode and documents(readme.rdoc,wiki) write about version3.0
+if you want to use flextures3.0
+your Gemfile should set option github url
+
+(Development emnvoriment must be ruby1.9 higer and rails3 higher)
 
 == How to use
 
@@ -44,34 +50,28 @@ For example, this option set dump file name.
 
  rake db:flextures:dump TABLE=users
 
-If you use this option load command.
-Option set load file name.
-(loading "users.csv" or "users.yml")
-
- rake db:flextures:load MODEL=User
-
 Other options...
 
  TABLE : set table name
  MODEL : set model name
  DIR : set directory name
- FIXTURES : set fixture file name
  FILE : set fixture file name
+ FORMAT：change dump file format(csv or yml)
+ OPTION：other options
  T : alias TABLE option
- M : alias MODEL option
  D : alias DIR option
  F : alias FIXTURES option
 
-if you only load CSV file or YAML file, next command can load.
- 
- rake db:flextures:csvload
- rake db:flextures:ymlload
- rake db:flextures:csvdump
- rake db:flextures:ymldump
+if you change table colum information
+next comannd regenerate (load fixture and dump) fixtures
 
-=== RSpec flexture support
+ rake db:flextures:generate T=users
 
-Fixture load function implemented for RSpec.
+ other information please see wiki ...
+
+=== Unit test flexture support
+
+Fixture load function implemented for Unittes Tools (for example, RSpec, Shoulda).
 
  describe ItemShopController do
    flextures :users, :items
@@ -83,6 +83,9 @@ Flextures function can change load file name.
 
  describe ItemShopController do
    flextures :items, :users => :users_for_itmshop # load "users_for_itemshop.csv"
+
+ other option information
+ please see wiki ...
 
 === Flextures load & dump filter
 
@@ -118,6 +121,8 @@ dump filter has hash argumtne, it is formatted colum name key and convert method
    :encrypted_password => lambda { |v| Base64.encode64(v) }
  }
 
+ other options please see wiki ...
+
 === Configuration file
 
 Configuration file can change load and dump directory
@@ -130,5 +135,5 @@ Configuration file can change load and dump directory
    Config.fixture_dump_directory = "test/fixtures/"
  end
 
-
+ other options please see wiki ...
 
