@@ -309,7 +309,7 @@ module Flextures
         # if value is not 'nil', value translate suitable form
         h.each{ |k,v| v.nil? || o[k] = (TRANSLATER[column_hash[k].type] && TRANSLATER[column_hash[k].type].call(v)) }
         # call FactoryFilter
-        factory.call(*[o, :load, filename, ext][0,factory.arity]) if factory and !options[:unfilter]
+        factory.call(*[o, filename, ext][0,factory.arity]) if factory and !options[:unfilter]
         o
       }
       # receives hased data and translate ActiveRecord Model data

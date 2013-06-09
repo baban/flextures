@@ -8,14 +8,26 @@ module Shoulda
         context = Shoulda::Context.current_context
         context.setup_blocks<< ->{ Flextures::Loader::flextures *_ }
       end
-      # TODO : 実装
-      def flextures_delete
+
+      def flextures_delete *_
+        context = Shoulda::Context.current_context
+        context.setup_blocks<< -> {
+          if _.empty?
+            Flextures::init_tables
+          else
+            Flextures::delete_tables *_
+          end
+        }
       end
-      # TODO : 実装
-      def flextures_set_config
-      end
-      # TODO : 実装
-      def flextures_options
+
+      def flextures_set_options options={}
+        context = Shoulda::Context.current_context
+        context.setup_blocks<< -> {
+          Flextures::Loader::set_options options
+        }
+        context.teardown_blocks<< -> {
+          Flextures::Loader::delete_options
+        }
       end
     end
   end
