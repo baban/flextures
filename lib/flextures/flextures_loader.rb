@@ -93,11 +93,10 @@ module Flextures
     # @params [Hash] fixtures load table data
     def self.flextures *fixtures
       load_list = parse_flextures_options(*fixtures)
-      load_list.sort &self.loading_order
-      load_list.each{ |params| Loader::load params }
+      load_list.sort(&self.loading_order).each{ |params| Loader::load params }
     end
 
-    # @return [Proc] order rule block (user Array#sort_by methd)
+    # @return [Proc] order rule block (user Array#sort methd)
     def self.loading_order
       ->(a,b){
         a = Flextures::Config.table_load_order.index(a) || -1
