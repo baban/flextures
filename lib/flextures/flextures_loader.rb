@@ -126,6 +126,12 @@ module Flextures
       @@option_cache
     end
 
+    # return current cache status
+    # @return [Hash] current option status
+    def self.flextures_curent_cache
+      @@table_cache
+    end
+
     # load fixture data
     # fixture file prefer YAML to CSV
     # @params [Hash] format file load format(table name, file name, options...)
@@ -151,7 +157,7 @@ module Flextures
     end
 
     # load YAML data
-    # @params [Hash] format file load format(table name, file name, options...)
+    # @params [Hash] format file load format( table: name, file: name, options...)
     def self.yml format
       type = :yml
       file_name, ext = file_exist format, [type]
