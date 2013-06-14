@@ -45,7 +45,6 @@ module Flextures
       def self.generate
         Flextures::init_load
         table_names = Flextures::ARGS.parse
-        p table_names
         Flextures::init_tables unless ENV["T"] or ENV["TABLE"] or ENV["M"] or ENV["MODEL"] or ENV["F"] or ENV["FIXTUES"]
         file_format = ENV["FORMAT"]
         puts "generating..."
