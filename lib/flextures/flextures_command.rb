@@ -45,6 +45,7 @@ module Flextures
       def self.generate
         Flextures::init_load
         table_names = Flextures::ARGS.parse
+        p table_names
         Flextures::init_tables unless ENV["T"] or ENV["TABLE"] or ENV["M"] or ENV["MODEL"] or ENV["F"] or ENV["FIXTUES"]
         file_format = ENV["FORMAT"]
         puts "generating..."
@@ -52,6 +53,8 @@ module Flextures
         when :yml
           table_names.map { |fmt| Flextures::Loader::yml(fmt); Flextures::Dumper::yml(fmt) }
         when :csv
+          table_names.map { |fmt| Flextures::Loader::csv(fmt); Flextures::Dumper::csv(fmt) }
+        else
           table_names.map { |fmt| Flextures::Loader::csv(fmt); Flextures::Dumper::csv(fmt) }
         end
       end
