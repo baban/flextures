@@ -13,10 +13,10 @@ Each commands load or dump fixtures.
 
 Major different point is four.
 
-1. Fixture file is prefered CSV to YAML.
-2. Don't stop load if table colums are'nt match fixture file's column.
-3. Fixture file name can change if file name is not equal table name. 
-4. Fixture data translate to use filter like factory girl.
+1. Fixture file prefered CSV to YAML.
+2. loading don't stop, if table columns are not match fixture file's column
+3. Fixture file name can change, if file name is not equal table name. 
+4. Fixture data can translate to use filter, like factory girl.
 
 == How to install
 
@@ -28,9 +28,11 @@ Please use bundler.
 
  curent flextures is developping version3.0
  
-sourcecode and documents(readme.rdoc,wiki) write about version3.0
+This document and sourcecode and documents(readme.rdoc,wiki) write about version flextures 3.0 (current released version is 2.1.0)
 if you want to use flextures3.0
 your Gemfile should set option github url
+
+  gem "flextures", git:"https://github.com/baban/flextures"
 
 (Development emnvoriment must be ruby1.9 higer and rails3 higher)
 
