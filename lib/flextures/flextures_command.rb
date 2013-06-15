@@ -53,6 +53,8 @@ module Flextures
           table_names.map { |fmt| Flextures::Loader::yml(fmt); Flextures::Dumper::yml(fmt) }
         when :csv
           table_names.map { |fmt| Flextures::Loader::csv(fmt); Flextures::Dumper::csv(fmt) }
+        else
+          table_names.map { |fmt| Flextures::Loader::csv(fmt); Flextures::Dumper::csv(fmt) }
         end
       end
     end
