@@ -15,7 +15,7 @@ module Flextures
 
     @@table_cache = {}
     @@option_cache = {}
-    
+
     # column set default value
     COMPLETER = {
       binary:->{ 0 },
@@ -104,7 +104,7 @@ module Flextures
         b <=> a
       }
     end
-    
+
     # called by Rspec or Should
     # set options
     # @params [Hash] options exmple : { cashe: true, dir: "models/users" }
