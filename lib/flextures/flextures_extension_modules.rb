@@ -22,7 +22,9 @@ module Flextures
       # example:
       # hash = array.extend(Extensions::Array).to_hash(keys)
       def to_hash keys
-        values = self+[nil]*(keys.size-self.size)
+        values = self
+        values = values[0..keys.size-1]               if keys.size < values.size
+        values = values+[nil]*(keys.size-values.size) if keys.size > values.size
         [keys,values].transpose.inject({}){ |h,pair| k,v=pair; h[k]=v; h }
       end
     end
