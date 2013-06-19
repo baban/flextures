@@ -148,9 +148,7 @@ module Flextures
     def self.csv format
       type = :csv
       file_name, ext = file_exist format, [type]
-
       return unless self.file_loadable? format, file_name
-
       klass, filter = self.create_model_filter format, file_name, type
       self.load_csv format, klass, filter, file_name
     end
@@ -259,16 +257,23 @@ module Flextures
     end
 
     # file load check
-    # file is cached or not exist file don't load
     # @return [Bool] lodable is 'true'
     def self.file_loadable? format, file_name
-      table_name = format[:table].to_s.to_sym
-      # if table data is loaded, use cached data
-      return if format[:cache] and @@table_cache[table_name] == file_name
-      @@table_cache[table_name] = file_name
       return unless File.exist? file_name
+      return if self.cache_enabled? format, file_name
       puts "try loading #{file_name}" if !format[:silent] and ![:fun].include?(format[:loader])
       true
+    end
+
+    # file is cached file don't load
+    # @return [Bool] if datais cached return true
+    def self.cache_enabled? format, file_name
+      # if table data is loaded, use cached data
+      return false unless format[:cache]
+      table_name = format[:table].to_s.to_sym
+      return true  if @@table_cache[table_name] == file_name
+      @@table_cache[table_name] = file_name
+      false
     end
 
     # print warinig message that lack or not exist colum names
@@ -283,6 +288,7 @@ module Flextures
       klass = PARENT::create_model table_name
       # if you use 'rails3_acts_as_paranoid' gem, that is not delete data 'delete_all' method
       klass.send (klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all)
+
       filter = ->(h){
         filter = create_filter klass, LoadFilter[table_name.to_sym], file_name, type, format
         o = klass.new
