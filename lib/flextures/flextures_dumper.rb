@@ -209,9 +209,9 @@ module Flextures
     def self.dump_csv klass, attr_type, values_filter, format
       # TODO: 拡張子は指定してもしなくても良いようにする
       file_name = format[:file] || format[:table]
-      dir_name = format[:dir] || Flextures::Config.fixture_dump_directory
-      outfile = File.join(dir_name, "#{file_name}.csv")
+      dir_name = File.join( Flextures::Config.fixture_dump_directory, format[:dir] )
       FileUtils.mkdir_p(dir_name)
+      outfile = File.join(dir_name, "#{file_name}.csv")
       CSV.open(outfile,'w') do |csv|
         # dump column names
         csv<< attr_type.map { |h| h[:name].to_s }
@@ -238,7 +238,7 @@ module Flextures
       # TODO: 拡張子は指定してもしなくても良いようにする
       table_name = format[:table]
       file_name = format[:file] || format[:table]
-      dir_name = format[:dir] || Flextures::Config.fixture_dump_directory
+      dir_name = File.join( Flextures::Config.fixture_dump_directory, format[:dir] )
       FileUtils.mkdir_p(dir_name)
       outfile = File.join(dir_name, "#{file_name}.yml")
       File.open(outfile,"w") do |f|
