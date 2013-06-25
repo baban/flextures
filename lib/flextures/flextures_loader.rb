@@ -13,7 +13,6 @@ module Flextures
   module Loader 
     PARENT = Flextures
 
-    @@table_cache = {}
     @@option_cache = {}
 
     # column set default value
@@ -123,12 +122,6 @@ module Flextures
     # @return [Hash] current option status
     def self.flextures_options
       @@option_cache
-    end
-
-    # return current cache status
-    # @return [Hash] current option status
-    def self.flextures_curent_cache
-      @@table_cache
     end
 
     # load fixture data
@@ -260,20 +253,8 @@ module Flextures
     # @return [Bool] lodable is 'true'
     def self.file_loadable? format, file_name
       return unless File.exist? file_name
-      return if self.cache_enabled? format, file_name
       puts "try loading #{file_name}" if !format[:silent] and ![:fun].include?(format[:loader])
       true
-    end
-
-    # file is cached file don't load
-    # @return [Bool] if datais cached return true
-    def self.cache_enabled? format, file_name
-      # if table data is loaded, use cached data
-      return false unless format[:cache]
-      table_name = format[:table].to_s.to_sym
-      return true  if @@table_cache[table_name] == file_name
-      @@table_cache[table_name] = file_name
-      false
     end
 
     # print warinig message that lack or not exist colum names
