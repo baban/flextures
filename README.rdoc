@@ -26,14 +26,6 @@ Please use bundler.
 
  gem "flextures"
 
- curent flextures is developping version3.0
- 
-This document and sourcecode and documents(readme.rdoc,wiki) write about version flextures 3.0 (current released version is 2.1.0)
-if you want to use flextures3.0
-your Gemfile should set option github url
-
-  gem "flextures", git:"https://github.com/baban/flextures"
-
 (Development emnvoriment must be ruby1.9 higer and rails3 higher)
 
 == How to use
