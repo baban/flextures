@@ -10,7 +10,7 @@ require 'flextures/flextures_factory'
 
 module Flextures
   # data loader
-  module Loader 
+  module Loader
     PARENT = Flextures
 
     @@option_cache = {}
@@ -245,7 +245,7 @@ module Flextures
         return ["#{file_path}.csv", :csv] if type.member?(:csv) and File.exist? "#{file_path}.csv"
         return ["#{file_path}.yml", :yml] if type.member?(:yml) and File.exist? "#{file_path}.yml"
       end
-
+      p :undef
       [ File.join(base_dir_name, "#{file_name}.csv"), nil ]
     end
 
