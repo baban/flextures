@@ -125,6 +125,7 @@ module Flextures
       table_names = table_names.map{ |option| option.merge silent: true }   if ENV["OPTION"].to_s.split(",").include?("silent")
       table_names = table_names.map{ |option| option.merge unfilter: true } if ENV["OPTION"].to_s.split(",").include?("unfilter")
       table_names = table_names.map{ |option| option.merge strict: true }   if ENV["OPTION"].to_s.split(",").include?("strict")
+      table_names = table_names.map{ |option| option.merge stair: true }    if ENV["OPTION"].to_s.split(",").include?("stair")
 
       # if mode is 'read mode' and file is not exist value is not return
       table_names.select! &exist if option[:mode] && option[:mode] == 'read'
