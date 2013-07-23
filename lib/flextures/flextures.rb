@@ -45,7 +45,7 @@ module Flextures
   # @return [Array] flextures useable table names
   def self.deletable_tables
     tables = ActiveRecord::Base.connection.tables
-    Flextures::Config.ignore_tables.each { |name| tables.delete name }
+    Flextures::Config.ignore_tables.each { |name| tables.delete name.to_s }
     tables
   end
 
