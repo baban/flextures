@@ -26,7 +26,7 @@ module Flextures
       end
     }
     # when cannot guess Model name
-    c = ->{ 
+    c = ->{
       Class.new(ActiveRecord::Base){ |o| o.table_name=table_name }
     }
     a.call || b.call || c.call
@@ -85,7 +85,7 @@ module Flextures
     end
   end
 
-  # parse arguments functions
+  # parse arguments functions.
   module ARGS
     # parse rake ENV parameters
     def self.parse option={}
@@ -111,7 +111,7 @@ module Flextures
           names.map{ |name| { table: name, file: name } }
         end
       }
-      # parse filename define parameters
+      # parse filename and define parameters.
       table_names = fixtures_args_parser.call ENV["FIXTURES"] if ENV["FIXTURES"]
       table_names = fixtures_args_parser.call ENV["FILE"]     if ENV["FILE"]
       table_names = fixtures_args_parser.call ENV["F"]        if ENV["F"]
@@ -127,7 +127,7 @@ module Flextures
       table_names = table_names.map{ |option| option.merge strict: true }   if ENV["OPTION"].to_s.split(",").include?("strict")
       table_names = table_names.map{ |option| option.merge stair: true }    if ENV["OPTION"].to_s.split(",").include?("stair")
 
-      # if mode is 'read mode' and file is not exist value is not return
+      # if mode is 'read mode' and file is not exist, value is not return.
       table_names.select! &exist if option[:mode] && option[:mode] == 'read'
       table_names
     end
@@ -139,4 +139,3 @@ module Flextures
     end
   end
 end
-

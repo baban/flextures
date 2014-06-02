@@ -141,7 +141,7 @@ module Flextures
     def self.csv format
       type = :csv
       file_name, ext = file_exist format, [type]
-      return unless self.file_loadable? format, file_name
+      return unless self.file_loadable?( format, file_name )
       klass, filter = self.create_model_filter format, file_name, type
       self.load_csv format, klass, filter, file_name
     end
@@ -292,7 +292,7 @@ module Flextures
     def self.create_filter klass, factory, filename, ext, options
       columns = klass.columns
       # data translat array to hash
-      column_hash = columns.inject({}) { |h,col| h[col.name] = col; h }
+      column_hash = columns.reduce({}) { |h,col| h[col.name] = col; h }
       lack_columns = columns.reject { |c| c.null and c.default }.map{ |o| o.name.to_sym }
       # default value shound not be null columns
       not_nullable_columns = columns.reject(&:null).map &:name
@@ -321,4 +321,3 @@ module Flextures
     end
   end
 end
-
