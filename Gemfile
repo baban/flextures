@@ -1,13 +1,8 @@
-source "http://rubygems.org"
+source 'https://rubygems.org'
 
-#gem "activerecord"
+# Specify your gem's dependencies in flextures.gemspec
+gemspec
 
-group :development, :test do
-  gem "bundler", "1.5.1"
-  gem "jeweler", "1.8.3"
-end
-
-group :text do
+group :test do
   gem "shoulda", ">= 0"
 end
-

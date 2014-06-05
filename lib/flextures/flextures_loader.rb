@@ -142,8 +142,8 @@ module Flextures
       type = :csv
       file_name, ext = file_exist format, [type]
       return unless self.file_loadable?( format, file_name )
-      klass, filter = self.create_model_filter format, file_name, type
-      self.load_csv format, klass, filter, file_name
+      klass, filter = self.create_model_filter( format, file_name, type )
+      self.load_csv( format, klass, filter, file_name )
     end
 
     # load YAML data
@@ -152,20 +152,20 @@ module Flextures
       type = :yml
       file_name, ext = file_exist format, [type]
 
-      return unless self.file_loadable? format, file_name
+      return unless self.file_loadable?( format, file_name )
 
-      klass, filter = self.create_model_filter format, file_name, type
-      self.load_yml format, klass, filter, file_name
+      klass, filter = self.create_model_filter( format, file_name, type )
+      self.load_yml( format, klass, filter, file_name )
     end
 
     def self.load_csv format, klass, filter, file_name
       attributes = klass.columns.map &:name
       CSV.open( file_name ) do |csv|
         keys = csv.shift # active record column names
-        warning "CSV", attributes, keys unless format[:silent]
+        warning( "CSV", attributes, keys ) unless format[:silent]
         csv.each do |values|
           h = values.extend(Extensions::Array).to_hash(keys)
-          filter.call h
+          filter.call(h)
         end
       end
       file_name
