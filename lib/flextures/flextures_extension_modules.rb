@@ -10,7 +10,7 @@ module Flextures
       (self.methods - ::OpenStruct.new.methods)
         .select{ |name| name.to_s.match(/\w+=/) }
         .map{ |name| name.to_s.gsub(/=/,'').to_sym }
-        .inject({}){ |k,h| h[k]=self.send(k); h }
+        .reduce({}){ |k,h| h[k]=self.send(k); h }
     end
   end
 
@@ -25,7 +25,7 @@ module Flextures
         values = self
         values = values[0..keys.size-1]               if keys.size < values.size
         values = values+[nil]*(keys.size-values.size) if keys.size > values.size
-        [keys,values].transpose.inject({}){ |h,pair| k,v=pair; h[k]=v; h }
+        [keys,values].transpose.reduce({}){ |h,pair| k,v=pair; h[k]=v; h }
       end
     end
   end

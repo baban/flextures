@@ -6,7 +6,7 @@ module Shoulda
     module ClassMethods
       def flextures( *_ )
         context = Shoulda::Context.current_context
-        context.setup_blocks<< ->{ Flextures::Loader::flextures *_ }
+        context.setup_blocks<< ->{ Flextures::Loader::flextures(*_) }
       end
 
       def flextures_delete( *_ )
@@ -15,7 +15,7 @@ module Shoulda
           if _.empty?
             Flextures::init_tables
           else
-            Flextures::delete_tables *_
+            Flextures::delete_tables(*_)
           end
         }
       end
@@ -23,7 +23,7 @@ module Shoulda
       def flextures_set_options( options={} )
         context = Shoulda::Context.current_context
         context.setup_blocks<< -> {
-          Flextures::Loader::set_options options
+          Flextures::Loader::set_options(options)
         }
         context.teardown_blocks<< -> {
           Flextures::Loader::delete_options

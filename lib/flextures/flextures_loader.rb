@@ -140,7 +140,7 @@ module Flextures
     # @params [Hash] format file load format(table name, file name, options...)
     def self.csv( format )
       type = :csv
-      file_name, ext = file_exist format, [type]
+      file_name, ext = file_exist( format, [type] )
       return unless self.file_loadable?( format, file_name )
       klass, filter = self.create_model_filter( format, file_name, type )
       self.load_csv( format, klass, filter, file_name )
@@ -150,7 +150,7 @@ module Flextures
     # @params [Hash] format file load format( table: name, file: name, options...)
     def self.yml( format )
       type = :yml
-      file_name, ext = file_exist format, [type]
+      file_name, ext = file_exist( format, [type] )
 
       return unless self.file_loadable?( format, file_name )
 
@@ -176,7 +176,7 @@ module Flextures
       return false unless yaml # if file is empty
       attributes = klass.columns.map &:name
       yaml.each do |k,h|
-        warning "YAML", attributes, h.keys unless format[:silent]
+        warning( "YAML", attributes, h.keys ) unless format[:silent]
         filter.call h
       end
       file_name
@@ -242,8 +242,8 @@ module Flextures
       base_dir_name = Flextures::Config.fixture_load_directory
       self.stair_list(format[:dir], format[:stair]).each do |dir|
         file_path = File.join( base_dir_name, dir, file_name )
-        return ["#{file_path}.csv", :csv] if type.member?(:csv) and File.exist? "#{file_path}.csv"
-        return ["#{file_path}.yml", :yml] if type.member?(:yml) and File.exist? "#{file_path}.yml"
+        return ["#{file_path}.csv", :csv] if type.member?(:csv) and File.exist?("#{file_path}.csv")
+        return ["#{file_path}.yml", :yml] if type.member?(:yml) and File.exist?("#{file_path}.yml")
       end
       [ File.join(base_dir_name, "#{file_name}.csv"), nil ]
     end
@@ -295,7 +295,7 @@ module Flextures
       column_hash = columns.reduce({}) { |h,col| h[col.name] = col; h }
       lack_columns = columns.reject { |c| c.null and c.default }.map{ |o| o.name.to_sym }
       # default value shound not be null columns
-      not_nullable_columns = columns.reject(&:null).map &:name
+      not_nullable_columns = columns.reject(&:null).map(&:name)
       strict_filter=->(o,h){
         # if value is not 'nil', value translate suitable form
         h.each{ |k,v| v.nil? || o[k] = (TRANSLATER[column_hash[k].type] && TRANSLATER[column_hash[k].type].call(v)) }

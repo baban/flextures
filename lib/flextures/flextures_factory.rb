@@ -14,7 +14,7 @@ module Flextures
       h={ block: block }
       options.each do |o|
         begin
-          h[:model] = o if o.new.is_a? ActiveRecord::Base
+          h[:model] = o if o.new.is_a?(ActiveRecord::Base)
         rescue
         end
       end

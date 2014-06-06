@@ -7,7 +7,7 @@ module RSpec
       # load fixtture data
       # @params [Array] _ fixture file names
       def flextures( *_ )
-        before { Flextures::Loader::flextures *_ }
+        before { Flextures::Loader::flextures(*_) }
       end
 
       # delete table data
@@ -17,14 +17,14 @@ module RSpec
           if _.empty?
             Flextures::init_tables
           else
-            Flextures::delete_tables *_
+            Flextures::delete_tables( *_ )
           end
         }
       end
 
       def flextures_set_options( options )
         before do
-          Flextures::Loader::set_options options
+          Flextures::Loader::set_options( options )
         end
         after do
           Flextures::Loader::delete_options
