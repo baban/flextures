@@ -6,13 +6,13 @@ module RSpec
     module Hooks
       # load fixtture data
       # @params [Array] _ fixture file names
-      def flextures *_
+      def flextures( *_ )
         before { Flextures::Loader::flextures *_ }
       end
 
       # delete table data
       # @params [Array] _ table names
-      def flextures_delete *_
+      def flextures_delete( *_ )
         before {
           if _.empty?
             Flextures::init_tables
@@ -22,7 +22,7 @@ module RSpec
         }
       end
 
-      def flextures_set_options options
+      def flextures_set_options( options )
         before do
           Flextures::Loader::set_options options
         end
@@ -61,4 +61,3 @@ module ActiveRecord
     end
   end
 end
-

@@ -90,7 +90,7 @@ module Flextures
     # flextures :users => :users2 # :table_name => :file_name
     #
     # @params [Hash] fixtures load table data
-    def self.flextures *fixtures
+    def self.flextures( *fixtures )
       load_list = parse_flextures_options(*fixtures)
       load_list.sort(&self.loading_order).each{ |params| Loader::load params }
     end
@@ -107,7 +107,7 @@ module Flextures
     # called by Rspec or Should
     # set options
     # @params [Hash] options exmple : { cashe: true, dir: "models/users" }
-    def self.set_options options
+    def self.set_options( options )
       @@option_cache ||= {}
       @@option_cache.merge!(options)
     end
@@ -127,7 +127,7 @@ module Flextures
     # load fixture data
     # fixture file prefer YAML to CSV
     # @params [Hash] format file load format(table name, file name, options...)
-    def self.load format
+    def self.load( format )
       file_name, method = file_exist format
       if method
         send(method, format)
@@ -138,7 +138,7 @@ module Flextures
 
     # load CSV data
     # @params [Hash] format file load format(table name, file name, options...)
-    def self.csv format
+    def self.csv( format )
       type = :csv
       file_name, ext = file_exist format, [type]
       return unless self.file_loadable?( format, file_name )
@@ -148,7 +148,7 @@ module Flextures
 
     # load YAML data
     # @params [Hash] format file load format( table: name, file: name, options...)
-    def self.yml format
+    def self.yml( format )
       type = :yml
       file_name, ext = file_exist format, [type]
 
@@ -158,7 +158,7 @@ module Flextures
       self.load_yml( format, klass, filter, file_name )
     end
 
-    def self.load_csv format, klass, filter, file_name
+    def self.load_csv( format, klass, filter, file_name )
       attributes = klass.columns.map &:name
       CSV.open( file_name ) do |csv|
         keys = csv.shift # active record column names
@@ -171,7 +171,7 @@ module Flextures
       file_name
     end
 
-    def self.load_yml format, klass, filter, file_name
+    def self.load_yml( format, klass, filter, file_name )
       yaml = YAML.load File.open(file_name)
       return false unless yaml # if file is empty
       attributes = klass.columns.map &:name
@@ -186,7 +186,7 @@ module Flextures
     # load directroy is change
     # spec/fixtures/:controller_name/:action_name/
     # @return [String] directory path
-    def self.parse_controller_option options
+    def self.parse_controller_option( options )
       controller_dir = ["controllers"]
       controller_dir<< options[:controller] if options[:controller]
       controller_dir<< options[:action]     if options[:controller] and options[:action]
@@ -197,7 +197,7 @@ module Flextures
     # load directroy is change
     # spec/fixtures/:model_name/:method_name/
     # @return [String] directory path
-    def self.parse_model_options options
+    def self.parse_model_options( options )
       model_dir = ["models"]
       model_dir<< options[:model]  if options[:model]
       model_dir<< options[:method] if options[:model] and options[:method]
@@ -207,7 +207,7 @@ module Flextures
     # parse flextures function arguments
     # @params [Hash] fixtures function arguments
     # @return [Array] formatted load options
-    def self.parse_flextures_options *fixtures
+    def self.parse_flextures_options( *fixtures )
       options = {}
       options = fixtures.shift if fixtures.size > 1 and fixtures.first.is_a?(Hash)
 
@@ -225,7 +225,7 @@ module Flextures
     # example:
     # self.create_stair_list("foo/bar/baz")
     # return ["foo/bar/baz","foo/bar","foo",""]
-    def self.stair_list dir, stair=true
+    def self.stair_list( dir, stair=true )
       return [dir.to_s] unless stair
       l = []
       dir.to_s.split("/").inject([]){ |a,d| a<< d; l.unshift(a.join("/")); a }
@@ -236,7 +236,7 @@ module Flextures
     # parse format option and return load file info
     # @param [Hash] format load file format informations
     # @return [Array] [file_name, filt_type(:csv or :yml)]
-    def self.file_exist format, type = [:csv,:yml]
+    def self.file_exist( format, type = [:csv,:yml] )
       table_name = format[:table].to_s
       file_name = (format[:file] || format[:table]).to_s
       base_dir_name = Flextures::Config.fixture_load_directory
@@ -250,20 +250,20 @@ module Flextures
 
     # file load check
     # @return [Bool] lodable is 'true'
-    def self.file_loadable? format, file_name
+    def self.file_loadable?( format, file_name )
       return unless File.exist? file_name
       puts "try loading #{file_name}" if !format[:silent] and ![:fun].include?(format[:loader])
       true
     end
 
     # print warinig message that lack or not exist colum names
-    def self.warning format, attributes, keys
+    def self.warning( format, attributes, keys )
       (attributes-keys).each { |name| puts "Warning: #{format} colum is missing! [#{name}]" }
       (keys-attributes).each { |name| puts "Warning: #{format} colum is left over! [#{name}]" }
     end
 
     # create filter and table info
-    def self.create_model_filter format, file_name, type
+    def self.create_model_filter( format, file_name, type )
       table_name = format[:table].to_s
       klass = PARENT::create_model table_name
       # if you use 'rails3_acts_as_paranoid' gem, that is not delete data 'delete_all' method
@@ -289,7 +289,7 @@ module Flextures
     # @params [Symbol] ext file type (:csv or :yml)
     # @params [Hash] options other options
     # @return [Proc] translate filter
-    def self.create_filter klass, factory, filename, ext, options
+    def self.create_filter( klass, factory, filename, ext, options )
       columns = klass.columns
       # data translat array to hash
       column_hash = columns.reduce({}) { |h,col| h[col.name] = col; h }

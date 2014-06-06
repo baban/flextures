@@ -8,10 +8,10 @@ require "flextures/flextures_extension_modules"
 require "flextures/flextures_factory"
 
 module Flextures
-  # ActiveRecord Model is created that guess by table_name
+  # guessing ActiveRecord Model name by table_name and create
   # @params [String|Symbol] table_name
   # @params [ActiveRecord::Base] model class
-  def self.create_model table_name
+  def self.create_model( table_name )
     # when Model is defined in FactoryFilter
     a = ->{
       f = Factory::FACTORIES[table_name.to_sym]
@@ -36,9 +36,9 @@ module Flextures
   def self.init_load
     if defined?(Rails) and Rails.root
       [
-        "#{Rails.root.to_path}/config/flextures.config.rb",
-        "#{Rails.root.to_path}/config/flextures.factory.rb",
-      ].each { |fn| load(fn) if File.exist?(fn) }
+        File.join( Rails.root.to_path,"/config/flextures.config.rb" ),
+        File.join( Rails.root.to_path,"/config/flextures.factory.rb" ),
+      ].each { |fn| File.exist?(fn) && load(fn) }
     end
   end
 
@@ -61,7 +61,7 @@ module Flextures
     end
   end
 
-  def self.delete_tables *tables
+  def self.delete_tables( *tables )
     tables.each do |name|
       # if 'name' variable is 'database view', raise error
       begin
@@ -73,7 +73,7 @@ module Flextures
 
   # It is debug method to use like 'tab' method
   # @params [Proc] dumper write dump information
-  def self.table_tap &dumper
+  def self.table_tap( &dumper )
     tables = Flextures::deletable_tables
     tables.each do |name|
       # if 'name' variable is 'database view', raise error
@@ -88,7 +88,7 @@ module Flextures
   # parse arguments functions.
   module ARGS
     # parse rake ENV parameters
-    def self.parse option={}
+    def self.parse( option={} )
       table_names = []
       if v = (ENV["T"] or ENV["TABLE"])
         table_names = v.split(',').map{ |name| { table: name, file: name } }

@@ -4,12 +4,12 @@
 module Shoulda
   module Context
     module ClassMethods
-      def flextures *_
+      def flextures( *_ )
         context = Shoulda::Context.current_context
         context.setup_blocks<< ->{ Flextures::Loader::flextures *_ }
       end
 
-      def flextures_delete *_
+      def flextures_delete( *_ )
         context = Shoulda::Context.current_context
         context.setup_blocks<< -> {
           if _.empty?
@@ -20,7 +20,7 @@ module Shoulda
         }
       end
 
-      def flextures_set_options options={}
+      def flextures_set_options( options={} )
         context = Shoulda::Context.current_context
         context.setup_blocks<< -> {
           Flextures::Loader::set_options options
@@ -32,4 +32,3 @@ module Shoulda
     end
   end
 end
-
