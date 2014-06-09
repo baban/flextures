@@ -30,5 +30,3 @@ module Flextures
     end
   end
 end
-
-

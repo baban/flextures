@@ -44,7 +44,7 @@ module Flextures
   # @return [Array] flextures useable table names
   def self.deletable_tables
     tables = ActiveRecord::Base.connection.tables
-    Flextures::Config.ignore_tables.each { |name| tables.delete name.to_s }
+    Flextures::Config.ignore_tables.each { |name| tables.delete( name.to_s ) }
     tables
   end
 
@@ -115,16 +115,16 @@ module Flextures
       table_names = fixtures_args_parser.call ENV["FILE"]     if ENV["FILE"]
       table_names = fixtures_args_parser.call ENV["F"]        if ENV["F"]
 
-      table_names = table_names.map{ |option| option.merge dir: ENV["DIR"] } if ENV["DIR"]
-      table_names = table_names.map{ |option| option.merge dir: ENV["D"]   } if ENV["D"]
+      table_names = table_names.map{ |option| option.merge( dir: ENV["DIR"] ) } if ENV["DIR"]
+      table_names = table_names.map{ |option| option.merge( dir: ENV["D"] )   } if ENV["D"]
 
-      table_names = table_names.map{ |option| option.merge minus: ENV["MINUS"].to_s.split(",") } if ENV["MINUS"]
-      table_names = table_names.map{ |option| option.merge plus:  ENV["PLUS"].to_s.split(",")  } if ENV["PLUS"]
+      table_names = table_names.map{ |option| option.merge( minus: ENV["MINUS"].to_s.split(",") ) } if ENV["MINUS"]
+      table_names = table_names.map{ |option| option.merge( plus:  ENV["PLUS"].to_s.split(",") )  } if ENV["PLUS"]
 
-      table_names = table_names.map{ |option| option.merge silent: true }   if ENV["OPTION"].to_s.split(",").include?("silent")
-      table_names = table_names.map{ |option| option.merge unfilter: true } if ENV["OPTION"].to_s.split(",").include?("unfilter")
-      table_names = table_names.map{ |option| option.merge strict: true }   if ENV["OPTION"].to_s.split(",").include?("strict")
-      table_names = table_names.map{ |option| option.merge stair: true }    if ENV["OPTION"].to_s.split(",").include?("stair")
+      table_names = table_names.map{ |option| option.merge( silent: true ) }   if ENV["OPTION"].to_s.split(",").include?("silent")
+      table_names = table_names.map{ |option| option.merge( unfilter: true ) } if ENV["OPTION"].to_s.split(",").include?("unfilter")
+      table_names = table_names.map{ |option| option.merge( strict: true ) }   if ENV["OPTION"].to_s.split(",").include?("strict")
+      table_names = table_names.map{ |option| option.merge( stair: true ) }    if ENV["OPTION"].to_s.split(",").include?("stair")
 
       # if mode is 'read mode' and file is not exist, value is not return.
       table_names.select!(&exist) if option[:mode] && option[:mode] == 'read'

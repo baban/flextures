@@ -165,7 +165,7 @@ module Flextures
     # fixture file prefer YAML to CSV
     # @params [Hash] format file load format(table name, file name, options...)
     def self.load( format )
-      file_name, method = file_exist format
+      file_name, method = file_exist(format)
       if method
         send(method, format)
       else
@@ -209,12 +209,12 @@ module Flextures
     end
 
     def self.load_yml( format, klass, filter, file_name )
-      yaml = YAML.load File.open(file_name)
+      yaml = YAML.load( File.open(file_name) )
       return false unless yaml # if file is empty
       attributes = klass.columns.map &:name
       yaml.each do |k,h|
         warning( "YAML", attributes, h.keys ) unless format[:silent]
-        filter.call h
+        filter.call(h)
       end
       file_name
     end
@@ -254,7 +254,7 @@ module Flextures
       # :all value load all loadable fixtures
       fixtures = Flextures::deletable_tables if fixtures.size==1 and :all == fixtures.first
       last_hash = fixtures.last.is_a?(Hash) ? fixtures.pop : {}
-      load_hash = fixtures.inject({}){ |h,name| h[name.to_sym] = name.to_s; h } # if name is string is buged
+      load_hash = fixtures.reduce({}){ |h,name| h[name.to_sym] = name.to_s; h } # if name is string is buged
       load_hash.merge!(last_hash)
       load_hash.map { |k,v| { table: k, file: v, loader: :fun }.merge(@@option_cache).merge(options) }
     end
@@ -265,7 +265,7 @@ module Flextures
     def self.stair_list( dir, stair=true )
       return [dir.to_s] unless stair
       l = []
-      dir.to_s.split("/").inject([]){ |a,d| a<< d; l.unshift(a.join("/")); a }
+      dir.to_s.split("/").reduce([]){ |a,d| a<< d; l.unshift(a.join("/")); a }
       l<< ""
       l
     end
@@ -288,7 +288,7 @@ module Flextures
     # file load check
     # @return [Bool] lodable is 'true'
     def self.file_loadable?( format, file_name )
-      return unless File.exist? file_name
+      return unless File.exist?( file_name )
       puts "try loading #{file_name}" if !format[:silent] and ![:fun].include?(format[:loader])
       true
     end
@@ -302,14 +302,14 @@ module Flextures
     # create filter and table info
     def self.create_model_filter( format, file_name, type )
       table_name = format[:table].to_s
-      klass = PARENT::create_model table_name
+      klass = PARENT::create_model( table_name )
       # if you use 'rails3_acts_as_paranoid' gem, that is not delete data 'delete_all' method
       klass.send (klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all)
 
       filter = ->(h){
-        filter = create_filter klass, LoadFilter[table_name.to_sym], file_name, type, format
+        filter = create_filter( klass, LoadFilter[table_name.to_sym], file_name, type, format )
         o = klass.new
-        o = filter.call o, h
+        o = filter.call( o, h )
         o.save( validate: false )
         o
       }
@@ -349,7 +349,7 @@ module Flextures
         h.select! { |k,v| column_hash[k] }
         strict_filter.call(o,h)
         # set default value if value is 'nil'
-        not_nullable_columns.each{ |k| o[k].nil? && o[k] = (column_hash[k] && COMPLETER[column_hash[k].type] && COMPLETER[column_hash[k].type].call) }
+        not_nullable_columns.each { |k| o[k].nil? && o[k] = (column_hash[k] && COMPLETER[column_hash[k].type] && COMPLETER[column_hash[k].type].call) }
         # fill span values if column is not exist
         lack_columns.each { |k| o[k].nil? && o[k] = (column_hash[k] && COMPLETER[column_hash[k].type] && COMPLETER[column_hash[k].type].call) }
         o
