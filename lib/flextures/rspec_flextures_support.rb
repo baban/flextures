@@ -7,12 +7,8 @@ module RSpec
       # load fixtture data
       # @params [Array] _ fixture file names
       def flextures( *_ )
-        let(:flextures_loader) do
-          p :flextures_loader
-          Flextures::Loader::Instance.new
-        end
         before do
-          flextures_loader.load(*_)
+          Flextures::Loader::flextures( *_ )
         end
       end
 
@@ -55,6 +51,10 @@ end
 # override setup_fixtures function
 module ActiveRecord
   module TestFixtures
+    def flextures_loader
+      @flextures_loader ||= Flextures::Loader::Instance.new
+    end
+
     alias :setup_fixtures_bkup :setup_fixtures
     def setup_fixtures
       Flextures::init_load

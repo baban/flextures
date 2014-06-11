@@ -20,7 +20,7 @@ module Flextures
       end
 
       def load(*fixtures)
-        # キャッシュが有効 && 呼んだ事無いファイル
+        # キャッシュが有効 ∧ 呼んだ事無いファイル
         load_list = PARENT::parse_flextures_options(*fixtures)
         load_list.sort(&PARENT.loading_order).each do |params|
           p params
@@ -196,7 +196,7 @@ module Flextures
     end
 
     def self.load_csv( format, klass, filter, file_name )
-      attributes = klass.columns.map &:name
+      attributes = klass.columns.map(&:name)
       CSV.open( file_name ) do |csv|
         keys = csv.shift # active record column names
         warning( "CSV", attributes, keys ) unless format[:silent]
@@ -211,7 +211,7 @@ module Flextures
     def self.load_yml( format, klass, filter, file_name )
       yaml = YAML.load( File.open(file_name) )
       return false unless yaml # if file is empty
-      attributes = klass.columns.map &:name
+      attributes = klass.columns.map(&:name)
       yaml.each do |k,h|
         warning( "YAML", attributes, h.keys ) unless format[:silent]
         filter.call(h)
@@ -304,7 +304,7 @@ module Flextures
       table_name = format[:table].to_s
       klass = PARENT::create_model( table_name )
       # if you use 'rails3_acts_as_paranoid' gem, that is not delete data 'delete_all' method
-      klass.send (klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all)
+      klass.send( klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all )
 
       filter = ->(h){
         filter = create_filter( klass, LoadFilter[table_name.to_sym], file_name, type, format )
