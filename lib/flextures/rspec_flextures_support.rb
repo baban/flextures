@@ -7,12 +7,16 @@ module RSpec
       # load fixtture data
       # @params [Array] _ fixture file names
       def flextures( *_ )
-        @flextures_loader ||= Flextures::Loader::Instance.new
-        flextures_loader = @flextures_loader
+        flextures_loader = create_or_load_flextures_loader
         before do
           flextures_loader.loads( *_ )
-          #Flextures::Loader.flextures( *_ )
         end
+      end
+
+      # flexturesの読み出し
+      def create_or_load_flextures_loader
+        self.use_transactional_fixtures=false
+        @flextures_loader ||= Flextures::Loader::Instance.new
       end
 
       # delete table data
