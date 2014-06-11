@@ -65,7 +65,7 @@ module Flextures
             s = s.sub(/ +/, "")   if s[0]==' '
             is_nl = false
             is_nl |= s["\n"]
-            is_nl |= ["[","]","{","}","|","#","@","~","!","'","$","&","^","<",">","?","-","+","=",";",":",".",",","*","`","(",")"].member? s[0]
+            is_nl |= ["[","]","{","}","|","#","@","~","!","'","$","&","^","<",">","?","-","+","=",";",":",".",",","*","`","(",")"].member?(s[0])
             s = s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") # 改行方法統一
             s = "|-\n    " + s.gsub(/\n/,"\n    ") if is_nl
           end
@@ -76,7 +76,7 @@ module Flextures
           d
         },
       }
-      procs = rules.inject(proc{ |d| d }) { |sum,i| sum * (rule_map[i] || i)  }
+      procs = rules.reduce(proc{ |d| d }) { |sum,i| sum * (rule_map[i] || i) }
       procs.call(val)
     end
 
@@ -86,13 +86,13 @@ module Flextures
         procs = (format == :yml)?
           [:nullstr, :null, proc { |d| Base64.encode64(d) } ] :
           [:null, proc { |d| Base64.encode64(d) } ]
-        self.translate_creater d, procs
+        self.translate_creater( d, procs )
       },
       boolean:->( d, format ){
         procs = (format == :yml) ?
           [ :nullstr, proc { !(0==d || ""==d || !d) } ] :
           [ proc { !(0==d || ""==d || !d) } ]
-        self.translate_creater d, procs
+        self.translate_creater( d, procs )
       },
       date:->( d, format ){
         procs = (format == :yml) ?
@@ -230,7 +230,7 @@ module Flextures
       klass = PARENT::create_model(format[:table])
       attr_type = self.dump_attributes klass, format
       filter = self.create_filter attr_type, format, :yml
-      self.dump_yml klass, filter, format
+      self.dump_yml( klass, filter, format )
     end
 
     # dump yml format data

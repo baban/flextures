@@ -7,8 +7,11 @@ module RSpec
       # load fixtture data
       # @params [Array] _ fixture file names
       def flextures( *_ )
+        @flextures_loader ||= Flextures::Loader::Instance.new
+        flextures_loader = @flextures_loader
         before do
-          Flextures::Loader::flextures( *_ )
+          flextures_loader.loads( *_ )
+          #Flextures::Loader.flextures( *_ )
         end
       end
 
@@ -28,6 +31,7 @@ module RSpec
         before do
           Flextures::Loader::set_options( options )
         end
+
         after do
           Flextures::Loader::delete_options
         end
@@ -51,10 +55,6 @@ end
 # override setup_fixtures function
 module ActiveRecord
   module TestFixtures
-    def flextures_loader
-      @flextures_loader ||= Flextures::Loader::Instance.new
-    end
-
     alias :setup_fixtures_bkup :setup_fixtures
     def setup_fixtures
       Flextures::init_load

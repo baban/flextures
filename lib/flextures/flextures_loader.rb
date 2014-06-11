@@ -16,23 +16,16 @@ module Flextures
       PARENT = Flextures::Loader
       def initialize
         # 読み込み状態を持っておく
-        @cache_state={}
+        @already_loaded_fixtures = {}
       end
 
-      def load(*fixtures)
+      def loads(*fixtures)
         # キャッシュが有効 ∧ 呼んだ事無いファイル
         load_list = PARENT::parse_flextures_options(*fixtures)
         load_list.sort(&PARENT.loading_order).each do |params|
-          p params
-          p @cache_state[params[:table]]
-          p equal_table_data?(@cache_state[params[:table]], params)
-          if not equal_table_data?(@cache_state[params[:table]], params)
-            p :ffff
-            @cache_state[params[:table]] = params
-            PARENT.load(params)
-          else
-            p :aaaa
-          end
+          next if equal_table_data?(@already_loaded_fixtures[params[:table]], params)
+          @already_loaded_fixtures[params[:table]] = params
+          PARENT.load(params)
         end
       end
 
@@ -40,10 +33,6 @@ module Flextures
       def equal_table_data?(src,dst)
         return false unless src.is_a?(Hash)
         return false unless dst.is_a?(Hash)
-        p :equal_table_data?
-        p src[:file] == dst[:file]
-        p src[:loader] == dst[:loader]
-        p (src.to_a - dst.to_a)
         (src.to_a - dst.to_a).empty?
       end
     end
