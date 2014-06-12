@@ -33,9 +33,17 @@ module Flextures
       end
 
       def load(params)
-        return if equal_table_data?(@already_loaded_fixtures[params[:table]], params)
+        return if cashable?(params) and loaded?(params)
         @already_loaded_fixtures[params[:table]] = params
         PARENT.load(params)
+      end
+
+      def cashable?(params)
+        !!params[:cache]
+      end
+
+      def loaded?(params)
+        equal_table_data?(@already_loaded_fixtures[params[:table]], params)
       end
 
       # compare
