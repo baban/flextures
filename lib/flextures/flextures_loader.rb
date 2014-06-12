@@ -20,13 +20,13 @@ module Flextures
       PARENT = Flextures::Loader
       def initialize
         # 読み込み状態を持っておく
-        @options = PARENT::flextures_options
+        @options = {}
         @already_loaded_fixtures = {}
       end
 
       def loads(*fixtures)
         # キャッシュが有効 ∧ 呼んだ事無いファイル
-        load_list = PARENT::parse_flextures_options(*fixtures)
+        load_list = Instance.parse_flextures_options( @options, *fixtures)
         load_list.sort(&PARENT.loading_order).each do |params|
           load(params)
         end
@@ -75,19 +75,19 @@ module Flextures
       # parse flextures function arguments
       # @params [Hash] fixtures function arguments
       # @return [Array] formatted load options
-      def self.parse_flextures_options( klass, *fixtures )
+      def self.parse_flextures_options( base_options, *fixtures )
         options = {}
         options = fixtures.shift if fixtures.size > 1 and fixtures.first.is_a?(Hash)
 
-        options[:dir] = self.parse_controller_option( options ) if options[:controller]
-        options[:dir] = self.parse_model_options( options )     if options[:model]
+        options[:dir] = PARENT.parse_controller_option( options ) if options[:controller]
+        options[:dir] = PARENT.parse_model_options( options )     if options[:model]
 
         # :all value load all loadable fixtures
         fixtures = Flextures::deletable_tables if fixtures.size==1 and :all == fixtures.first
         last_hash = fixtures.last.is_a?(Hash) ? fixtures.pop : {}
         load_hash = fixtures.reduce({}){ |h,name| h[name.to_sym] = name.to_s; h } # if name is string is buged
         load_hash.merge!(last_hash)
-        load_hash.map { |k,v| { table: k, file: v, loader: :fun }.merge(klass.flextures_options).merge(options) }
+        load_hash.map { |k,v| { table: k, file: v, loader: :fun }.merge(base_options).merge(options) }
       end
     end
 
@@ -167,8 +167,8 @@ module Flextures
     #
     # @params [Hash] fixtures load table data
     def self.flextures( *fixtures )
-      load_list = parse_flextures_options(*fixtures)
-      load_list.sort(&self.loading_order).each{ |params| Loader::load(params) }
+      loader = Flextures::Loader::Instance.new
+      loader.loads(*fixtures)
     end
 
     # @return [Proc] order rule block (user Array#sort methd)
@@ -180,9 +180,6 @@ module Flextures
       }
     end
 
-    # called by Rspec or Should
-    # set options
-    # @params [Hash] options exmple : { cashe: true, dir: "models/users" }
     def self.set_options( options )
       @@option_cache ||= {}
       @@option_cache.merge!(options)
