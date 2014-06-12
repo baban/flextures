@@ -10,86 +10,8 @@ require 'flextures/flextures_factory'
 
 module Flextures
   # data loader
-  module Loader
+  class Loader
     PARENT = Flextures
-
-    @@option_cache ||= {}
-
-    # controll loading state
-    class Instance
-      PARENT = Flextures::Loader
-      def initialize
-        # 読み込み状態を持っておく
-        @options = {}
-        @already_loaded_fixtures = {}
-      end
-
-      def loads(*fixtures)
-        # キャッシュが有効 ∧ 呼んだ事無いファイル
-        load_list = Instance.parse_flextures_options( @options, *fixtures)
-        load_list.sort(&PARENT.loading_order).each do |params|
-          load(params)
-        end
-      end
-
-      def load(params)
-        return if cashable?(params) and loaded?(params)
-        @already_loaded_fixtures[params[:table]] = params
-        PARENT.load(params)
-      end
-
-      def cashable?(params)
-        !!params[:cache]
-      end
-
-      def loaded?(params)
-        equal_table_data?(@already_loaded_fixtures[params[:table]], params)
-      end
-
-      # compare
-      def equal_table_data?(src,dst)
-        return false unless src.is_a?(Hash)
-        return false unless dst.is_a?(Hash)
-        (src.to_a - dst.to_a).empty?
-      end
-
-      # called by Rspec or Should
-      # set options
-      # @params [Hash] options exmple : { cashe: true, dir: "models/users" }
-      def set_options( options )
-        @options.merge!(options)
-      end
-
-      # called by Rspec or Should after filter
-      # reflesh options
-      def delete_options
-        @options = {}
-      end
-
-      # return current option status
-      # @return [Hash] current option status
-      def flextures_options
-        @options
-      end
-
-      # parse flextures function arguments
-      # @params [Hash] fixtures function arguments
-      # @return [Array] formatted load options
-      def self.parse_flextures_options( base_options, *fixtures )
-        options = {}
-        options = fixtures.shift if fixtures.size > 1 and fixtures.first.is_a?(Hash)
-
-        options[:dir] = PARENT.parse_controller_option( options ) if options[:controller]
-        options[:dir] = PARENT.parse_model_options( options )     if options[:model]
-
-        # :all value load all loadable fixtures
-        fixtures = Flextures::deletable_tables if fixtures.size==1 and :all == fixtures.first
-        last_hash = fixtures.last.is_a?(Hash) ? fixtures.pop : {}
-        load_hash = fixtures.reduce({}){ |h,name| h[name.to_sym] = name.to_s; h } # if name is string is buged
-        load_hash.merge!(last_hash)
-        load_hash.map { |k,v| { table: k, file: v, loader: :fun }.merge(base_options).merge(options) }
-      end
-    end
 
     # column set default value
     COMPLETER = {
@@ -157,6 +79,78 @@ module Flextures
         DateTime.parse(d.to_s)
       },
     }
+
+    def initialize
+      # 読み込み状態を持っておく
+      @options = {}
+      @already_loaded_fixtures = {}
+    end
+
+    def loads(*fixtures)
+      # キャッシュが有効 ∧ 呼んだ事無いファイル
+      load_list = self.class.parse_flextures_options( @options, *fixtures)
+      load_list.sort(&self.class.loading_order).each do |params|
+        load(params)
+      end
+    end
+
+    def load(params)
+      return if cashable?(params) and loaded?(params)
+      @already_loaded_fixtures[params[:table]] = params
+      self.class.load(params)
+    end
+
+    def cashable?(params)
+      !!params[:cache]
+    end
+
+    def loaded?(params)
+      equal_table_data?(@already_loaded_fixtures[params[:table]], params)
+    end
+
+    # compare
+    def equal_table_data?(src,dst)
+      return false unless src.is_a?(Hash)
+      return false unless dst.is_a?(Hash)
+      (src.to_a - dst.to_a).empty?
+    end
+
+    # called by Rspec or Should
+    # set options
+    # @params [Hash] options exmple : { cashe: true, dir: "models/users" }
+    def set_options( options )
+      @options.merge!(options)
+    end
+
+    # called by Rspec or Should after filter
+    # reflesh options
+    def delete_options
+      @options = {}
+    end
+
+    # return current option status
+    # @return [Hash] current option status
+    def flextures_options
+      @options
+    end
+
+    # parse flextures function arguments
+    # @params [Hash] fixtures function arguments
+    # @return [Array] formatted load options
+    def self.parse_flextures_options( base_options, *fixtures )
+      options = {}
+      options = fixtures.shift if fixtures.size > 1 and fixtures.first.is_a?(Hash)
+
+      options[:dir] = self.parse_controller_option( options ) if options[:controller]
+      options[:dir] = self.parse_model_options( options )     if options[:model]
+
+      # :all value load all loadable fixtures
+      fixtures = Flextures::deletable_tables if fixtures.size==1 and :all == fixtures.first
+      last_hash = fixtures.last.is_a?(Hash) ? fixtures.pop : {}
+      load_hash = fixtures.reduce({}){ |h,name| h[name.to_sym] = name.to_s; h } # if name is string is buged
+      load_hash.merge!(last_hash)
+      load_hash.map { |k,v| { table: k, file: v, loader: :fun }.merge(base_options).merge(options) }
+    end
 
     # load fixture datas
     #
@@ -258,24 +252,6 @@ module Flextures
       model_dir<< options[:model]  if options[:model]
       model_dir<< options[:method] if options[:model] and options[:method]
       File.join(*model_dir)
-    end
-
-    # parse flextures function arguments
-    # @params [Hash] fixtures function arguments
-    # @return [Array] formatted load options
-    def self.parse_flextures_options( *fixtures )
-      options = {}
-      options = fixtures.shift if fixtures.size > 1 and fixtures.first.is_a?(Hash)
-
-      options[:dir] = self.parse_controller_option( options ) if options[:controller]
-      options[:dir] = self.parse_model_options( options )     if options[:model]
-
-      # :all value load all loadable fixtures
-      fixtures = Flextures::deletable_tables if fixtures.size==1 and :all == fixtures.first
-      last_hash = fixtures.last.is_a?(Hash) ? fixtures.pop : {}
-      load_hash = fixtures.reduce({}){ |h,name| h[name.to_sym] = name.to_s; h } # if name is string is buged
-      load_hash.merge!(last_hash)
-      load_hash.map { |k,v| { table: k, file: v, loader: :fun }.merge(@@option_cache).merge(options) }
     end
 
     # example:

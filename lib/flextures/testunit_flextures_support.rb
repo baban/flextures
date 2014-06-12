@@ -5,7 +5,7 @@ module Shoulda
   module Context
     module ClassMethods
       def create_or_get_flextures_loader
-        @flextures_loader ||= Flextures::Loader::Instance.new
+        @flextures_loader ||= Flextures::Loader.new
       end
 
       def flextures( *_ )
