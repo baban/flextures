@@ -34,11 +34,11 @@ module RSpec
       def flextures_set_options( options )
         flextures_loader = create_or_get_flextures_loader
         before do
-          Flextures::Loader::set_options( options )
+          flextures_loader.set_options( options )
         end
 
         after do
-          Flextures::Loader::delete_options
+          flextures_loader.delete_options
         end
       end
     end

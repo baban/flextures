@@ -180,23 +180,6 @@ module Flextures
       }
     end
 
-    def self.set_options( options )
-      @@option_cache ||= {}
-      @@option_cache.merge!(options)
-    end
-
-    # called by Rspec or Should after filter
-    # reflesh options
-    def self.delete_options
-      @@option_cache = {}
-    end
-
-    # return current option status
-    # @return [Hash] current option status
-    def self.flextures_options
-      @@option_cache
-    end
-
     # load fixture data
     # fixture file prefer YAML to CSV
     # @params [Hash] format file load format(table name, file name, options...)
