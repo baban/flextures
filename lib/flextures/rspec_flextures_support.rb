@@ -1,5 +1,24 @@
 # encoding: utf-8
 
+
+module RSpec
+  module Rails
+    module SetupAndTeardownAdapter
+      extend ActiveSupport::Concern
+
+      module ClassMethods
+        def flextures_prepend_before(&block)
+          prepend_before(&block)
+        end
+
+        def flextures_before(&block)
+          before(&block)
+        end
+      end
+    end
+  end
+end
+
 # flextures function use like fixtures method in RSpec
 module RSpec
   module Core
@@ -7,22 +26,22 @@ module RSpec
       # load fixtture data
       # @params [Array] _ fixture file names
       def flextures( *_ )
-        flextures_loader = create_or_get_flextures_loader
-        before do
+        flextures_loader = create_or_get_flextures_loader(__method__)
+        flextures_before do
           flextures_loader.loads( *_ )
         end
       end
 
       # flexturesの読み出し
-      def create_or_get_flextures_loader
-        @flextures_loader ||= Flextures::Loader.new
+      def create_or_get_flextures_loader(*_)
+        @@flextures_loader ||= Flextures::Loader.new(*_)
       end
 
       # delete table data
       # @params [Array] _ table names
       def flextures_delete( *_ )
-        flextures_loader = create_or_get_flextures_loader
-        before do
+        flextures_loader = create_or_get_flextures_loader(__method__)
+        flextures_before do
           if _.empty?
             Flextures::init_tables
           else
@@ -32,13 +51,9 @@ module RSpec
       end
 
       def flextures_set_options( options )
-        flextures_loader = create_or_get_flextures_loader
-        before do
+        flextures_loader = create_or_get_flextures_loader(__method__)
+        flextures_prepend_before do
           flextures_loader.set_options( options )
-        end
-
-        after do
-          flextures_loader.delete_options
         end
       end
     end

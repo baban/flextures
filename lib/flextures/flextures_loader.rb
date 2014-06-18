@@ -80,7 +80,7 @@ module Flextures
       },
     }
 
-    def initialize
+    def initialize(*_)
       # 読み込み状態を持っておく
       @options = {}
       @already_loaded_fixtures = {}
@@ -120,6 +120,7 @@ module Flextures
     # @params [Hash] options exmple : { cashe: true, dir: "models/users" }
     def set_options( options )
       @options.merge!(options)
+      @options
     end
 
     # called by Rspec or Should after filter
