@@ -37,6 +37,10 @@ module RSpec
         @@flextures_loader ||= Flextures::Loader.new(*_)
       end
 
+      def flextures_get_options
+        @@flextures_loader
+      end
+
       # delete table data
       # @params [Array] _ table names
       def flextures_delete( *_ )
