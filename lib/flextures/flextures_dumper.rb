@@ -102,7 +102,7 @@ module Flextures
       },
       datetime:->( d, format ){
         procs = (format == :yml) ?
-          [:nullstr, :blank2null, :false2nullstr, proc { |d| d.to_s }] :
+          [:nullstr, :blank2null, :false2nullstr, proc { |d| d.try(:strftime,"%F %T").to_s }] :
           [proc { |d| d.to_s }]
         self.translate_creater d, procs
       },
@@ -137,14 +137,16 @@ module Flextures
         self.translate_creater d, procs
       },
       time:->( d, format ){
+        p d
         procs = (format == :yml) ?
-          [:ymlnulltime, proc { |d| d.to_s }] :
+          [:ymlnulltime, proc { |d| d.try(:strftime,"%F %T").to_s }] :
           [proc { |d| d.to_s }]
         self.translate_creater d, procs
       },
       timestamp:->( d, format ){
+        p d
         procs = (format == :yml) ?
-          [:ymlnulltime, proc { |d| d.to_s }] :
+          [:ymlnulltime, proc { |d| d.try(:strftime,"%F %T").to_s }] :
           [proc { |d| d.to_s }]
         self.translate_creater d, procs
       },
