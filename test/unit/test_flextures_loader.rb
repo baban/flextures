@@ -1,5 +1,5 @@
 # encoding: utf-8
-
+=begin
 class FlexturesLoaderTest < Test::Unit::TestCase
   context Flextures::Loader do
     context "TRANSLATER" do
@@ -269,3 +269,4 @@ class FlexturesLoaderTest < Test::Unit::TestCase
     end
   end
 end
+=end

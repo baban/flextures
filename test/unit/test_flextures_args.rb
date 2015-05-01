@@ -1,5 +1,5 @@
 # encoding: utf-8
-
+=begin
 class FlexturesArgsTest < Test::Unit::TestCase
   context Flextures::ARGS do
     context "if set TABLE='table_name' option " do
@@ -144,4 +144,4 @@ class FlexturesArgsTest < Test::Unit::TestCase
     end
   end
 end
-
+=end

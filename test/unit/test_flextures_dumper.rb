@@ -1,5 +1,5 @@
 # encoding: utf-8
-
+=begin
 class FlexturesDumperTest < Test::Unit::TestCase
   context Flextures::Dumper do
     context "TRANSLATE function rules" do
@@ -184,4 +184,4 @@ class FlexturesDumperTest < Test::Unit::TestCase
     end
   end
 end
-
+=end

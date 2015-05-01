@@ -1,5 +1,5 @@
 # encoding: utf-8
-
+=begin
 class FlexturesTest < Test::Unit::TestCase
   context "Array#to_hash" do
     context "when column size is equal data size" do
@@ -34,4 +34,4 @@ class FlexturesTest < Test::Unit::TestCase
     end
   end
 end
-
+=end

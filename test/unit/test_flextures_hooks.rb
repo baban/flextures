@@ -1,5 +1,5 @@
 # encoding: utf-8
-
+=begin
 class FlexturesHookTest < Test::Unit::TestCase
   context Flextures::Loader do
     context ".parse_flextures_options" do
@@ -87,4 +87,4 @@ class FlexturesHookTest < Test::Unit::TestCase
     end
   end
 end
-
+=end
