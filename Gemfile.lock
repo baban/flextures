@@ -7,6 +7,10 @@ GEM
   remote: https://rubygems.org/
   specs:
     minitest (5.4.0)
+    minitest-bang (0.1.1)
+      minitest (>= 4.7.5, <= 5.4.0)
+    minitest-implicit-subject (1.4.0)
+      minitest
     minitest-line (0.6.2)
       minitest (~> 5.0)
     minitest-power_assert (0.0.3)
@@ -22,6 +26,8 @@ DEPENDENCIES
   bundler (~> 1.6)
   flextures!
   minitest (= 5.4.0)
+  minitest-bang (= 0.1.1)
+  minitest-implicit-subject (= 1.4.0)
   minitest-line (= 0.6.2)
   minitest-power_assert (= 0.0.3)
   rake
