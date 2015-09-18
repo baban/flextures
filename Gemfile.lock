@@ -31,4 +31,3 @@ DEPENDENCIES
   minitest-line (= 0.6.2)
   minitest-power_assert (= 0.0.3)
   rake
-

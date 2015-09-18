@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # base configurations
 # if you want to change setting, create 'config/flextures.config.rb', and overwrite setting
 #

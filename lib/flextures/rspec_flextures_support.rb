@@ -1,6 +1,3 @@
-# encoding: utf-8
-
-
 module RSpec
   module Rails
     module SetupAndTeardownAdapter

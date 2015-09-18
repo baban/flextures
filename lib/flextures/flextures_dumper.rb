@@ -1,27 +1,25 @@
-# encoding: utf-8
-
 require "fileutils"
 
 module Flextures
   # defined data dump methods
   module Dumper
-    PARENT = Flextures
-    # procに機能追加、関数合成のためのメソッドを追加する
-    class Proc < ::Proc
-      def *(other)
-        if self.lambda? and other.lambda?
-          lambda { |*x| other.call(self.call(*x)) }
-        elsif not self.lambda? and not other.lambda?
-          Proc.new {|*x| other.call(self.call(*x)) }
-        else
-          raise ArgumentError, "lambda/Proc type mismatch"
+    module ProcEx
+      refine Proc do
+        # compose function
+        def *(other)
+          if self.lambda? and other.lambda?
+            lambda { |*x| other.call(self.call(*x)) }
+          elsif not self.lambda? and not other.lambda?
+            Proc.new {|*x| other.call(self.call(*x)) }
+          else
+            raise ArgumentError, "lambda/Proc type mismatch"
+          end
         end
       end
     end
+    using ProcEx
 
-    def self.proc(&b)
-      Proc.new(&b)
-    end
+    PARENT = Flextures
 
     # create data translater
     def self.translate_creater( val, rules )

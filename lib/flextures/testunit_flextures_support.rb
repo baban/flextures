@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # flxtures function shouda support
 module Shoulda
   module Context

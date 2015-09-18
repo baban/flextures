@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 module Flextures
   # Flextures FactoryFilter is program to translate ActiveRecord data
   class LoadFilter

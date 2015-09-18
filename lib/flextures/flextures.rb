@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 require 'ostruct'
 require 'csv'
 require "flextures/flextures_base_config"

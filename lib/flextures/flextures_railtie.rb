@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 module Flextures
   class Railtie < Rails::Railtie
     rake_tasks do

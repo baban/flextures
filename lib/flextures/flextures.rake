@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 require 'flextures/flextures'
 
 namespace :db do
@@ -56,6 +54,6 @@ namespace :db do
     desc "load and dump file (replace) new data file"
     task :generate => :environment do
       Flextures::Rake::Command::generate
-    end 
+    end
   end
 end
