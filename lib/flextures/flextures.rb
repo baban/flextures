@@ -30,7 +30,7 @@ module Flextures
   end
 
   # load configuration file, if file is exist
-  def self.init_load
+  def self.load_configurations
     if defined?(Rails) and Rails.root
       [
         File.join( Rails.root.to_path,"/config/flextures.config.rb" ),

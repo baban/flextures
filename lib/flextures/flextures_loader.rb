@@ -6,6 +6,24 @@ require 'flextures/flextures_extension_modules'
 require 'flextures/flextures'
 require 'flextures/flextures_factory'
 
+# 1.
+# キャッシュ無効化
+# ファイルロード
+# 終了
+
+# 2.
+# キャッシュ有効化
+# キャッシュチェック
+# キャッシュしていないならロード、キャッシュしていても上書きモードなら読み込み
+# テーブルを初期状態に戻す
+# 以下ループ
+
+# 次の3パターンをカバーする
+# 開始時に取る永続キャッシュ
+# 一時的なキャッシュ
+# 全くキャッシュしない
+# 最初はキャッシュを全く行わない設定
+
 module Flextures
   # data loader
   class Loader
@@ -86,28 +104,28 @@ module Flextures
 
     def loads(*fixtures)
       # キャッシュが有効 ∧ 呼んだ事無いファイル
-      load_list = self.class.parse_flextures_options( @options, *fixtures)
+      load_list = self.class.parse_flextures_options( @options, *fixtures )
       load_list.sort(&self.class.loading_order).each do |params|
         load(params)
       end
     end
 
     def load(params)
-      return if cashable?(params) and loaded?(params)
-      @already_loaded_fixtures[params[:table]] = params
       self.class.load(params)
     end
 
-    def cashable?(params)
-      !!params[:cache]
+    def self.cache?(params)
+      if params.first.is_a?(Hash)
+        param = params.first
+        param[:cache] == true
+      end
     end
 
-    def loaded?(params)
-      equal_table_data?(@already_loaded_fixtures[params[:table]], params)
+    def reset_cache
     end
 
     # compare
-    def equal_table_data?(src,dst)
+    def equal_table_data?(src, dst)
       return false unless src.is_a?(Hash)
       return false unless dst.is_a?(Hash)
       (src.to_a - dst.to_a).empty?
@@ -118,7 +136,6 @@ module Flextures
     # @params [Hash] options exmple : { cashe: true, dir: "models/users" }
     def set_options( options )
       @options.merge!(options)
-      @options
     end
 
     # called by Rspec or Should after filter
@@ -267,7 +284,7 @@ module Flextures
     # parse format option and return load file info
     # @param [Hash] format load file format informations
     # @return [Array] [file_name, filt_type(:csv or :yml)]
-    def self.file_exist( format, type = [:csv,:yml] )
+    def self.file_exist( format, type = [:csv, :yml] )
       table_name = format[:table].to_s
       file_name = (format[:file] || format[:table]).to_s
       base_dir_name = Flextures::Config.fixture_load_directory
@@ -297,8 +314,6 @@ module Flextures
     def self.create_model_filter( format, file_name, type )
       table_name = format[:table].to_s
       klass = PARENT::create_model( table_name )
-      p :klass
-      p klass
       # binding.pry
       # if you use 'rails3_acts_as_paranoid' gem, that is not delete data 'delete_all' method
       klass.send( klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all )
@@ -330,17 +345,17 @@ module Flextures
       lack_columns = columns.reject { |c| c.null and c.default }.map{ |o| o.name.to_sym }
       # default value shound not be null columns
       not_nullable_columns = columns.reject(&:null).map(&:name)
-      strict_filter=->(o,h){
+      strict_filter = ->(o,h){
         # if value is not 'nil', value translate suitable form
         h.each{ |k,v| v.nil? || o[k] = (TRANSLATER[column_hash[k].type] && TRANSLATER[column_hash[k].type].call(v)) }
         # call FactoryFilter
-        factory.call(*[o, filename, ext][0,factory.arity]) if factory and !options[:unfilter]
+        factory.call(*[o, filename, ext][0, factory.arity]) if factory and !options[:unfilter]
         o
       }
       # receives hased data and translate ActiveRecord Model data
       # loose filter correct error values
       # strict filter don't correct errora values and raise error
-      loose_filter=->(o,h){
+      loose_filter = ->(o,h){
         h.reject! { |k,v| options[:minus].include?(k) } if options[:minus]
         # if column name is not include database table columns, those names delete
         h.select! { |k,v| column_hash[k] }
@@ -354,4 +369,27 @@ module Flextures
       (options[:strict]==true) ? strict_filter : loose_filter
     end
   end
+=begin
+connection.transaction(:requires_new => true) do
+  fixture_sets.each do |fs|
+    conn = fs.model_class.respond_to?(:connection) ? fs.model_class.connection : connection
+    table_rows = fs.table_rows
+
+    table_rows.each_key do |table|
+      conn.delete "DELETE FROM #{conn.quote_table_name(table)}", 'Fixture Delete'
+    end
+
+    table_rows.each do |fixture_set_name, rows|
+      rows.each do |row|
+        conn.insert_fixture(row, fixture_set_name)
+      end
+    end
+
+    # Cap primary key sequences to max(pk).
+    if conn.respond_to?(:reset_pk_sequence!)
+      conn.reset_pk_sequence!(fs.table_name)
+    end
+  end
+end
+=end
 end
