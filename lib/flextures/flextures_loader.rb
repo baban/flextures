@@ -36,7 +36,7 @@ module Flextures
       },
       boolean:->(d){
         return d if d.nil?
-        !(0==d || ""==d || !d)
+        !("FALSE"==d || "false"==d || "0"==d || ""==d || 0==d || !d)
       },
       date:->(d){
         return d   if d.nil?

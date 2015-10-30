@@ -12,22 +12,40 @@ class FlexturesLoaderTest < Test::Unit::TestCase
         should "'nil' value not changed" do
           assert_equal nil, Flextures::Loader::TRANSLATER[:boolean].call(nil)
         end
-        should "'true' value not changed" do
+        should "true value not changed" do
           assert_equal true, Flextures::Loader::TRANSLATER[:boolean].call(true)
         end
-        should "'false' value not changed" do
+        should "false value not changed" do
           assert_equal false, Flextures::Loader::TRANSLATER[:boolean].call(false)
         end
-        should "'0' is change to 'false'" do
+        should "0 is change to 'false'" do
           assert_equal false, Flextures::Loader::TRANSLATER[:boolean].call(0)
         end
-        should "'1' is change to 'true'" do
+        should "1 is change to 'true'" do
           assert_equal true, Flextures::Loader::TRANSLATER[:boolean].call(1)
         end
-        should "'-1' is change to 'true'" do
+        should "-1 is change to 'true'" do
           assert_equal true, Flextures::Loader::TRANSLATER[:boolean].call(-1)
         end
-        should "'string data' is change to 'true'" do
+        should "'0' is change to 'false'" do
+          assert_equal false, Flextures::Loader::TRANSLATER[:boolean].call('0')
+        end
+        should "'1' is change to 'true'" do
+          assert_equal true, Flextures::Loader::TRANSLATER[:boolean].call('1')
+        end
+        should "'true' value not changed" do
+          assert_equal true, Flextures::Loader::TRANSLATER[:boolean].call('true')
+        end
+        should "'TRUE' value not changed" do
+          assert_equal true, Flextures::Loader::TRANSLATER[:boolean].call('TRUE')
+        end
+        should "'false' value not changed" do
+          assert_equal false, Flextures::Loader::TRANSLATER[:boolean].call('false')
+        end
+        should "'FALSE' value not changed" do
+          assert_equal false, Flextures::Loader::TRANSLATER[:boolean].call('FALSE')
+        end
+        should "'non-falsy string data' is change to 'true'" do
           assert_equal true, Flextures::Loader::TRANSLATER[:boolean].call("Hello")
         end
         should "'empty string' is change to 'true'" do
@@ -226,7 +244,7 @@ class FlexturesLoaderTest < Test::Unit::TestCase
         end
       end
     end
-    
+
     context ".loading_order" do
       context "simple test" do
         setup do
@@ -251,4 +269,3 @@ class FlexturesLoaderTest < Test::Unit::TestCase
     end
   end
 end
-
