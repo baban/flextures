@@ -297,6 +297,9 @@ module Flextures
     def self.create_model_filter( format, file_name, type )
       table_name = format[:table].to_s
       klass = PARENT::create_model( table_name )
+      p :klass
+      p klass
+      # binding.pry
       # if you use 'rails3_acts_as_paranoid' gem, that is not delete data 'delete_all' method
       klass.send( klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all )
 

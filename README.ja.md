@@ -1,6 +1,6 @@
 # flextures
 
-* [ENGLISH DOCUMENT](https://github.com/baban/flextures/blob/master/README.rdoc)
+* [ENGLISH DOCUMENT](https://github.com/baban/flextures/blob/master/README.md)
 
 ## Abstruct
 
@@ -10,8 +10,8 @@ Rails標準のfixtureの不満点を解消するために作成しました
 それぞれfixtureのロードとダンプを行います
 
 ```
- rake db:flextures:load
- rake db:flextures:dump
+rake db:flextures:load
+rake db:flextures:dump
 ```
 
 通常のfixtureとの主な違いは次の４点です
@@ -28,7 +28,6 @@ gem化されているので、bundlerで次のように記述して、普通にb
 
 ```
  gem "flextures"
-
 ```
 
 ちなみに開発環境はruby1.9以上のバージョン、rails3以上、もしくはPadrinoを想定しています
@@ -94,6 +93,7 @@ fixtureのロード機能を使えます
 ```ruby
 describe ItemShopController do
   flextures :users, :items
+end
 ```
 
 基本的な違いは、yamlよりcsvを優先する、カラムの変更点を検知して警告を出しながらもロードを行う等ですが
@@ -103,6 +103,7 @@ describe ItemShopController do
 ```ruby
 describe ItemShopController do
   flextures :items, :users => :users_for_itmshop # users_for_itemshop.csv をロードする
+end
 ```
 
 その他現在はShouldからの呼び出しや様々なオプションを載せていますが
@@ -118,6 +119,7 @@ Railsのプロジェクトに config/flextures.factory.rb というファイル�
 例えば、次の様に記述するとusersテーブルのlast_login_dateの値を、常に現在の時間として設定できます
 
 ```ruby
+# config/flextures.config.rb
 Flextures::Factory.define :users do |f|
   f.last_login_date = DateTime.now
 end
@@ -129,6 +131,7 @@ end
 必要な分だけ生成をさせると、今までより若干捗るかもしれません
 
 ```ruby
+# config/flextures.config.rb
 require 'faker'
 Flextures::Factory.define :users do |f|
   f.name= Faker::Name.name if !f.name  # ランダムで名前を生成(ただしUS仕様
@@ -144,7 +147,8 @@ end
 
 データのdump時に加工が必要になった時には、ダンプフィルターにテーブル名と、加工したい値をキーに、処理をラムダで渡してやることで可能です
 
-```ruby
+```ruby:config/flextures.config.rb
+# config/flextures.config.rb
 Flextures::DumpFilter.define :users, {
   :encrypted_password => lambda { |v| Base64.encode64(v) }
 }
@@ -156,7 +160,7 @@ Flextures::DumpFilter.define :users, {
 
 config/flextures.config.rb　で設定ファイルを作成すると、データをロード＆ダンプするディレクトリなどの設定を変更できます
 
-```ruby
+```ruby:config/flextures.config.rb
 # config/flextures.config.rb
 module Flextures
   # test/fixtures/ のフィクスチャを読み出したい場合は吐き出しディレクトリの値を上書きする

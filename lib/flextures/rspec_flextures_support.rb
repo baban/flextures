@@ -92,6 +92,46 @@ module ActiveRecord
     alias :teardown_fixtures_bkup :teardown_fixtures
     def teardown_fixtures
       teardown_fixtures_bkup
+      p :teardown
+    end
+
+    module ClassMethods
+      @@instance = Flextures::Loader.new
+
+      def flextures(*fixture_set_names)
+        # * 一番浅い読み込み
+        #   - cacheあり
+        #   - cacheなし
+        # * それ以外の読み込み
+        #   - cacheあり
+        #   - cacheなし
+        p :flextures
+        p fixture_set_names
+        p :cache
+        p Flextures::Loader.cache?(fixture_set_names)
+
+        if Flextures::Loader.cache?(fixture_set_names)
+          p :load
+          fixture_set_names.each do |name|
+            p name
+            @@instance.load( { table: "s_user", file: name.to_s, options: {} } )
+          end
+        else
+          before do
+            p :before
+            fixture_set_names.each do |name|
+              @@instance.load( { table: name.to_s } )
+            end
+          end
+        end
+        # if cached?
+        # else
+        # end
+        # @@instance.load(fixture_set_names)
+
+        #Flextures::Loader.new.load(fixture_set_names)
+        # Flextures::Loader.loads(fixture_set_names)
+      end
     end
   end
 end
