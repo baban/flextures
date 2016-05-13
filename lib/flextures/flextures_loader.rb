@@ -166,8 +166,8 @@ module Flextures
     # @return [Proc] order rule block (user Array#sort methd)
     def self.loading_order
       ->(a,b){
-        a = Flextures::Config.table_load_order.index(a) || -1
-        b = Flextures::Config.table_load_order.index(b) || -1
+        a = Flextures::Configuration.table_load_order.index(a) || -1
+        b = Flextures::Configuration.table_load_order.index(b) || -1
         b <=> a
       }
     end

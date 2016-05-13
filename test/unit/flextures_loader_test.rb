@@ -295,7 +295,7 @@ describe Flextures::Loader do
 
         describe "set orderd table name" do
           before do
-            Flextures::Config.table_load_order=["b"]
+            Flextures::Configuration.table_load_order=["b"]
             @proc = Flextures::Loader.loading_order
           end
 
@@ -304,7 +304,7 @@ describe Flextures::Loader do
           end
 
           after do
-            Flextures::Config.table_load_order=[]
+            Flextures::Configuration.table_load_order=[]
           end
         end
       end

@@ -1,3 +1,6 @@
+require 'active_support'
+require 'active_support/core_ext'
+
 # base configurations
 module Flextures
   class Configuration
@@ -17,6 +20,10 @@ module Flextures
 
     config_accessor :init_all_tables do
       true
+    end
+
+    config_accessor :table_load_order do
+      []
     end
   end
 end
