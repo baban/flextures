@@ -95,6 +95,12 @@ module ActiveRecord
       end
     end
 
+    def load_all_fixtures(table_load_settings)
+      table_load_settings.each do |load_setting|
+        @@flextures_loader.load(load_setting)
+      end
+    end
+
     module ClassMethods
       def get_or_initialize_flextures_loader_options
         @flextures_loader_options ||= {}
@@ -114,10 +120,16 @@ module ActiveRecord
 
       def loads_use_cache_fixtures(*fixtures)
         table_load_settings = Flextures::Loader.parse_flextures_options(flextures_loader_options, *fixtures)
-        PARENT.init_load_should_cache_fixtures(table_load_settings)
 
-        before do
-          load_not_cached_fixtures(table_load_settings)
+        if use_transactional_fixtures
+          PARENT.init_load_should_cache_fixtures(table_load_settings)
+          before do
+            load_not_cached_fixtures(table_load_settings)
+          end
+        else
+          before do
+            load_all_fixtures(table_load_settings)
+          end
         end
       end
 
