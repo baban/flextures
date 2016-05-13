@@ -85,7 +85,6 @@ module ActiveRecord
       @@all_cached_flextures[load_setting[:table]] = load_setting
     end
 
-    # キャッシュされていないデータを読み出す
     def load_not_cached_fixtures(table_load_settings)
       table_load_settings.each do |load_setting|
         if PARENT.cached_table?(load_setting) and load_setting[:cache] != false

@@ -6,14 +6,14 @@ module Shoulda
         @flextures_loader ||= Flextures::Loader.new
       end
 
-      def flextures( *_ )
+      def flextures(*_)
         flextures_loader = create_or_get_flextures_loader
 
         context = Shoulda::Context.current_context
         context.setup_blocks<< ->{ flextures_loader.flextures(*_) }
       end
 
-      def flextures_delete( *_ )
+      def flextures_delete(*_)
         context = Shoulda::Context.current_context
 
         context.setup_blocks<< -> {
@@ -25,7 +25,7 @@ module Shoulda
         }
       end
 
-      def flextures_set_options( options={} )
+      def flextures_set_options(options={})
         flextures_loader = create_or_get_flextures_loader
 
         context = Shoulda::Context.current_context

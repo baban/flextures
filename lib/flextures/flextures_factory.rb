@@ -8,7 +8,7 @@ module Flextures
     # @params [String] table_name
     # @params [Array] options arguments ActiveRecord Model
     # @params [Proc] block FactoryFilter
-    def self.define( table_name, *options, &block )
+    def self.define(table_name, *options, &block)
       h={ block: block }
       options.each do |o|
         begin
@@ -38,12 +38,12 @@ module Flextures
     # @params options
     # @params block
     # @return Flextures::Factory
-    def self.define( table_name, hash )
+    def self.define(table_name, hash)
       FACTORIES[table_name.to_sym]=hash
     end
 
     # get FactoryFilter
-    def self.get( table_name )
+    def self.get(table_name)
       FACTORIES[table_name.to_sym]
     end
     def self.[](table_name); self.get(table_name); end

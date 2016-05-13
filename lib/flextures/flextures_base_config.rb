@@ -10,8 +10,8 @@
 #
 module Flextures
   module Config
-    @@read_onlys=[]
-    @@configs={
+    @@read_onlys = []
+    @@configs = {
       use_transactional_fixtures: nil, # override activerecord base "use_transactional_fixtures" option if you  set value boolean value
       ignore_tables: ["schema_migrations"], # 'ignore_tables' table data is not deleted by flextures delete_all method
       fixture_load_directory: "spec/fixtures/", # base load directory
