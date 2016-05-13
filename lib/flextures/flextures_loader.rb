@@ -269,7 +269,7 @@ module Flextures
     def self.file_exist(format, type = [:csv, :yml])
       table_name = format[:table].to_s
       file_name = (format[:file] || format[:table]).to_s
-      base_dir_name = Flextures::Config.fixture_load_directory
+      base_dir_name = Flextures::Configuration.load_directory
       self.stair_list(format[:dir], format[:stair]).each do |dir|
         file_path = File.join(base_dir_name, dir, file_name)
         return ["#{file_path}.csv", :csv] if type.member?(:csv) and File.exist?("#{file_path}.csv")

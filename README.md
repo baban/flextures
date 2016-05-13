@@ -101,13 +101,13 @@ Please see [wiki](https://github.com/baban/flextures/wiki/Unittestsupport) ...
 
 #### load filter
 
-If you create filter file.(File name is "config/flextures.factory.rb")
+In `config/flextures.factory.rb`
+
 Factory filter translate fixture data and set database.
 
 For example, this code set current time to last_login_date column.
 
 ```ruby
-# config/flextures.config.rb
 Flextures::Factory.define :users do |f|
   f.last_login_date = DateTime.now
 end
@@ -116,7 +116,6 @@ end
 This sample, generate name and sex automatically, and other tables data generate
 
 ```ruby
-# config/flextures.config.rb
 require 'faker'
 Flextures::Factory.define :users do |f|
   f.name= Faker::Name.name if !f.name  # gemerate name
@@ -133,8 +132,9 @@ if you need to convert table data into other data format, you use dump filter.
 
 dump filter has hash arguments, it is formatted colum name key and convert method, proc, lambda value
 
+file is `config/flextures.factory.rb`
+
 ```ruby
-# config/flextures.config.rb
 Flextures::DumpFilter.define :users, {
   :encrypted_password => lambda { |v| Base64.encode64(v) }
 }
@@ -144,15 +144,13 @@ Other options please see [wiki](https://github.com/baban/flextures/wiki/Factoryf
 
 ### Configuration file
 
-Configuration file can change load and dump directory
-(file is config/flextures.config.rb)
+In `config/initializers/flextures.rb`, configuration file can change load and dump directory
 
 ```ruby
-# config/flextures.config.rb
-module Flextures
+Flextures.configure do |config|
   # Load and dump directory change "spec/fixtures/" to "test/fixtures/"
-  Config.fixture_load_directory = "test/fixtures/"
-  Config.fixture_dump_directory = "test/fixtures/"
+  config.load_directory = "test/fixtures/"
+  config.dump_directory = "test/fixtures/"
 end
 ```
 

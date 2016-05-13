@@ -70,7 +70,7 @@ module ActiveRecord
 
     # flextures check fixture function already loaded data.
     def self.fixture_cached?(load_setting)
-      default_file_path = File.join(Flextures::Config.fixture_load_directory, "#{load_setting[:table]}.yml")
+      default_file_path = File.join(Flextures::Configuration.load_directory, "#{load_setting[:table]}.yml")
 
       load_setting[:file] == default_file_path &&
       yml_fixture_cached?(load_setting[:table])

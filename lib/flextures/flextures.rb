@@ -33,7 +33,6 @@ module Flextures
   def self.load_configurations
     if defined?(Rails) and Rails.root
       [
-        File.join( Rails.root.to_path,"/config/flextures.config.rb" ),
         File.join( Rails.root.to_path,"/config/flextures.factory.rb" ),
       ].each { |fn| File.exist?(fn) && load(fn) }
     end
@@ -42,7 +41,7 @@ module Flextures
   # @return [Array] flextures useable table names
   def self.deletable_tables
     tables = ActiveRecord::Base.connection.tables
-    Flextures::Config.ignore_tables.each { |name| tables.delete( name.to_s ) }
+    Flextures::Configuration.ignore_tables.each { |name| tables.delete( name.to_s ) }
     tables
   end
 
@@ -131,8 +130,8 @@ module Flextures
 
     # check exist filename block
     def self.exist
-      return->(name){ File.exists?( File.join( Config.fixture_load_directory, "#{name}.csv") ) or
-                      File.exists?( File.join( Config.fixture_load_directory, "#{name}.yml") ) }
+      return->(name){ File.exists?( File.join(Flextures::Configuration.load_directory, "#{name}.csv") ) or
+                      File.exists?( File.join(Flextures::Configuration.load_directory, "#{name}.yml") ) }
     end
   end
 end

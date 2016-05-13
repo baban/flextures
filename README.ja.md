@@ -113,13 +113,11 @@ end
 
 #### load filer
 
-Railsのプロジェクトに config/flextures.factory.rb というファイルを作成して、そこにフィルタを記述することによって
-(Padrinoでも設置場所は同じです)
+Railsのプロジェクトに `config/flextures.factory.rb` というファイルを作成して、そこにフィルタを記述することによって
 フィクスチャの読み込み時に、値を加工して読み込む事が可能になっています
 例えば、次の様に記述するとusersテーブルのlast_login_dateの値を、常に現在の時間として設定できます
 
 ```ruby
-# config/flextures.config.rb
 Flextures::Factory.define :users do |f|
   f.last_login_date = DateTime.now
 end
@@ -131,7 +129,6 @@ end
 必要な分だけ生成をさせると、今までより若干捗るかもしれません
 
 ```ruby
-# config/flextures.config.rb
 require 'faker'
 Flextures::Factory.define :users do |f|
   f.name= Faker::Name.name if !f.name  # ランダムで名前を生成(ただしUS仕様
@@ -145,10 +142,10 @@ end
 
 #### dump filer
 
-データのdump時に加工が必要になった時には、ダンプフィルターにテーブル名と、加工したい値をキーに、処理をラムダで渡してやることで可能です
+データのdump時に加工が必要になった時には、同じく`config/flextures.factory.rb`に
+テーブル名と、加工したい値をキーに、処理をラムダで渡してやることで可能です
 
-```ruby:config/flextures.config.rb
-# config/flextures.config.rb
+```ruby
 Flextures::DumpFilter.define :users, {
   :encrypted_password => lambda { |v| Base64.encode64(v) }
 }
@@ -158,14 +155,15 @@ Flextures::DumpFilter.define :users, {
 
 ### 設定ファイル
 
-config/flextures.config.rb　で設定ファイルを作成すると、データをロード＆ダンプするディレクトリなどの設定を変更できます
+`config/flextures.config.rb`　で設定ファイルを作成すると、データをロード＆ダンプするディレクトリなどの設定を変更できます
 
-```ruby:config/flextures.config.rb
-# config/flextures.config.rb
-module Flextures
-  # test/fixtures/ のフィクスチャを読み出したい場合は吐き出しディレクトリの値を上書きする
-  Config.fixture_load_directory = "test/fixtures/"
-  Config.fixture_dump_directory = "test/fixtures/"
+
+
+```ruby
+Flextures.configure do |config|
+  # Load and dump directory change "spec/fixtures/" to "test/fixtures/"
+  config.load_directory = "test/fixtures/"
+  config.dump_directory = "test/fixtures/"
 end
 ```
 
