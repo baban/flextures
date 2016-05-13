@@ -131,7 +131,7 @@ end
 if you need to convert table data into other data format, you use dump filter.
 (dump filter is same file as load filter)
 
-dump filter has hash argumtne, it is formatted colum name key and convert method, proc, lambda value
+dump filter has hash arguments, it is formatted colum name key and convert method, proc, lambda value
 
 ```ruby
 # config/flextures.config.rb
