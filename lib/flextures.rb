@@ -1,6 +1,7 @@
+require 'active_record'
+
 require 'flextures/version'
 require 'flextures/flextures_base_config'
-require 'flextures/flextures_extension_modules'
 require 'flextures/flextures'
 require 'flextures/flextures_factory'
 require 'flextures/flextures_loader'

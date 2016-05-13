@@ -1,14 +1,30 @@
 require 'ostruct'
 require 'csv'
 
+require 'active_record'
+require 'activerecord-import'
+
 require 'flextures/flextures_base_config'
-require 'flextures/flextures_extension_modules'
 require 'flextures/flextures'
 require 'flextures/flextures_factory'
 
 module Flextures
   # data loader
   class Loader
+    module ArrayEx
+      refine Array do
+        # @params [Array] keys hash keys
+        # @return [Hash] tanslated Hash data
+        def to_hash(keys)
+          values = self
+          values = values[0..keys.size-1]               if keys.size < values.size
+          values = values+[nil]*(keys.size-values.size) if keys.size > values.size
+          [keys,values].transpose.reduce({}){ |h,pair| k,v=pair; h[k]=v; h }
+        end
+      end
+    end
+    using ArrayEx
+
     PARENT = Flextures
 
     # column set default value
@@ -101,9 +117,6 @@ module Flextures
         param = params.first
         param[:cache] == true
       end
-    end
-
-    def reset_cache
     end
 
     # compare
@@ -211,9 +224,12 @@ module Flextures
       CSV.open(file_name) do |csv|
         keys = csv.shift # active record column names
         warning("CSV", attributes, keys) unless format[:silent]
-        csv.each do |values|
-          h = values.extend(Extensions::Array).to_hash(keys)
-          filter.call(h)
+        ActiveRecord::Base.transaction do
+          csv.each do |rows|
+            h = values.to_hash(keys)
+            o = filter.call(h)
+            o.save(validation: false)
+          end
         end
       end
       file_name
@@ -223,10 +239,15 @@ module Flextures
       yaml = YAML.load(File.open(file_name))
       return false unless yaml # if file is empty
       attributes = klass.columns.map(&:name)
-      yaml.each do |k,h|
-        warning("YAML", attributes, h.keys) unless format[:silent]
-        filter.call(h)
-      end
+
+　　　　　ActiveRecord::Base.transaction do
+        yaml.each do |k,h|
+          warning("YAML", attributes, h.keys) unless format[:silent]
+          o = filter.call(h)
+          o.save(validation: false)
+        end
+　　　　　end
+
       file_name
     end
 
@@ -296,7 +317,6 @@ module Flextures
     def self.create_model_filter(format, file_name, type)
       table_name = format[:table].to_s
       klass = PARENT::create_model(table_name)
-      # binding.pry
       # if you use 'rails3_acts_as_paranoid' gem, that is not delete data 'delete_all' method
       klass.send(klass.respond_to?(:delete_all!) ? :delete_all! : :delete_all)
 
@@ -304,7 +324,6 @@ module Flextures
         filter = create_filter(klass, LoadFilter[table_name.to_sym], file_name, type, format)
         o = klass.new
         o = filter.call(o, h)
-        o.save(validate: false)
         o
       }
       [klass, filter]

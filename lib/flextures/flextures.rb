@@ -1,7 +1,4 @@
-require 'ostruct'
-require 'csv'
 require "flextures/flextures_base_config"
-require "flextures/flextures_extension_modules"
 require "flextures/flextures_factory"
 
 module Flextures
