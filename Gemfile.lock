@@ -4,20 +4,21 @@ PATH
     flextures (4.1.0)
       activerecord
       activerecord-import
+      activesupport
 
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (4.2.5.2)
-      activesupport (= 4.2.5.2)
+    activemodel (4.2.6)
+      activesupport (= 4.2.6)
       builder (~> 3.1)
-    activerecord (4.2.5.2)
-      activemodel (= 4.2.5.2)
-      activesupport (= 4.2.5.2)
+    activerecord (4.2.6)
+      activemodel (= 4.2.6)
+      activesupport (= 4.2.6)
       arel (~> 6.0)
-    activerecord-import (0.12.0)
+    activerecord-import (0.13.0)
       activerecord (>= 3.0)
-    activesupport (4.2.5.2)
+    activesupport (4.2.6)
       i18n (~> 0.7)
       json (~> 1.7, >= 1.7.7)
       minitest (~> 5.1)
@@ -47,9 +48,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord
-  activerecord-import
-  activesupport
   bundler (~> 1.6)
   flextures!
   minitest (= 5.4.0)
@@ -60,4 +58,4 @@ DEPENDENCIES
   rake
 
 BUNDLED WITH
-   1.10.6
+   1.11.2

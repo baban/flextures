@@ -5,24 +5,24 @@ module Flextures
   # guessing ActiveRecord Model name by table_name and create
   # @params [String|Symbol] table_name
   # @params [ActiveRecord::Base] model class
-  def self.create_model( table_name )
+  def self.create_model(table_name)
     # when Model is defined in FactoryFilter
-    a = ->{
+    a = -> do
       f = Factory::FACTORIES[table_name.to_sym]
       f && f[:model]
-    }
+    end
     # when program can guess Model name by table_name
-    b = ->{
+    b = -> do
       begin
         table_name.singularize.camelize.constantize
       rescue => e
         nil
       end
-    }
+    end
     # when cannot guess Model name
-    c = ->{
+    c = -> do
       Class.new(ActiveRecord::Base){ |o| o.table_name=table_name }
-    }
+    end
     a.call || b.call || c.call
   end
 
@@ -54,7 +54,7 @@ module Flextures
     end
   end
 
-  def self.delete_tables( *tables )
+  def self.delete_tables(*tables)
     tables.each do |name|
       # if 'name' variable is 'database view', raise error
       begin
@@ -66,7 +66,7 @@ module Flextures
 
   # It is debug method to use like 'tab' method
   # @params [Proc] dumper write dump information
-  def self.table_tap( &dumper )
+  def self.table_tap(&dumper)
     tables = Flextures::deletable_tables
     tables.each do |name|
       # if 'name' variable is 'database view', raise error
@@ -81,12 +81,12 @@ module Flextures
   # parse arguments functions.
   module ARGS
     # parse rake ENV parameters
-    def self.parse( option={} )
+    def self.parse(env={}, option={})
       table_names = []
-      if v = (ENV["T"] or ENV["TABLE"])
+      if v = (env["T"] or env["TABLE"])
         table_names = v.split(',').map{ |name| { table: name, file: name } }
       end
-      if v = (ENV["M"] or ENV["MODEL"])
+      if v = (env["M"] or env["MODEL"])
         table_names = v.split(',').map do |name|
           name = name.constantize.table_name
           { table: name, file: name }
@@ -95,30 +95,30 @@ module Flextures
 
       table_names = Flextures::deletable_tables.map{ |name| { table: name, file: name } } if table_names.empty?
 
-      # parse ENV["FIXTURES"] paameter
-      fixtures_args_parser =->(s){
+      # parse env["FIXTURES"] paameter
+      fixtures_args_parser = ->(s){
         names = s.split(',')
-        if ENV["TABLE"] or ENV["T"] or ENV["MODEL"] or ENV["M"]
-          [ table_names.first.merge( file: names.first ) ]
+        if env["TABLE"] or env["T"] or env["MODEL"] or env["M"]
+          [ table_names.first.merge(file: names.first) ]
         else
           names.map{ |name| { table: name, file: name } }
         end
       }
       # parse filename and define parameters.
-      table_names = fixtures_args_parser.call ENV["FIXTURES"] if ENV["FIXTURES"]
-      table_names = fixtures_args_parser.call ENV["FILE"]     if ENV["FILE"]
-      table_names = fixtures_args_parser.call ENV["F"]        if ENV["F"]
+      table_names = fixtures_args_parser.call env["FIXTURES"] if env["FIXTURES"]
+      table_names = fixtures_args_parser.call env["FILE"]     if env["FILE"]
+      table_names = fixtures_args_parser.call env["F"]        if env["F"]
 
-      table_names = table_names.map{ |option| option.merge( dir: ENV["DIR"] ) } if ENV["DIR"]
-      table_names = table_names.map{ |option| option.merge( dir: ENV["D"] )   } if ENV["D"]
+      table_names = table_names.map{ |option| option.merge(dir: env["DIR"]) } if env["DIR"]
+      table_names = table_names.map{ |option| option.merge(dir: env["D"])   } if env["D"]
 
-      table_names = table_names.map{ |option| option.merge( minus: ENV["MINUS"].to_s.split(",") ) } if ENV["MINUS"]
-      table_names = table_names.map{ |option| option.merge( plus:  ENV["PLUS"].to_s.split(",") )  } if ENV["PLUS"]
+      table_names = table_names.map{ |option| option.merge(minus: env["MINUS"].to_s.split(",")) } if env["MINUS"]
+      table_names = table_names.map{ |option| option.merge(plus:  env["PLUS"].to_s.split(","))  } if env["PLUS"]
 
-      table_names = table_names.map{ |option| option.merge( silent: true ) }   if ENV["OPTION"].to_s.split(",").include?("silent")
-      table_names = table_names.map{ |option| option.merge( unfilter: true ) } if ENV["OPTION"].to_s.split(",").include?("unfilter")
-      table_names = table_names.map{ |option| option.merge( strict: true ) }   if ENV["OPTION"].to_s.split(",").include?("strict")
-      table_names = table_names.map{ |option| option.merge( stair: true ) }    if ENV["OPTION"].to_s.split(",").include?("stair")
+      table_names = table_names.map{ |option| option.merge(silent: true) }   if env["OPTION"].to_s.split(",").include?("silent")
+      table_names = table_names.map{ |option| option.merge(unfilter: true) } if env["OPTION"].to_s.split(",").include?("unfilter")
+      table_names = table_names.map{ |option| option.merge(strict: true) }   if env["OPTION"].to_s.split(",").include?("strict")
+      table_names = table_names.map{ |option| option.merge(stair: true) }    if env["OPTION"].to_s.split(",").include?("stair")
 
       # if mode is 'read mode' and file is not exist, value is not return.
       table_names.select!(&exist) if option[:mode] && option[:mode] == 'read'
@@ -127,8 +127,8 @@ module Flextures
 
     # check exist filename block
     def self.exist
-      return->(name){ File.exists?( File.join(Flextures::Configuration.load_directory, "#{name}.csv") ) or
-                      File.exists?( File.join(Flextures::Configuration.load_directory, "#{name}.yml") ) }
+      return->(name){ File.exists?(File.join(Flextures::Configuration.load_directory, "#{name}.csv")) or
+                      File.exists?(File.join(Flextures::Configuration.load_directory, "#{name}.yml")) }
     end
   end
 end

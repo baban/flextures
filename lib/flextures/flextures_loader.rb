@@ -1,5 +1,6 @@
 require 'ostruct'
 require 'csv'
+require 'erb'
 
 require 'active_record'
 require 'activerecord-import'
@@ -26,6 +27,7 @@ module Flextures
     using ArrayEx
 
     PARENT = Flextures
+    FORMATS = [ %i[csv erb], %i[erb csv], %i[csv], %i[yml erb], %i[erb yml], %i[yml] ]
 
     # column set default value
     COMPLETER = {
@@ -113,16 +115,17 @@ module Flextures
     end
 
     def self.cache?(params)
-      if params.first.is_a?(Hash)
-        param = params.first
-        param[:cache] == true
-      end
+      return unless params.first.is_a?(Hash)
+
+      param = params.first
+      param[:cache] == true
     end
 
     # compare
     def equal_table_data?(src, dst)
       return false unless src.is_a?(Hash)
       return false unless dst.is_a?(Hash)
+
       (src.to_a - dst.to_a).empty?
     end
 
@@ -178,76 +181,83 @@ module Flextures
 
     # @return [Proc] order rule block (user Array#sort methd)
     def self.loading_order
-      ->(a,b){
+      ->(a,b) do
         a = Flextures::Configuration.table_load_order.index(a) || -1
         b = Flextures::Configuration.table_load_order.index(b) || -1
         b <=> a
-      }
+      end
     end
 
     # load fixture data
     # fixture file prefer YAML to CSV
     # @params [Hash] format file load format(table name, file name, options...)
     def self.load(format)
-      file_name, method = file_exist(format)
-      if method
-        send(method, format)
+      file_name, *exts = file_exist(format)
+      format[:erb] = exts.include?(:erb)
+      method = exts.detect { |k| [:csv, :yml].include?(k) }
+
+      return unless self.file_loadable?(format, file_name)
+
+      klass, filter = self.create_model_filter(format, file_name, method)
+
+      case method
+      when :csv
+        self.load_csv(format, klass, filter, file_name)
+      when :yml
+        self.load_yml(format, klass, filter, file_name)
       else
         puts "Warning: #{file_name} is not exist!" unless format[:silent]
       end
     end
 
-    # load CSV data
-    # @params [Hash] format file load format(table name, file name, options...)
-    def self.csv(format)
-      type = :csv
-      file_name, ext = file_exist(format, [type])
-      return unless self.file_loadable?(format, file_name)
-      klass, filter = self.create_model_filter(format, file_name, type)
-      self.load_csv(format, klass, filter, file_name)
-    end
-
-    # load YAML data
-    # @params [Hash] format file load format( table: name, file: name, options...)
-    def self.yml(format)
-      type = :yml
-      file_name, ext = file_exist(format, [type])
-
-      return unless self.file_loadable?(format, file_name)
-
-      klass, filter = self.create_model_filter(format, file_name, type)
-      self.load_yml(format, klass, filter, file_name)
+    def self.load_file(format, file_name)
+      file = nil
+      if format[:erb]
+        str = File.open(file_name){ |f| f.read }
+        file = ERB.new(str).result
+      else
+        file = File.open(file_name)
+      end
     end
 
     def self.load_csv(format, klass, filter, file_name)
-      attributes = klass.columns.map(&:name)
-      CSV.open(file_name) do |csv|
-        keys = csv.shift # active record column names
-        warning("CSV", attributes, keys) unless format[:silent]
-        ActiveRecord::Base.transaction do
-          csv.each do |rows|
-            h = values.to_hash(keys)
-            o = filter.call(h)
-            o.save(validation: false)
-          end
-        end
+      file = self.load_file(format, file_name)
+      CSV.open(file) do |csv|
+        self.load_csv_row(csv, format, klass, filter, file_name)
       end
       file_name
     end
 
-    def self.load_yml(format, klass, filter, file_name)
-      yaml = YAML.load(File.open(file_name))
-      return false unless yaml # if file is empty
+    def self.load_csv_row(csv, format, klass, filter, file_name)
       attributes = klass.columns.map(&:name)
+      keys = csv.shift # active record column names
 
-　　　　　ActiveRecord::Base.transaction do
-        yaml.each do |k,h|
-          warning("YAML", attributes, h.keys) unless format[:silent]
+      warning("CSV", attributes, keys) unless format[:silent]
+
+      ActiveRecord::Base.transaction do
+        csv.each do |values|
+          h = values.to_hash(keys)
           o = filter.call(h)
           o.save(validation: false)
         end
-　　　　　end
+      end
+    end
 
+    def self.load_yml(format, klass, filter, file_name)
+      file = self.load_file(format, file_name)
+      yaml = YAML.load(file)
+
+      return false unless yaml # if file is empty
+
+      attributes = klass.columns.map(&:name)
+      ActiveRecord::Base.transaction do
+        yaml.each do |k,h|
+          warning("YAML", attributes, h.keys) unless format[:silent]
+
+          o = filter.call(h)
+          o.save(validation: false)
+        end
+      end
       file_name
     end
 
@@ -278,6 +288,7 @@ module Flextures
     # return ["foo/bar/baz","foo/bar","foo",""]
     def self.stair_list(dir, stair=true)
       return [dir.to_s] unless stair
+
       l = []
       dir.to_s.split("/").reduce([]){ |a,d| a<< d; l.unshift(a.join("/")); a }
       l<< ""
@@ -293,10 +304,12 @@ module Flextures
       base_dir_name = Flextures::Configuration.load_directory
       self.stair_list(format[:dir], format[:stair]).each do |dir|
         file_path = File.join(base_dir_name, dir, file_name)
-        return ["#{file_path}.csv", :csv] if type.member?(:csv) and File.exist?("#{file_path}.csv")
-        return ["#{file_path}.yml", :yml] if type.member?(:yml) and File.exist?("#{file_path}.yml")
+        formats = FORMATS.select { |fmt| (type & fmt).present? }
+        formats.each do |fmt|
+          return ["#{file_path}.#{fmt.join('.')}", *fmt] if File.exist?("#{file_path}.#{fmt.join('.')}")
+        end
       end
-      [ File.join(base_dir_name, "#{file_name}.csv"), nil ]
+      ["#{File.join(base_dir_name, file_name)}.csv", nil]
     end
 
     # file load check
