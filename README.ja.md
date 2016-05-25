@@ -30,7 +30,12 @@ gem化されているので、bundlerで次のように記述して、普通にb
  gem "flextures"
 ```
 
-ちなみに開発環境はruby1.9以上のバージョン、rails3以上、もしくはPadrinoを想定しています
+```
+bundle install
+bundle exec rails generator flextures:initializer
+```
+
+ちなみに開発環境はruby2.1以上のバージョン、rails4以上を想定しています
 
 ## 使い方
 
@@ -102,7 +107,7 @@ end
 
 ```ruby
 describe ItemShopController do
-  flextures :items, :users => :users_for_itmshop # users_for_itemshop.csv をロードする
+  flextures :items, :users => :users_for_itemshop # users_for_itemshop.csv をロードする
 end
 ```
 
@@ -155,9 +160,7 @@ Flextures::DumpFilter.define :users, {
 
 ### 設定ファイル
 
-`config/flextures.config.rb`　で設定ファイルを作成すると、データをロード＆ダンプするディレクトリなどの設定を変更できます
-
-
+`config/initializers/flextures.rb`　で設定ファイルを作成すると、データをロード＆ダンプするディレクトリなどの設定を変更できます
 
 ```ruby
 Flextures.configure do |config|

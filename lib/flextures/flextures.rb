@@ -30,7 +30,7 @@ module Flextures
   def self.load_configurations
     if defined?(Rails) and Rails.root
       [
-        File.join( Rails.root.to_path,"/config/flextures.factory.rb" ),
+        File.join(Rails.root.to_path, "/config/flextures.factory.rb"),
       ].each { |fn| File.exist?(fn) && load(fn) }
     end
   end
@@ -38,7 +38,7 @@ module Flextures
   # @return [Array] flextures useable table names
   def self.deletable_tables
     tables = ActiveRecord::Base.connection.tables
-    Flextures::Configuration.ignore_tables.each { |name| tables.delete( name.to_s ) }
+    Flextures::Configuration.ignore_tables.each { |name| tables.delete(name.to_s) }
     tables
   end
 
@@ -95,7 +95,7 @@ module Flextures
 
       table_names = Flextures::deletable_tables.map{ |name| { table: name, file: name } } if table_names.empty?
 
-      # parse env["FIXTURES"] paameter
+      # parse env["FIXTURES"] parameter
       fixtures_args_parser = ->(s){
         names = s.split(',')
         if env["TABLE"] or env["T"] or env["MODEL"] or env["M"]
@@ -105,9 +105,9 @@ module Flextures
         end
       }
       # parse filename and define parameters.
-      table_names = fixtures_args_parser.call env["FIXTURES"] if env["FIXTURES"]
-      table_names = fixtures_args_parser.call env["FILE"]     if env["FILE"]
-      table_names = fixtures_args_parser.call env["F"]        if env["F"]
+      table_names = fixtures_args_parser.call(env["FIXTURES"]) if env["FIXTURES"]
+      table_names = fixtures_args_parser.call(env["FILE"])     if env["FILE"]
+      table_names = fixtures_args_parser.call(env["F"])        if env["F"]
 
       table_names = table_names.map{ |option| option.merge(dir: env["DIR"]) } if env["DIR"]
       table_names = table_names.map{ |option| option.merge(dir: env["D"])   } if env["D"]
@@ -127,8 +127,10 @@ module Flextures
 
     # check exist filename block
     def self.exist
-      return->(name){ File.exists?(File.join(Flextures::Configuration.load_directory, "#{name}.csv")) or
-                      File.exists?(File.join(Flextures::Configuration.load_directory, "#{name}.yml")) }
+      return ->(name) {
+        File.exist?(File.join(Flextures::Configuration.load_directory, "#{name}.csv")) or
+        File.exist?(File.join(Flextures::Configuration.load_directory, "#{name}.yml"))
+      }
     end
   end
 end

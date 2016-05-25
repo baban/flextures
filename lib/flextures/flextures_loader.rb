@@ -18,9 +18,9 @@ module Flextures
         # @return [Hash] tanslated Hash data
         def to_hash(keys)
           values = self
-          values = values[0..keys.size-1]               if keys.size < values.size
-          values = values+[nil]*(keys.size-values.size) if keys.size > values.size
-          [keys,values].transpose.reduce({}){ |h,pair| k,v=pair; h[k]=v; h }
+          values = values[0..keys.size-1]                   if keys.size < values.size
+          values = values + [nil] * (keys.size-values.size) if keys.size > values.size
+          [keys, values].transpose.reduce({}){ |h,(k,v)| h[k]=v; h }
         end
       end
     end
@@ -321,7 +321,7 @@ module Flextures
     end
 
     # print warinig message that lack or not exist colum names
-    def self.warning( format, attributes, keys )
+    def self.warning(format, attributes, keys)
       (attributes-keys).each { |name| puts "Warning: #{format} colum is missing! [#{name}]" }
       (keys-attributes).each { |name| puts "Warning: #{format} colum is left over! [#{name}]" }
     end
