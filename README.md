@@ -158,7 +158,7 @@ Other options please see [wiki](https://github.com/baban/flextures/wiki/Factoryf
 In `config/initializers/flextures.rb`, configuration file can change load and dump directory
 
 ```ruby
-Flextures.configure do |config|
+Flextures::Configuration.configure do |config|
   # Load and dump directory change "spec/fixtures/" to "test/fixtures/"
   config.load_directory = "test/fixtures/"
   config.dump_directory = "test/fixtures/"

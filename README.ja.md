@@ -163,7 +163,7 @@ Flextures::DumpFilter.define :users, {
 `config/initializers/flextures.rb`　で設定ファイルを作成すると、データをロード＆ダンプするディレクトリなどの設定を変更できます
 
 ```ruby
-Flextures.configure do |config|
+Flextures::Configuration.configure do |config|
   # Load and dump directory change "spec/fixtures/" to "test/fixtures/"
   config.load_directory = "test/fixtures/"
   config.dump_directory = "test/fixtures/"

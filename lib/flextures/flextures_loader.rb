@@ -3,7 +3,6 @@ require 'csv'
 require 'erb'
 
 require 'active_record'
-require 'activerecord-import'
 
 require 'flextures/flextures_base_config'
 require 'flextures/flextures'
