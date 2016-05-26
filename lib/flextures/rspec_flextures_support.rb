@@ -146,8 +146,15 @@ module ActiveRecord
       end
 
       def flextures_set_options(options)
-        @flextures_loader_options = get_or_initialize_flextures_loader_options
-        @flextures_loader_options = @flextures_loader_options.merge(options)
+        get_or_initialize_flextures_loader_options.merge!(options)
+      end
+
+      def flextures_instance
+        self
+      end
+
+      def flextures_options
+        @flextures_loader_options
       end
     end
   end

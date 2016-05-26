@@ -23,14 +23,23 @@ Major different point is four.
 ## How to install
 
 This program is implemented Rails Plug-in.
-You want to install this plug-in.
+If You want to install this plug-in.
 Please use bundler.
+
+In `Gemfile`
 
 ```
 gem "flextures"
 ```
 
-(Development emnvoriment must be ruby1.9 higer and rails3 higher)
+And execute below commands.
+
+```
+bundle install
+bundle exec rails generator flextures:initializer
+```
+
+(Development emnvoriment must be ruby2.1 higer and rails3 higher)
 
 ## How to use
 
@@ -82,6 +91,7 @@ Fixture load function implemented for Unittes Tools (for example, RSpec, Shoulda
 ```ruby
 describe ItemShopController do
   flextures :users, :items
+end
 ```
 
 flexture function can write like a "fixture" function, implemented in RSpec.
@@ -91,7 +101,8 @@ Flextures function can change load file name.
 
 ```ruby
 describe ItemShopController do
-  flextures :items, :users => :users_for_itmshop # load "users_for_itemshop.csv"
+  flextures :items, :users => :users_for_itemshop # load "users_for_itemshop.csv"
+end
 ```
 
 Other option information
@@ -147,7 +158,7 @@ Other options please see [wiki](https://github.com/baban/flextures/wiki/Factoryf
 In `config/initializers/flextures.rb`, configuration file can change load and dump directory
 
 ```ruby
-Flextures.configure do |config|
+Flextures::Configuration.configure do |config|
   # Load and dump directory change "spec/fixtures/" to "test/fixtures/"
   config.load_directory = "test/fixtures/"
   config.dump_directory = "test/fixtures/"

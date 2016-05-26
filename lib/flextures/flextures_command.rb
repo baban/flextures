@@ -2,7 +2,6 @@ require 'ostruct'
 require 'csv'
 
 require 'flextures/flextures_base_config'
-require 'flextures/flextures_extension_modules'
 require 'flextures/flextures'
 require 'flextures/flextures_factory'
 
@@ -11,7 +10,7 @@ module Flextures
     module Command
       def self.dump
         Flextures::load_configurations
-        table_names = Flextures::ARGS.parse
+        table_names = Flextures::ARGS.parse(ENV)
         puts "dumping..."
         case ENV["FORMAT"].to_s.to_sym
         when :yml,:yaml
@@ -25,7 +24,7 @@ module Flextures
 
       def self.load
         Flextures::load_configurations
-        table_names = Flextures::ARGS.parse
+        table_names = Flextures::ARGS.parse(ENV)
         Flextures::init_tables unless ENV["T"] or ENV["TABLE"] or ENV["M"] or ENV["MODEL"] or ENV["F"] or ENV["FIXTUES"]
         file_format = ENV["FORMAT"]
         puts "loading..."
@@ -42,7 +41,7 @@ module Flextures
       # load and dump data
       def self.generate
         Flextures::load_configurations
-        table_names = Flextures::ARGS.parse
+        table_names = Flextures::ARGS.parse(ENV)
         Flextures::init_tables unless ENV["T"] or ENV["TABLE"] or ENV["M"] or ENV["MODEL"] or ENV["F"] or ENV["FIXTUES"]
         file_format = ENV["FORMAT"]
         puts "generating..."
