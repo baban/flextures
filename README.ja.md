@@ -1,5 +1,8 @@
 # flextures
 
+![version](https://img.shields.io/badge/ruby-2.1-red.svg)
+![LGPL](https://img.shields.io/badge/licence-LGPL-blue.svg)
+
 * [ENGLISH DOCUMENT](https://github.com/baban/flextures/blob/master/README.md)
 
 ## Abstruct
@@ -171,3 +174,7 @@ end
 ```
 
 その他の情報は [Wiki:設定ファイルの書式について](https://github.com/baban/flextures/wiki/%E8%A8%AD%E5%AE%9A%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%81%AE%E6%9B%B8%E5%BC%8F%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)を参照して下さい
+
+## ライセンス
+
+このソフトウェアは [MIT ライセンス](http://www.opensource.org/licenses/MIT)によってライセンスされています。

@@ -166,3 +166,7 @@ end
 ```
 
 Other options please see [wiki](https://github.com/baban/flextures/wiki/Configuration-file) ...
+
+## Licence
+
+This software is released under the [MIT Licence](http://www.opensource.org/licenses/MIT).
