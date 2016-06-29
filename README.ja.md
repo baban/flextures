@@ -1,30 +1,59 @@
 # flextures
 
-![version](https://img.shields.io/badge/ruby-2.1-red.svg)
-![LGPL](https://img.shields.io/badge/licence-LGPL-blue.svg)
-
 * [ENGLISH DOCUMENT](https://github.com/baban/flextures/blob/master/README.md)
 
-## Abstruct
+![Ruby 2.1 higher](https://img.shields.io/badge/ruby-v2.1-red.svg)
+![Rails 4.0 higher](https://img.shields.io/badge/rails-v4.0-red.svg)
+![MIT Licence](https://img.shields.io/badge/licence-MIT-blue.svg)
 
-このplug-inは、これまで開発中で溜まっていた
-Rails標準のfixtureの不満点を解消するために作成しました
-基本的な操作は単純で次のコマンドで
-それぞれfixtureのロードとダンプを行います
+## 要約
+
+このplug-inは、これまで開発中で溜まっていた Rails標準のfixtureの不満点を解消するために作成しました。
+基本的な操作は単純で次のコマンドで、それぞれfixtureのロードとダンプを行います。
 
 ```
 rake db:flextures:load
 rake db:flextures:dump
 ```
 
-通常のfixtureとの主な違いは次の４点です
+また、rspecやminitest中でテストデータを読み込むのにも使用できます。
+
+```ruby
+describe ItemShopController do
+  flextures :users, :items
+end
+```
+
+通常のfixtureとの主な違いは次の４点です。
 
 1. yamlよりもcsvを優先する
 2. migrationでテーブル構成が変わっても、カラムの変更点を無視、補完してロードを行う
 3. テーブル名とfixtureのファイル名を一致させないでも、自由なロード＆ダンプが出来るオプション
 4. FactoyGirl風の読み込みフィルタで、Fixtureのデータを加工しながら読み込む事が出来る
 
-## インストール方法
+<a name="table_of_contents"></a>
+## 目次
+
+* [必要条件](#requirements)
+* [使い方](#usage)
+  * [インストール方法](#how_to_install)
+  * [rakeコマンドでの呼び出し方](#commandline_support)
+  * [ユニットテストでの使い方](#unittest_support)
+  * [読み込み・書き出しフィルター](#flextures_filter)
+  * [設定ファイル](#configuration)
+* [貢献](#contributing)
+* [ライセンス](#licence)
+
+<a name="requirements"></a>
+## 必要条件
+
+* ruby2.1以上
+
+<a name="usage"></a>
+## 使い方
+
+<a name="how_to_install"></a>
+### インストール方法
 
 RailsのPlug-inとして使われることを想定しています
 gem化されているので、bundlerで次のように記述して、普通にbundle install してください
@@ -38,10 +67,7 @@ bundle install
 bundle exec rails generator flextures:initializer
 ```
 
-ちなみに開発環境はruby2.1以上のバージョン、rails4以上を想定しています
-
-## 使い方
-
+<a name="commandline_support"></a>
 ### rakeコマンド
 
 次のコマンドで spec/fixtures/ 以下にあるfixtureのロード＆ダンプを行います
@@ -90,7 +116,8 @@ rake db:flextures:generate T=users
 
 さらに詳しい説明に関しては [Wiki:Rakeコマンドラインオプション](https://github.com/baban/flextures/wiki/Rake%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%82%AA%E3%83%97%E3%82%B7%E3%83%A7%E3%83%B3)を参照して下さい
 
-### Unit test flexture support
+<a name="unittest_support"></a>
+### ユニットテストでの使い方
 
 ユニットテスト中でデータの読み込みが行いたくなったときのために
 fixtureのロード機能を使えます
@@ -117,9 +144,10 @@ end
 その他現在はShouldからの呼び出しや様々なオプションを載せていますが
 さらに詳しい使い方に関しては [Wiki:Unit Test Supportの説明](https://github.com/baban/flextures/wiki/Unit-test-support%E3%81%AE%E8%AA%AC%E6%98%8E) を参照して下さい
 
-### Flextures load filter (and dump filter)
+<a name="flextures_filter"></a>
+### 読み込み・書き出しフィルター
 
-#### load filer
+#### 読み込みフィルター
 
 Railsのプロジェクトに `config/flextures.factory.rb` というファイルを作成して、そこにフィルタを記述することによって
 フィクスチャの読み込み時に、値を加工して読み込む事が可能になっています
@@ -148,7 +176,7 @@ end
 
 * [wiki:has_manyな感じのデータの精製法](https://github.com/baban/flextures/wiki/Has-many%E3%81%AA%E6%84%9F%E3%81%98%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E7%B2%BE%E8%A3%BD%E6%96%B9%E6%B3%95)
 
-#### dump filer
+#### 書き出しフィルター
 
 データのdump時に加工が必要になった時には、同じく`config/flextures.factory.rb`に
 テーブル名と、加工したい値をキーに、処理をラムダで渡してやることで可能です
@@ -161,6 +189,7 @@ Flextures::DumpFilter.define :users, {
 
 さらに細かい使い方に関しては [Wiki:FactoryFilterについて](https://github.com/baban/flextures/wiki/Factoryfilter%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6) を参照して下さい
 
+<a name="configuration"></a>
 ### 設定ファイル
 
 `config/initializers/flextures.rb`　で設定ファイルを作成すると、データをロード＆ダンプするディレクトリなどの設定を変更できます
@@ -175,6 +204,12 @@ end
 
 その他の情報は [Wiki:設定ファイルの書式について](https://github.com/baban/flextures/wiki/%E8%A8%AD%E5%AE%9A%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%81%AE%E6%9B%B8%E5%BC%8F%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)を参照して下さい
 
+<a name="contributing"></a>
+## 貢献
+
+https://github.com/baban/flextures/graphs/contributors
+
+<a name="licence"></a>
 ## ライセンス
 
 このソフトウェアは [MIT ライセンス](http://www.opensource.org/licenses/MIT)によってライセンスされています。

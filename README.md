@@ -2,7 +2,11 @@
 
 * [日本語版ドキュメント(Japanese Document)](https://github.com/baban/flextures/blob/master/README.ja.md)
 
-## Abstruct
+![Ruby 2.1 higher](https://img.shields.io/badge/ruby-v2.1-red.svg)
+![Rails 4.0 higher](https://img.shields.io/badge/rails-v4.0-red.svg)
+![MIT Licence](https://img.shields.io/badge/licence-MIT-blue.svg)
+
+## Description
 
 This plug-in aim to resolve many problems, durling rails developping about fixtures.
 Basic commands is simple.
@@ -20,6 +24,27 @@ Major different point is four.
 3. Fixture file name can change, if file name is not equal table name.
 4. Fixture data can translate to use filter, like factory girl.
 
+## Table of Contents
+
+* [Requirements](#requirements)
+* [Usage](#usage)
+  * [How to install](#how_to_install)
+  * [rake command](#commandline_support)
+  * [Unit test support](#unittest_support)
+  * [Flextures load & dump filter](#flextures_filter)
+  * [Configuration file](#configuration)
+* [Contributing](#contributing)
+* [License](#licence)
+
+<a name="requirements"></a>
+## Requirements
+
+* ruby2.1 higher
+
+<a name="usage"></a>
+## Usage
+
+<a name="how_to_install"></a>
 ## How to install
 
 This program is implemented Rails Plug-in.
@@ -41,8 +66,7 @@ bundle exec rails generator flextures:initializer
 
 (Development emnvoriment must be ruby2.1 higer and rails3 higher)
 
-## How to use
-
+<a name="commandline_support"></a>
 ### rake command
 
 load command input fixtures file under "spec/fixtures/".
@@ -84,7 +108,8 @@ rake db:flextures:generate T=users
 
 Other information please see [wiki](https://github.com/baban/flextures/wiki/Rake-command-option) ...
 
-### Unit test flexture support
+<a name="unittest_support"></a>
+### Unit test support
 
 Fixture load function implemented for Unittes Tools (for example, RSpec, Shoulda).
 
@@ -108,6 +133,7 @@ end
 Other option information
 Please see [wiki](https://github.com/baban/flextures/wiki/Unittestsupport) ...
 
+<a name="flextures_filter"></a>
 ### Flextures load & dump filter
 
 #### load filter
@@ -153,6 +179,7 @@ Flextures::DumpFilter.define :users, {
 
 Other options please see [wiki](https://github.com/baban/flextures/wiki/Factoryfilter) ...
 
+<a name="configuration"></a>
 ### Configuration file
 
 In `config/initializers/flextures.rb`, configuration file can change load and dump directory
@@ -167,6 +194,12 @@ end
 
 Other options please see [wiki](https://github.com/baban/flextures/wiki/Configuration-file) ...
 
+<a name="contributing"></a>
+## Contributing
+
+https://github.com/baban/flextures/graphs/contributors
+
+<a name="licence"></a>
 ## Licence
 
 This software is released under the [MIT Licence](http://www.opensource.org/licenses/MIT).
