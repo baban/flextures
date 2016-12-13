@@ -121,7 +121,7 @@ module ActiveRecord
       def loads_use_cache_fixtures(*fixtures)
         table_load_settings = Flextures::Loader.parse_flextures_options(flextures_loader_options, *fixtures)
 
-        if use_transactional_fixtures
+        if (respond_to?(:use_transactional_fixtures) && use_transactional_fixtures) || (respond_to?(:use_transactional_tests) && use_transactional_tests)
           PARENT.init_load_should_cache_fixtures(table_load_settings)
           before do
             load_not_cached_fixtures(table_load_settings)
