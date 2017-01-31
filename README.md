@@ -61,7 +61,7 @@ And execute below commands.
 
 ```
 bundle install
-bundle exec rails generator flextures:initializer
+bundle exec rails generate flextures:initializer
 ```
 
 (Development emnvoriment must be ruby2.1 higer and rails3 higher)
