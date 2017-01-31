@@ -64,7 +64,7 @@ gem化されているので、bundlerで次のように記述して、普通にb
 
 ```
 bundle install
-bundle exec rails generator flextures:initializer
+bundle exec rails generate flextures:initializer
 ```
 
 <a name="commandline_support"></a>

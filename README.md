@@ -20,7 +20,7 @@ rake db:flextures:dump
 Major different point is four.
 
 1. Fixture file prefered CSV to YAML.
-2. loading don't stop, if table columns are not match fixture file's column
+2. Even if, not match column's structure, loading don't stop and auto padding data.
 3. Fixture file name can change, if file name is not equal table name.
 4. Fixture data can translate to use filter, like factory girl.
 
@@ -61,7 +61,7 @@ And execute below commands.
 
 ```
 bundle install
-bundle exec rails generator flextures:initializer
+bundle exec rails generate flextures:initializer
 ```
 
 (Development emnvoriment must be ruby2.1 higer and rails3 higher)
