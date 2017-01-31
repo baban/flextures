@@ -7,5 +7,6 @@ require 'flextures/flextures_factory'
 require 'flextures/flextures_loader'
 require 'flextures/flextures_dumper'
 require 'flextures/flextures_command'
+require 'flextures/active_record_test_fixtures' if defined? ActiveRecord
 require 'flextures/flextures_railtie' if defined? Rails
 require 'flextures/rspec_flextures_support' if defined? RSpec

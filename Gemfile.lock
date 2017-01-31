@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    flextures (4.2.1)
+    flextures (4.2.2)
       activerecord
       activesupport
 
