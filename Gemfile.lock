@@ -51,5 +51,8 @@ DEPENDENCIES
   minitest-power_assert (= 0.0.3)
   rake
 
+RUBY VERSION
+   ruby 2.2.3p173
+
 BUNDLED WITH
-   1.11.2
+   1.14.3
