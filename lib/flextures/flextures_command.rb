@@ -30,9 +30,9 @@ module Flextures
         puts "loading..."
         case file_format.to_s.to_sym
         when :csv
-          table_names.map { |fmt| Flextures::Loader::csv(fmt) }
+          table_names.map { |fmt| Flextures::Loader::load(fmt, %i[csv]) }
         when :yml
-          table_names.map { |fmt| Flextures::Loader::yml(fmt) }
+          table_names.map { |fmt| Flextures::Loader::load(fmt, %i[yml]) }
         else
           table_names.map { |fmt| Flextures::Loader::load(fmt) }
         end
