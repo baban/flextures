@@ -191,9 +191,9 @@ module Flextures
     # fixture file prefer YAML to CSV
     # @params [Hash] format file load format(table name, file name, options...)
     def self.load(format, type = %i[csv yml])
-      file_name, *exts = file_exist(format)
+      file_name, *exts = file_exist(format, type)
       format[:erb] = exts.include?(:erb)
-      method = exts.find { |k| %i[csv yml].include?(k) }
+      method = exts.find { |k| type.include?(k) }
 
       return unless self.file_loadable?(format, file_name)
 

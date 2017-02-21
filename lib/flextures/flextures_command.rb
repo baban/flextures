@@ -14,11 +14,11 @@ module Flextures
         puts "dumping..."
         case ENV["FORMAT"].to_s.to_sym
         when :yml,:yaml
-          table_names.map { |fmt| Flextures::Dumper::yml(fmt) }
+          table_names.each { |fmt| Flextures::Dumper::yml(fmt) }
         when :csv
-          table_names.map { |fmt| Flextures::Dumper::csv(fmt) }
+          table_names.each { |fmt| Flextures::Dumper::csv(fmt) }
         else
-          table_names.map { |fmt| Flextures::Dumper::csv(fmt) }
+          table_names.each { |fmt| Flextures::Dumper::csv(fmt) }
         end
       end
 
@@ -30,11 +30,11 @@ module Flextures
         puts "loading..."
         case file_format.to_s.to_sym
         when :csv
-          table_names.map { |fmt| Flextures::Loader::load(fmt, %i[csv]) }
+          table_names.each { |fmt| Flextures::Loader::load(fmt, %i[csv]) }
         when :yml
-          table_names.map { |fmt| Flextures::Loader::load(fmt, %i[yml]) }
+          table_names.each { |fmt| Flextures::Loader::load(fmt, %i[yml]) }
         else
-          table_names.map { |fmt| Flextures::Loader::load(fmt) }
+          table_names.each { |fmt| Flextures::Loader::load(fmt) }
         end
       end
 
@@ -47,11 +47,20 @@ module Flextures
         puts "generating..."
         case file_format.to_s.to_sym
         when :yml
-          table_names.map { |fmt| Flextures::Loader::yml(fmt); Flextures::Dumper::yml(fmt) }
+          table_names.each do |fmt|
+            Flextures::Loader::load(fmt, %i[yml])
+            Flextures::Dumper::yml(fmt)
+          end
         when :csv
-          table_names.map { |fmt| Flextures::Loader::csv(fmt); Flextures::Dumper::csv(fmt) }
+          table_names.each do |fmt|
+            Flextures::Loader::load(fmt, %i[csv])
+            Flextures::Dumper::csv(fmt)
+          end
         else
-          table_names.map { |fmt| Flextures::Loader::csv(fmt); Flextures::Dumper::csv(fmt) }
+          table_names.each do |fmt|
+            Flextures::Loader::load(fmt)
+            Flextures::Dumper::csv(fmt)
+          end
         end
       end
     end
