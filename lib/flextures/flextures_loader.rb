@@ -237,7 +237,7 @@ module Flextures
         csv.each do |values|
           h = values.to_hash(keys)
           o = filter.call(h)
-          o.save(validation: false)
+          o.save(validate: false)
         end
       end
     end
@@ -254,7 +254,7 @@ module Flextures
           warning("YAML", attributes, h.keys) unless format[:silent]
 
           o = filter.call(h)
-          o.save(validation: false)
+          o.save(validate: false)
         end
       end
       file_name
