@@ -175,6 +175,11 @@ file is `config/flextures.factory.rb`
 Flextures::DumpFilter.define :users, {
   :encrypted_password => lambda { |v| Base64.encode64(v) }
 }
+
+# change enum data to integer(recommend it)
+Flextures::DumpFilter.define :articles, {
+  article_type: proc { |v| Article.article_type[v] }
+}
  ```
 
 Other options please see [wiki](https://github.com/baban/flextures/wiki/Factoryfilter) ...
