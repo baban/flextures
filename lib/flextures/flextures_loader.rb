@@ -25,6 +25,21 @@ module Flextures
     end
     using ArrayEx
 
+    module TableColumnEx
+      refine ActiveRecord::ConnectionAdapters::Column do
+        def translater(klass)
+          type_name = klass.defined_enums[name.to_s] ? :enum : type
+          TRANSLATER[type_name]
+        end
+
+        def completer(klass)
+          type_name = klass.defined_enums[name.to_s] ? :enum : type
+          COMPLETER[type_name]
+        end
+      end
+    end
+    using TableColumnEx
+
     PARENT = Flextures
     FORMATS = [ %i[csv erb], %i[erb csv], %i[csv], %i[yml erb], %i[erb yml], %i[yml] ]
 
@@ -93,6 +108,10 @@ module Flextures
         return nil if d==""
         DateTime.parse(d.to_s)
       },
+      enum:->(v){
+        return v.to_i if v.match(/^\d+$/)
+        v
+      }
     }
 
     def initialize(*_)
@@ -353,18 +372,23 @@ module Flextures
     # @return [Proc] translate filter
     def self.create_filter(klass, factory, filename, ext, options)
       columns = klass.columns
-      # data translat array to hash
+      # data translate array to hash
       column_hash = columns.reduce({}) { |h,col| h[col.name] = col; h }
-      lack_columns = columns.reject { |c| c.null and c.default }.map{ |o| o.name.to_sym }
-      # default value shound not be null columns
-      not_nullable_columns = columns.reject(&:null).map(&:name)
+      translaters = column_hash.reduce({}){ |h,(k,col)| h[k] = col.translater(klass); h }
       strict_filter = ->(o,h){
         # if value is not 'nil', value translate suitable form
-        h.each{ |k,v| v.nil? || o[k] = (TRANSLATER[column_hash[k].type] && TRANSLATER[column_hash[k].type].call(v)) }
+        h.each{ |k,v| v.nil? || o[k] = translaters[k]&.call(v) }
         # call FactoryFilter
         factory.call(*[o, filename, ext][0, factory.arity]) if factory and !options[:unfilter]
         o
       }
+
+      return strict_filter if options[:strict]==true
+
+      lack_columns = columns.reject { |c| c.null and c.default }.map{ |o| o.name.to_sym }
+      # default value shound not be null columns
+      not_nullable_columns = columns.reject(&:null).map(&:name)
+      completers = column_hash.reduce({}){ |h,(k,col)| h[k] = col.completer(klass); h }
       # receives hased data and translate ActiveRecord Model data
       # loose filter correct error values
       # strict filter don't correct errora values and raise error
@@ -374,12 +398,11 @@ module Flextures
         h.select! { |k,v| column_hash[k] }
         strict_filter.call(o,h)
         # set default value if value is 'nil'
-        not_nullable_columns.each { |k| o[k].nil? && o[k] = (column_hash[k] && COMPLETER[column_hash[k].type] && COMPLETER[column_hash[k].type].call) }
+        not_nullable_columns.each { |k| o[k].nil? && o[k] = completers[k]&.call }
         # fill span values if column is not exist
-        lack_columns.each { |k| o[k].nil? && o[k] = (column_hash[k] && COMPLETER[column_hash[k].type] && COMPLETER[column_hash[k].type].call) }
+        lack_columns.each { |k| o[k].nil? && o[k] = completers[k]&.call }
         o
       }
-      (options[:strict]==true) ? strict_filter : loose_filter
     end
   end
 end
