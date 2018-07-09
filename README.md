@@ -2,8 +2,8 @@
 
 * [日本語版ドキュメント(Japanese Document)](https://github.com/baban/flextures/blob/master/README.ja.md)
 
-![Ruby 2.1 higher](https://img.shields.io/badge/ruby-v2.1-red.svg)
-![Rails 4.0 higher](https://img.shields.io/badge/rails-v4.0-red.svg)
+![Ruby 2.3 higher](https://img.shields.io/badge/ruby-v2.3-red.svg)
+![Rails 4.2 higher](https://img.shields.io/badge/rails-v4.2-red.svg)
 ![MIT Licence](https://img.shields.io/badge/licence-MIT-blue.svg)
 
 ## Description
@@ -39,7 +39,7 @@ Major different point is four.
 <a name="requirements"></a>
 ## Requirements
 
-* ruby2.1 higher
+* ruby2.3 higher
 
 <a name="usage"></a>
 ## Usage
@@ -175,12 +175,7 @@ file is `config/flextures.factory.rb`
 Flextures::DumpFilter.define :users, {
   :encrypted_password => lambda { |v| Base64.encode64(v) }
 }
-
-# change enum data to integer(recommend it)
-Flextures::DumpFilter.define :articles, {
-  article_type: proc { |v| Article.article_type[v] }
-}
- ```
+```
 
 Other options please see [wiki](https://github.com/baban/flextures/wiki/Factoryfilter) ...
 

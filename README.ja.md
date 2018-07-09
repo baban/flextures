@@ -2,8 +2,8 @@
 
 * [ENGLISH DOCUMENT](https://github.com/baban/flextures/blob/master/README.md)
 
-![Ruby 2.1 higher](https://img.shields.io/badge/ruby-v2.1-red.svg)
-![Rails 4.0 higher](https://img.shields.io/badge/rails-v4.0-red.svg)
+![Ruby 2.3 higher](https://img.shields.io/badge/ruby-v2.3-red.svg)
+![Rails 4.2 higher](https://img.shields.io/badge/rails-v4.2-red.svg)
 ![MIT Licence](https://img.shields.io/badge/licence-MIT-blue.svg)
 
 ## 要約
@@ -47,7 +47,7 @@ end
 <a name="requirements"></a>
 ## 必要条件
 
-* ruby2.1以上
+* ruby2.3以上
 
 <a name="usage"></a>
 ## 使い方
