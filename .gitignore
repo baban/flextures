@@ -1,6 +1,8 @@
 # rcov generated
 coverage
 
+.ruby-version
+
 # rdoc generated
 rdoc
 
