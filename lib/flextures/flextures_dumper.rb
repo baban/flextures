@@ -146,6 +146,12 @@ module Flextures
           [proc { |d| d.to_s }]
         self.translate_creater d, procs
       },
+      enum:->( d, format ){
+        procs = (format == :yml) ?
+          [:blankstr, :nullstr, :ymlspecialstr] :
+          [:null, proc{ |s| s.to_s.gsub(/\r\n/,"\n").gsub(/\r/,"\n") } ]
+        self.translate_creater d, procs
+      },
       # use null only value
       null:->( d, format ){
         format==:yml ? "null" : ""
