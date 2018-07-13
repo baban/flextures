@@ -174,7 +174,10 @@ module Flextures
     # @params [Hash] options dump options
     # @return [Array] columns format information
     def self.dump_attributes(klass, options)
-      columns = klass.columns.map { |column| { name: column.name, type: column.type } }
+      columns = klass.columns.map do |column|
+        type_name = klass.defined_enums[column.name.to_s] ? :enum : column.type
+        { name: column.name, type: type_name }
+      end
       # option[:minus] colum is delete columns
       columns.reject! { |column| options[:minus].include?(column[:name]) } if options[:minus]
       # option[:plus] colum is new columns
