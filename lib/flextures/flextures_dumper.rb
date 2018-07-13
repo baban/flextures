@@ -164,8 +164,8 @@ module Flextures
     # @params [Symbol] format data type (:yml or :csv)
     # @return translated value
     def self.trans(v, type, format)
-      trans = TRANSLATER[type]
-      return trans.call(v, format) if trans
+      translater = TRANSLATER[type]
+      return translater.call(v, format) if translater
       v
     end
 
@@ -189,10 +189,10 @@ module Flextures
     # @params [Hash] options options
     # @params [Symbol] type format type (:yml or :csv)
     # @return [Proc] filter function
-    def self.create_filter(attr_type, format, type)
+    def self.create_filter(attr_types, format, type)
       filter = DumpFilter[format[:table].to_s.to_sym] || {}
       ->(row) {
-        attr_type.map do |h|
+        attr_types.map do |h|
           v = filter[h[:name].to_sym] ? filter[h[:name].to_sym].call(row[h[:name]]) : trans(row[h[:name]], h[:type], type)
           [h[:name],v]
         end
@@ -204,13 +204,13 @@ module Flextures
     # @params [Hash] options dump format options
     def self.csv(format)
       klass = PARENT.create_model(format[:table])
-      attr_type = self.dump_attributes klass, format
-      filter = self.create_filter attr_type, format, :csv
-      self.dump_csv klass, attr_type, filter, format
+      attr_types = self.dump_attributes klass, format
+      filter = self.create_filter attr_types, format, :csv
+      self.dump_csv klass, attr_types, filter, format
     end
 
     # dump csv format data
-    def self.dump_csv(klass, attr_type, values_filter, format)
+    def self.dump_csv(klass, attr_types, values_filter, format)
       # TODO: 拡張子は指定してもしなくても良いようにする
       file_name = format[:file] || format[:table]
       dir_name = File.join(Flextures::Configuration.dump_directory, format[:dir].to_s)
@@ -218,7 +218,7 @@ module Flextures
       outfile = File.join(dir_name, "#{file_name}.csv")
       CSV.open(outfile,'w') do |csv|
         # dump column names
-        csv<< attr_type.map { |h| h[:name].to_s }
+        csv<< attr_types.map { |h| h[:name].to_s }
         # dump column datas
         klass.all.each do |row|
           csv<< values_filter.call(row).map(&:last)
@@ -232,8 +232,8 @@ module Flextures
     # @params [Hash] options dump format options
     def self.yml(format)
       klass = PARENT::create_model(format[:table])
-      attr_type = self.dump_attributes klass, format
-      filter = self.create_filter attr_type, format, :yml
+      attr_types = self.dump_attributes klass, format
+      filter = self.create_filter attr_types, format, :yml
       self.dump_yml(klass, filter, format)
     end
 
