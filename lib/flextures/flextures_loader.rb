@@ -241,26 +241,18 @@ module Flextures
 
     def self.load_csv(format, klass, filter, file_name)
       file = self.load_file(format, file_name)
-      SmarterCSV.process(file.path) do |csv|
-        row = csv[0].values
-        self.load_csv_row(row, format, klass, filter, file_name)
-      end
-      file_name
-    end
-
-    def self.load_csv_row(csv, format, klass, filter, file_name)
       attributes = klass.columns.map(&:name)
-      keys = csv.shift # active record column names
-
-      warning("CSV", attributes, keys) unless format[:silent]
-
       ActiveRecord::Base.transaction do
-        csv.each do |values|
-          h = values.to_hash(keys)
+        csv = SmarterCSV.process(file.path)
+        keys = csv.first.keys.map(&:to_s)
+        warning("CSV", attributes, keys) unless format[:silent]
+        csv.each do |row|
+          h = row.reduce({}){ |h,(k,v)| h[k.to_s]=v; h }
           o = filter.call(h)
           o.save(validate: false)
         end
       end
+      file_name
     end
 
     def self.load_yml(format, klass, filter, file_name)

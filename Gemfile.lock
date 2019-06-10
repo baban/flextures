@@ -4,7 +4,7 @@ PATH
     flextures (4.3.0)
       activerecord
       activesupport
-      smarter_csv (= 1.2.6)
+      smarter_csv
 
 GEM
   remote: https://rubygems.org/
@@ -53,6 +53,7 @@ DEPENDENCIES
   minitest-line (= 0.6.2)
   minitest-power_assert (= 0.0.3)
   rake
+  smarter_csv
 
 RUBY VERSION
    ruby 2.6.0p-1

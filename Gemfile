@@ -6,6 +6,7 @@ ruby ">= 2.3.0"
 gemspec
 
 gem "minitest", "5.4.0"
+gem "smarter_csv"
 
 group :test do
   gem "minitest-line", "0.6.2"
