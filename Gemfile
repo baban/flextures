@@ -5,7 +5,6 @@ ruby ">= 2.3.0"
 # Specify your gem's dependencies in flextures.gemspec
 gemspec
 
-gem "smarter_csv", "1.2.6"
 gem "minitest", "5.4.0"
 
 group :test do
