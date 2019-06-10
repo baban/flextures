@@ -1,6 +1,7 @@
 require 'ostruct'
 require 'csv'
 require 'erb'
+require 'smarter_csv'
 
 require 'active_record'
 
@@ -240,8 +241,9 @@ module Flextures
 
     def self.load_csv(format, klass, filter, file_name)
       file = self.load_file(format, file_name)
-      CSV.open(file) do |csv|
-        self.load_csv_row(csv, format, klass, filter, file_name)
+      SmarterCSV.process(file.path) do |csv|
+        row = csv[0].values
+        self.load_csv_row(row, format, klass, filter, file_name)
       end
       file_name
     end
@@ -377,7 +379,7 @@ module Flextures
       translaters = column_hash.reduce({}){ |h,(k,col)| h[k] = col.translater(klass); h }
       strict_filter = ->(o,h){
         # if value is not 'nil', value translate suitable form
-        h.each{ |k,v| v.nil? || o[k] = translaters[k]&.call(v) }
+        h.each { |k,v| v.nil? || o[k] = translaters[k]&.call(v) }
         # call FactoryFilter
         factory.call(*[o, filename, ext][0, factory.arity]) if factory and !options[:unfilter]
         o
