@@ -2,6 +2,7 @@
 coverage
 
 .ruby-version
+.gem_rbs_collection/
 
 # rdoc generated
 rdoc
@@ -48,3 +49,6 @@ pkg
 
 # For rubinius:
 #*.rbc
+
+rbs_collection.lock.yaml
+
