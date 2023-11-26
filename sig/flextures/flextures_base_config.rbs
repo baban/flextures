@@ -1,0 +1,4 @@
+module Flextures
+  class Configuration
+  end
+end

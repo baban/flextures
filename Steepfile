@@ -3,6 +3,8 @@ D = Steep::Diagnostic
 target :lib do
   signature "sig"
 
+  check "lib/flextures/versions.rb"
+  check "lib/flextures/flextures_command.rb"
 #   check "lib"                       # Directory name
 #   check "Gemfile"                   # File name
 #   check "app/models/**/*.rb"        # Glob

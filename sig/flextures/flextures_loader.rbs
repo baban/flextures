@@ -1,0 +1,117 @@
+module Flextures
+  # data loader
+  class Loader
+    module ArrayEx
+    end
+
+    module TableColumnEx
+    end
+
+    PARENT: untyped
+
+    FORMATS: ::Array[::Array[:csv | :erb] | ::Array[:erb | :csv] | ::Array[:csv] | ::Array[:yml | :erb] | ::Array[:erb | :yml] | ::Array[:yml]]
+
+    # column set default value
+    COMPLETER: { binary: untyped, boolean: untyped, date: untyped, datetime: untyped, decimal: untyped, float: untyped, integer: untyped, string: untyped, text: untyped, time: untyped, timestamp: untyped }
+
+    # colum data translate
+    TRANSLATER: { binary: untyped, boolean: untyped, date: untyped, datetime: untyped, decimal: untyped, float: untyped, integer: untyped, string: untyped, text: untyped, time: untyped, timestamp: untyped, enum: untyped }
+
+    def initialize: (*untyped _) -> void
+
+    def loads: (*untyped fixtures) -> untyped
+
+    def load: (untyped params) -> untyped
+
+    def self.cache?: (untyped params) -> (nil | untyped)
+
+    # compare
+    def equal_table_data?: (untyped src, untyped dst) -> (false | untyped)
+
+    # called by Rspec or Should
+    # set options
+    # @params [Hash] options exmple : { cashe: true, dir: "models/users" }
+    def set_options: (untyped options) -> untyped
+
+    # called by Rspec or Should after filter
+    # reflesh options
+    def delete_options: () -> untyped
+
+    # return current option status
+    # @return [Hash] current option status
+    def flextures_options: () -> untyped
+
+    # parse flextures function arguments
+    # @params [Hash] fixtures function arguments
+    # @return [Array] formatted load options
+    def self.parse_flextures_options: (untyped base_options, *untyped fixtures) -> untyped
+
+    # load fixture datas
+    #
+    # example:
+    # flextures :all # load all table data
+    # flextures :users, :items # load table data, received arguments
+    # flextures :users => :users2 # :table_name => :file_name
+    #
+    # @params [Hash] fixtures load table data
+    def self.flextures: (*untyped fixtures) -> untyped
+
+    # @return [Proc] order rule block (user Array#sort methd)
+    def self.loading_order: () -> untyped
+
+    # load fixture data
+    # fixture file prefer YAML to CSV
+    # @params [Hash] format file load format(table name, file name, options...)
+    def self.load: (untyped format, ?::Array[untyped] type) -> (nil | untyped)
+
+    def self.load_file: (untyped format, untyped file_name) -> untyped
+
+    def self.load_csv: (untyped format, untyped klass, untyped filter, untyped file_name) -> untyped
+
+    def self.load_yml: (untyped format, untyped klass, untyped filter, untyped file_name) -> (false | untyped)
+
+    # if parameter include controller, action value
+    # load directroy is change
+    # spec/fixtures/:controller_name/:action_name/
+    # @return [String] directory path
+    def self.parse_controller_option: (untyped options) -> untyped
+
+    # if parameter include controller, action value
+    # load directroy is change
+    # spec/fixtures/:model_name/:method_name/
+    # @return [String] directory path
+    def self.parse_model_options: (untyped options) -> untyped
+
+    # example:
+    # self.create_stair_list("foo/bar/baz")
+    # return ["foo/bar/baz","foo/bar","foo",""]
+    def self.stair_list: (untyped dir, ?bool stair) -> (::Array[untyped] | untyped)
+
+    # parse format option and return load file info
+    # @param [Hash] format load file format informations
+    # @return [Array] [file_name, filt_type(:csv or :yml)]
+    def self.file_exist: (untyped format, ?::Array[untyped] type) -> (untyped | ::Array[::String | nil])
+
+    # file load check
+    # @return [Bool] lodable is 'true'
+    def self.file_loadable?: (untyped format, untyped file_name) -> (nil | true)
+
+    # print warinig message that lack or not exist colum names
+    def self.warning: (untyped format, untyped attributes, untyped keys) -> untyped
+
+    # create filter and table info
+    def self.create_model_filter: (untyped format, untyped file_name, untyped type) -> ::Array[untyped]
+
+    # return flextures data translate filter
+    # translate filter is some functions
+    # 1. column value is fill, if colum is not nullable
+    # 2. factory filter
+    # @params [ActiveRecord::Base] klass ActiveRecord model data
+    # @params [Proc] factory FactoryFilter
+    # @params [String] filename
+    # @params [Symbol] ext file type (:csv or :yml)
+    # @params [Hash] options other options
+    # @return [Proc] translate filter
+    def self.create_filter: (untyped klass, untyped factory, untyped filename, untyped ext, untyped options) -> untyped
+  end
+end

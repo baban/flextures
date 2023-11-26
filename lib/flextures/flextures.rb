@@ -1,5 +1,7 @@
 require "flextures/flextures_base_config"
 require "flextures/flextures_factory"
+require "flextures/flextures_loader"
+require "flextures/flextures_dumper"
 
 module Flextures
   # guessing ActiveRecord Model name by table_name and create

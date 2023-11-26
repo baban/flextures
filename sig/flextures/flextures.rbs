@@ -1,0 +1,32 @@
+module Flextures
+  # guessing ActiveRecord Model name by table_name and create
+  # @params [String|Symbol] table_name
+  # @params [ActiveRecord::Base] model class
+  def self.create_model: (untyped table_name) -> untyped
+
+  # load configuration file, if file is exist
+  def self.load_configurations: () -> (untyped | nil)
+
+  # @return [Array] flextures useable table names
+  def self.deletable_tables: () -> untyped
+
+  # initialize table data
+  def self.init_tables: () -> untyped
+
+  def self.delete_tables: (*untyped tables) -> untyped
+
+  # It is debug method to use like 'tab' method
+  # @params [Proc] dumper write dump information
+  def self.table_tap: () { () -> untyped } -> untyped
+
+  # parse arguments functions.
+  module ARGS
+    # parse rake ENV parameters
+    def self.parse: (?::Hash[untyped, untyped] env, ?::Hash[untyped, untyped] option) -> untyped
+
+    # check exist filename block
+    def self.exist: () -> untyped
+  end
+
+  ENV: ::Hash[String, untyped]
+end

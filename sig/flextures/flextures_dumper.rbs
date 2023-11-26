@@ -1,0 +1,7 @@
+
+module Flextures
+  module Dumper
+    def self.csv: (untyped) -> untyped
+    def self.yml: (untyped) -> untyped
+  end
+end

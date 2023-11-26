@@ -1,0 +1,8 @@
+# flextures function use like fixtures method in RSpec
+module RSpec
+  module Rails
+    module FlextureSupport
+      def self.init_tables: () -> (untyped | nil)
+    end
+  end
+end

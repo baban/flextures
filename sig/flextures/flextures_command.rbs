@@ -1,0 +1,12 @@
+module Flextures
+  module Rake
+    module Command
+      def self.dump: () -> untyped
+
+      def self.load: () -> untyped
+
+      # load and dump data
+      def self.generate: () -> untyped
+    end
+  end
+end
